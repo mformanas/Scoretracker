@@ -306,8 +306,8 @@ let state={names:ls.get('st-names',CFG.names||['Player 1','Player 2']),lowWins:C
 if(!Array.isArray(state.entries))state.entries=[];
 const CA='var(--a)',CB='var(--b)';
 const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],DAY=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-const ui={ctype:'line',view:'all',off:0,game:'',all:false,edit:null,mode:'pts'};
-try{const u=JSON.parse(localStorage.getItem('sk-ui')||'{}');if(u.mode)ui.mode=u.mode;if(u.ctype)ui.ctype=u.ctype}catch(e){}
+const ui={ctype:'line',view:'all',off:0,game:'',all:false,edit:null,mode:'hand'};
+try{const u=JSON.parse(localStorage.getItem('sk-ui')||'{}');if(u.ctype)ui.ctype=u.ctype}catch(e){}
 const saveUi=()=>{try{localStorage.setItem('sk-ui',JSON.stringify({view:ui.view,mode:ui.mode,ctype:ui.ctype}))}catch(e){}};
 const pad=n=>String(n).padStart(2,'0');
 const key=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
