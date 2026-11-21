@@ -61,7 +61,7 @@ function doPost(e) {
         if (!en) return json_({ ok: false, error: 'bad_entry' });
         const r = rowOf_(sh, en.id);
         if (r < 0) sh.appendRow(toRow_(en));
-        else sh.getRange(r, 1, 1, HEADERS.length).setValues([toRow_(en)]);
+        else sh.getRange(r, 1, 1, 5).setValues([toRow_(en).slice(0, 5)]); // keep the original logged_at
         break;
       }
       case 'delete': {
@@ -110,6 +110,7 @@ function read_() {
     g: String(r[2] || 'Rummy'),
     a: Number(r[3]) || 0,
     b: Number(r[4]) || 0,
+    t: r[5] instanceof Date ? r[5].getTime() : (Number(r[5]) || 0),
   }));
   return { names: [String(head[3] || 'Player 1'), String(head[4] || 'Player 2')], entries };
 }
@@ -118,11 +119,12 @@ function clean_(en) {
   if (!en || !en.id || !/^\d{4}-\d{2}-\d{2}$/.test(String(en.d))) return null;
   const a = Number(en.a), b = Number(en.b);
   if (!isFinite(a) || !isFinite(b)) return null;
-  return { id: String(en.id).slice(0, 40), d: String(en.d), g: String(en.g || 'Rummy').slice(0, 40), a, b };
+  const t = Number(en.t);
+  return { id: String(en.id).slice(0, 40), d: String(en.d), g: String(en.g || 'Rummy').slice(0, 40), a, b, t: t > 0 ? t : 0 };
 }
 
 function toRow_(en) {
-  return [en.id, en.d, en.g, en.a, en.b, new Date()];
+  return [en.id, en.d, en.g, en.a, en.b, en.t ? new Date(en.t) : new Date()];
 }
 
 function rowOf_(sh, id) {
