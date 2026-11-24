@@ -270,7 +270,7 @@ function pulse(s){const e=$(s);if(!e)return;e.animate([{transform:'scale(1)'},{t
 // ---- render ----
 function cardHTML(c,extra='',w,style='',tag='span'){const rk=R.NAMES[R.rank(c)]||R.rank(c),su=R.SYM[R.suit(c)];
   return`<${tag} ${tag==='button'?`type="button" aria-label="${lbl(c)}"`:''} class="card ${isRed(c)?'r':''} ${extra}" style="${w?`--cw:${w}px;`:''}${style}" data-c="${c}"><span class="ix">${rk}<i>${su}</i></span><span class="pip">${su}</span><span class="ix b">${rk}<i>${su}</i></span></${tag}>`}
-const backHTML=(p,w)=>`<span class="card back ${p?'k':''}" style="--s:'${SUITCH[p]}';${w?`--cw:${w}px`:''}"></span>`;
+const backHTML=(p,w)=>`<span class="card back k" style="--s:'✦';${w?`--cw:${w}px`:''}"></span>`;
 const MC=['#d9b25a','#7fd1a8','#8fb8ff','#f59fb6'];
 function ordKey(){return G?`rm-ord-${G.id}-${me}`:''}
 function myOrder(hand){const k=ordKey();let o=ls.get(k,null);
