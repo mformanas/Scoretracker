@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chess · Adda</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%2361c9a8'/%3E%3Ccircle cx='50' cy='34' r='16' fill='%23fffaf0' stroke='%232b2240' stroke-width='6'/%3E%3Cpath d='M36 84 Q38 60 44 50 L56 50 Q62 60 64 84 Z' fill='%23fffaf0' stroke='%232b2240' stroke-width='6'/%3E%3C/svg%3E">
+<script>document.write('<script src="../config.js?v='+Date.now()+'"><\/script>')</script>
+<script src="pieces.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap">
+<style>
+/* VOICE: a toy shelf of chess sets, "which board are we playing on?"
+   IDEA: every dashboard is a little chunky chessboard sticker with its two players' pieces peeking over the edge
+   COLOUR and TYPE: Adda candy palette, mint and cream checks, ink outlines and hard shadows; Fredoka and Nunito
+   LAYOUT: a shelf of boards, one empty dashed board to start a new one */
+:root{color-scheme:light dark;--bg:light-dark(#fff6e8,#1c1532);--dot:light-dark(#ffe0cb,#2c2350);--ink:light-dark(#2b2240,#fdf6ff);--mut:light-dark(#6b5f80,#c3b8db);--line:#2b2240;--sh:light-dark(#2b2240,#8c6ff0);
+  --pink:#ff5d8f;--sky:#4cc9f0;--mint:#3ddc97;--lemon:#ffd23f;--card:light-dark(#ffffff,#2a2148);--soft:light-dark(#fff3dc,#241c40)}
+*{box-sizing:border-box;min-width:0}[hidden]{display:none!important}
+body{margin:0;color:var(--ink);font:16px/1.5 Nunito,system-ui,sans-serif;background:radial-gradient(var(--dot) 2px,transparent 2.4px) 0 0/24px 24px,var(--bg);overflow-x:clip}
+button,input{font:inherit;color:inherit}button{cursor:pointer}
+:focus-visible{outline:3px solid var(--sky);outline-offset:3px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 max(4vw,16px)}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 0 0}
+.pill{display:inline-flex;align-items:center;min-height:40px;padding:0 16px;border-radius:999px;border:3px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font:600 15px Fredoka,sans-serif;box-shadow:3px 3px 0 var(--sh)}
+.word{padding-right:6px;font:700 34px/1 Fredoka,sans-serif;color:var(--mint);-webkit-text-stroke:3px var(--line);paint-order:stroke fill;text-shadow:4px 4px 0 var(--sh)}
+main{padding:34px 0 60px}
+.shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:44px 28px}
+.set{display:grid;gap:14px;animation:arrive .6s cubic-bezier(.3,1.4,.5,1) both;animation-delay:calc(var(--i,0) * 80ms)}
+@keyframes arrive{from{opacity:0;transform:translateY(24px) scale(.94)}}
+.set.gone{animation:leave .6s cubic-bezier(.5,0,.7,.4) forwards}
+@keyframes leave{to{opacity:0;transform:translateY(40px) rotate(8deg) scale(.7)}}
+.bd{position:relative;display:block;aspect-ratio:1.25/1;border-radius:26px;border:4px solid var(--line);box-shadow:7px 7px 0 var(--sh);text-decoration:none;color:#2b2240;overflow:visible;
+  background:repeating-conic-gradient(#7fcdb4 0 25%,#fff3dc 0 50%) 0 0/25% 25%;transition:transform .35s cubic-bezier(.3,1.6,.5,1)}
+.bd:hover{transform:translate(-3px,-5px) rotate(-1.5deg)}
+.bd:active{transform:translate(3px,3px)}
+.bd .nm{position:absolute;left:50%;top:-18px;translate:-50% 0;max-width:86%;padding:4px 16px;border-radius:999px;border:3px solid var(--line);background:var(--lemon);font:700 17px/1.3 Fredoka,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:3px 3px 0 var(--line);z-index:2}
+.side{position:absolute;bottom:14px;display:grid;justify-items:center;gap:0;width:44%;padding:8px 6px 8px;border-radius:18px;border:3px solid var(--line);background:var(--c);box-shadow:3px 3px 0 var(--line);text-align:center}
+.side.l{left:4%}.side.r{right:4%}
+.side svg.pc{width:52px;height:52px;margin-top:-34px;transition:transform .35s cubic-bezier(.3,1.8,.5,1)}
+.bd:hover .side.l svg.pc{transform:translateY(-8px) rotate(-10deg)}.bd:hover .side.r svg.pc{transform:translateY(-8px) rotate(10deg)}
+.side b{font:700 16px/1.2 Fredoka,sans-serif;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.side .p{font:700 30px/1 Fredoka,sans-serif;color:#fff;-webkit-text-stroke:2.5px var(--line);paint-order:stroke fill;text-shadow:3px 3px 0 var(--line)}
+.crown{position:absolute;top:-30px;right:-8px;width:32px;height:26px;rotate:18deg;filter:drop-shadow(2px 2px 0 var(--line));animation:wob 2.6s ease-in-out infinite}
+@keyframes wob{50%{transform:translateY(-3px) rotate(-10deg)}}
+.games{position:absolute;left:50%;top:30%;translate:-50% -50%;padding:3px 12px;border-radius:999px;border:3px solid var(--line);background:var(--card);color:var(--ink);font:600 14px Fredoka,sans-serif;white-space:nowrap}
+.under{display:flex;justify-content:center;gap:10px}
+.under a,.under button{display:inline-flex;align-items:center;gap:6px;min-height:42px;padding:0 16px;border-radius:999px;border:3px solid var(--line);background:var(--c,var(--card));color:var(--ink);font:600 15px Fredoka,sans-serif;text-decoration:none;box-shadow:3px 3px 0 var(--sh);transition:transform .2s cubic-bezier(.3,1.7,.5,1)}
+.under .c{color:#2b2240}
+.under a:hover,.under button:hover{transform:translate(-1px,-2px)}
+.under svg{width:16px;height:16px}
+.new{aspect-ratio:1.25/1;border-radius:26px;border:4px dashed var(--line);background:var(--card);display:grid;place-items:center;align-content:center;gap:6px;font:700 22px Fredoka,sans-serif;text-align:center;transition:transform .35s cubic-bezier(.3,1.6,.5,1);animation:arrive .6s cubic-bezier(.3,1.4,.5,1) both;animation-delay:calc(var(--i,0) * 80ms)}
+.new:hover{transform:translateY(-5px) rotate(1deg)}
+.new .plus{display:grid;place-items:center;width:62px;height:62px;border-radius:18px;border:3px solid var(--line);background:var(--mint);color:#2b2240;font:700 36px/1 Fredoka,sans-serif;box-shadow:3px 3px 0 var(--line);transition:transform .4s cubic-bezier(.3,1.7,.5,1)}
+.new:hover .plus{transform:rotate(90deg) scale(1.08)}
+.new small{font:700 14px Nunito,sans-serif;color:var(--mut)}
+.msg{text-align:center;color:var(--mut);font-weight:700}
+.modal{position:fixed;inset:0;z-index:40;background:rgb(28 21 50/.55);display:grid;place-items:center;padding:16px;animation:fade .15s;overflow:auto}
+@keyframes fade{from{opacity:0}}
+.box{width:min(440px,100%);background:var(--card);border:4px solid var(--line);border-radius:24px;padding:22px;box-shadow:7px 7px 0 var(--sh);animation:boxin .45s cubic-bezier(.3,1.6,.5,1)}
+@keyframes boxin{from{transform:translateY(30px) scale(.85) rotate(-4deg);opacity:0}}
+.box h3{margin:0 0 6px;font:700 24px/1.2 Fredoka,sans-serif}.box p{margin:0 0 14px;color:var(--mut);font-weight:700}
+form{display:grid;gap:12px}
+label{display:grid;gap:4px;font-size:14px;font-weight:800;color:var(--mut)}
+.box input{width:100%;min-height:48px;border:3px solid var(--line);border-radius:14px;padding:8px 12px;background:var(--soft);color:var(--ink)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.err{color:#e0244a;font-weight:800;font-size:14px;min-height:1.2em;margin:0}
+.row{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.btn{min-height:46px;padding:0 18px;border-radius:999px;border:3px solid var(--line);background:var(--c,var(--card));font:600 16px Fredoka,sans-serif;box-shadow:3px 3px 0 var(--sh)}
+.btn.c{color:#2b2240}.btn:disabled{opacity:.6}
+.bit{position:fixed;pointer-events:none;z-index:50;font:700 22px/1 Fredoka,sans-serif}
+@media(max-width:420px){.two{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap bar"><a class="pill" href="../">‹ Adda</a><span class="word">Chess</span></div>
+<main class="wrap"><div class="shelf" id="shelf"><p class="msg">Setting up the boards…</p></div></main>
+<div class="modal" id="ndlg" hidden role="dialog" aria-modal="true" aria-labelledby="nt"><div class="box">
+  <h3 id="nt">New chess board</h3><p>Two players. Colours swap every game.</p>
+  <form id="nf" autocomplete="off">
+    <div class="two"><label>Player 1<input id="p0" maxlength="24" required placeholder="Name"></label><label>Player 2<input id="p1" maxlength="24" required placeholder="Name"></label></div>
+    <label>Board name (optional)<input id="nm" maxlength="40" placeholder="e.g. Sunday showdown"></label>
+    <label>Passcode (at least 4 characters)<input id="pw" type="password" minlength="4" required autocomplete="new-password"></label>
+    <p class="err" id="err" role="alert"></p>
+    <div class="row"><button type="button" class="btn" id="ncancel">Cancel</button><button class="btn c" style="--c:var(--mint)" id="create">Set up the board</button></div>
+  </form></div></div>
+<div class="modal" id="ddlg" hidden role="dialog" aria-modal="true" aria-labelledby="dt"><div class="box">
+  <h3 id="dt">Delete this board?</h3><p id="dm"></p>
+  <form id="df" autocomplete="off"><label>Passcode<input id="dpw" type="password" required autocomplete="current-password"></label><p class="err" id="derr" role="alert"></p>
+    <div class="row"><button type="button" class="btn" id="dcancel">Keep it</button><button class="btn c" style="--c:var(--pink)" id="dgo">Delete board</button></div></form></div></div>
+<script>
+{
+const $=s=>document.querySelector(s);
+const ART=window.ChessArt,CFG=window.SCORE_CONFIG||{},API=(CFG.apiUrl||'').trim();
+const ls={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=n=>n%1?(Math.floor(n)?Math.floor(n):'')+'½':String(n);
+const BIN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>';
+const CROWN='<svg class="crown" viewBox="0 0 40 32" aria-hidden="true"><path d="M4 26L2 8l10 8 8-13 8 13 10-8-2 18z" fill="#ffd23f" stroke="#2b2240" stroke-width="3" stroke-linejoin="round"/></svg>';
+let boards=ls.get('adda-boards-chess',null);
+function setHTML(b,k){const u=encodeURIComponent(b.id),t=b.totals||[0,0],lead=!b.hands||t[0]===t[1]?-1:t[0]>t[1]?0:1;
+  const side=i=>`<span class="side ${i?'r':'l'}" style="--c:${i?'var(--sky)':'var(--pink)'}">${i===lead?CROWN:''}${ART.svg(i?'n':'q',i?'b':'w').replace('<svg','<svg class="pc"')}<b>${esc(b.players[i]||'')}</b><span class="p">${b.hands?fmt(t[i]||0):'–'}</span></span>`;
+  return`<article class="set" style="--i:${k}" data-id="${esc(b.id)}"><a class="bd" href="board.html?b=${u}" aria-label="Open ${esc(b.name)}"><span class="nm">${esc(b.name)}</span><span class="games">${b.hands?`${b.hands} game${b.hands===1?'':'s'}`:'Fresh board'}</span>${side(0)}${side(1)}</a>
+    <div class="under"><a href="board.html?b=${u}">Scores</a><a class="c" style="--c:var(--mint)" href="play.html?b=${u}">Play ♞</a><button data-del="${esc(b.id)}" aria-label="Delete ${esc(b.name)}">${BIN}</button></div></article>`}
+function show(list){$('#shelf').innerHTML=(list||[]).map(setHTML).join('')+`<button class="new" id="new" style="--i:${(list||[]).length}"><span class="plus" aria-hidden="true">+</span>New board<small>for 2 players</small></button>`;$('#new').onclick=openNew}
+if(Array.isArray(boards))show(boards);
+async function load(){if(!API){$('#shelf').innerHTML='<p class="msg">The Google Sheet isn’t connected yet.</p>';return}
+  try{const r=await fetch(API+(API.includes('?')?'&':'?')+'action=boards&game=chess&t='+Date.now()),j=await r.json();
+    if(j.ok){const same=JSON.stringify(j.boards)===JSON.stringify(boards);boards=j.boards;ls.set('adda-boards-chess',boards);if(!same)show(boards)}
+    else if(!Array.isArray(boards))show([])}
+  catch(e){if(!Array.isArray(boards))$('#shelf').innerHTML='<p class="msg">Couldn’t reach the Google Sheet. Try again in a moment.</p>'}}
+load();
+const post=b=>fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(b)}).then(r=>r.json());
+function burst(el){if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;const q=el.getBoundingClientRect();
+  for(let k=0;k<22;k++){const s=document.createElement('i');s.className='bit';s.textContent=['♞','♛','★','✦'][k%4];s.style.color=['#ff5d8f','#4cc9f0','#ffd23f','#3ddc97'][k%4];s.style.left=(q.left+q.width/2)+'px';s.style.top=(q.top+q.height/2)+'px';document.body.appendChild(s);
+    const a=Math.random()*Math.PI*2,v=60+Math.random()*120;s.animate([{transform:'translate(-50%,-50%) scale(.3)',opacity:1},{transform:`translate(calc(-50% + ${Math.cos(a)*v}px),calc(-50% + ${Math.sin(a)*v+60}px)) rotate(${Math.random()*540}deg)`,opacity:0}],{duration:900+Math.random()*500,easing:'cubic-bezier(.2,.7,.3,1)'}).onfinish=()=>s.remove()}}
+const ERR={same_names:'Each player needs a different name.',bad_players:'Add both players.',short_passcode:'The passcode needs at least 4 characters.',busy:'The sheet is busy, try again in a moment.',bad_game:'Chess isn’t switched on in the sheet yet.'};
+function openNew(){$('#err').textContent='';$('#ndlg').hidden=false;setTimeout(()=>$('#p0').focus(),40)}
+$('#ncancel').onclick=()=>{$('#ndlg').hidden=true};
+$('#nf').addEventListener('submit',async e=>{e.preventDefault();const players=['#p0','#p1'].map(s=>$(s).value.trim()),pass=$('#pw').value;
+  if(players.some(p=>!p)){$('#err').textContent=ERR.bad_players;return}
+  if(players[0].toLowerCase()===players[1].toLowerCase()){$('#err').textContent=ERR.same_names;return}
+  if(pass.length<4){$('#err').textContent=ERR.short_passcode;return}
+  if(!API){$('#err').textContent='Connect the Google Sheet first.';return}
+  $('#err').textContent='';const btn=$('#create');btn.disabled=true;btn.textContent='Placing the pieces…';
+  try{const j=await post({action:'board_create',game:'chess',name:$('#nm').value.trim(),players,passcode:pass});
+    if(!j.ok)throw new Error(ERR[j.error]||'Couldn’t create it, try again.');
+    ls.set('st-key-'+j.board.id,pass);ls.set('adda-board-'+j.board.id,j.board);burst(btn);setTimeout(()=>location.href='board.html?b='+encodeURIComponent(j.board.id),450)}
+  catch(err){$('#err').textContent=err.message&&!/fetch/i.test(err.message)?err.message:'Couldn’t reach the Google Sheet, try again.';btn.disabled=false;btn.textContent='Set up the board'}});
+let delId=null;
+$('#shelf').addEventListener('click',e=>{const d=e.target.closest('[data-del]');if(!d)return;const b=(boards||[]).find(x=>x.id===d.dataset.del);if(!b)return;delId=b.id;
+  $('#dt').textContent=`Delete ${b.name}?`;$('#dm').textContent=`It disappears from Adda for everyone. Its ${b.hands} game${b.hands===1?'':'s'} stay saved in the Google Sheet. Enter the board’s passcode to confirm.`;
+  $('#derr').textContent='';$('#dpw').value='';$('#ddlg').hidden=false;setTimeout(()=>$('#dpw').focus(),40)});
+$('#dcancel').onclick=()=>{$('#ddlg').hidden=true;delId=null};
+$('#df').addEventListener('submit',async e=>{e.preventDefault();if(!delId)return;const btn=$('#dgo');btn.disabled=true;btn.textContent='Deleting…';
+  try{const j=await post({action:'board_delete',board:delId,key:$('#dpw').value});
+    if(!j.ok){$('#derr').textContent=j.error==='bad_key'?'That passcode didn’t work.':'Couldn’t delete it, try again.';return}
+    const id=delId;$('#ddlg').hidden=true;delId=null;['st-key-','adda-board-','st-cache-','st-queue-','ch-me-'].forEach(p=>ls.del(p+id));
+    boards=boards.filter(x=>x.id!==id);ls.set('adda-boards-chess',boards);
+    const el=document.querySelector(`.set[data-id="${CSS.escape(id)}"]`);if(el){el.classList.add('gone');setTimeout(()=>show(boards),600)}else show(boards)}
+  catch(err){$('#derr').textContent='Couldn’t reach the Google Sheet, try again.'}
+  finally{btn.disabled=false;btn.textContent='Delete board'}});
+['#ndlg','#ddlg'].forEach(s=>$(s).addEventListener('click',e=>{if(e.target===$(s))$(s).hidden=true}));
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){$('#ndlg').hidden=true;$('#ddlg').hidden=true}});
+}
+</script>
+</body>
+</html>

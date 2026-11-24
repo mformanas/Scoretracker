@@ -13,6 +13,10 @@ Adda is a home for your game scoreboards. Each game has its own page (Rummy is t
 | `rummy/rummy.js` | Rummy rules |
 | `config.js` | The one setting: your Google Sheet web app link |
 | `apps-script/Code.gs` | The script that lets the site read and write the Google Sheet |
+| `chess/index.html` | Chess: all chess dashboards, new and delete |
+| `chess/board.html?b=<id>` | One chess dashboard: points (win 1, draw ½), streaks, the race chart, game history |
+| `chess/play.html?b=<id>` | Play chess on two phones (or both on one), with legal moves highlighted |
+| `chess/chess.js`, `chess/pieces.js` | Chess rules and the cute piece drawings |
 | `play.html` | Old link, now forwards to the Leah vs Manas table |
 
 ## How the Google Sheet is organised
@@ -22,7 +26,7 @@ The script creates and manages three tabs:
 | Tab | One row per | Columns |
 | --- | --- | --- |
 | **Boards** | dashboard | `board_id, game, name, player_1, player_2, player_3, low_wins, passcode_hash, created_at` |
-| **Scores** | hand, for every dashboard | `board_id, hand_id, date, player_1_score, player_2_score, player_3_score, logged_at` |
+| **Scores** | hand, for every dashboard | `board_id, hand_id, date, player_1_score, player_2_score, player_3_score, logged_at, note` |
 | **Live games** | dashboard with a phone game in progress | `board_id, state, version, updated_at` |
 
 - `board_id` links the tabs together. Filter **Scores** by `board_id` to see one dashboard.
