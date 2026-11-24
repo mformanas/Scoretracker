@@ -32,7 +32,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .pill{font-size:13px;font-weight:700;border-radius:999px;padding:4px 12px;background:rgb(0 0 0/.25)}
 .pill.go{background:var(--brass);color:#2b1d05}
 .backs{display:flex;justify-content:center;margin:10px 0 0;min-height:64px}
-.backs{padding-bottom:14px}.backs .card{margin-left:-30px;transform-origin:50% -110%;transform:rotate(var(--rot,0deg))}.backs .card:first-child{margin-left:0}
+.backs{padding-bottom:14px;cursor:pointer}.backs .card{margin-left:-30px;transform-origin:50% -110%;transform:rotate(var(--rot,0deg))}.backs .card:first-child{margin-left:0}
 .centre{flex:1;display:flex;justify-content:center;align-items:center;gap:clamp(24px,10vw,70px);margin:2px 0 0}
 .pile{display:grid;justify-items:center;gap:6px;background:none;border:0;padding:6px;border-radius:14px;color:#fff}
 .pile small{font-size:13px;color:var(--mut)}
@@ -246,17 +246,19 @@ function deal(){
 const clone=o=>JSON.parse(JSON.stringify(o));
 function myTurn(){return G&&G.status==='playing'&&G.turn===me}
 // cheeky "not so fast" when you tap the piles out of turn
-const NOPE={turn:o=>[`Patience, card shark`,`Nice try. It’s ${o}’s turn`,`Hands off, it’s ${o}’s turn`,`Eyes on your own cards!`,`Wait your turn, sneaky`,`No cheating at this table`,`${o} is thinking… shh`,`Nope. ${o} goes first`],
-  greedy:()=>[`One card per turn, greedy`,`Whoa there, one’s enough`,`Easy, card hoarder`,`Throw one away first`,`That’s not how Rummy works`,`Nice try. Discard first`]};
+const NOPE_LINES={"turn": ["Patience, card shark", "Nice try. It’s {o}’s turn", "Hands off, it’s {o}’s turn", "Eyes on your own cards!", "Wait your turn, sneaky", "No cheating at this table", "{o} is thinking… shh", "Nope. {o} goes first", "Sit on your hands for a sec", "Easy, speedy. Not yet", "The deck can wait. So can you", "Not your move, champ", "Ooh, so eager. Hold that thought", "Your turn is coming, promise", "Paws off the deck", "Slow down, it’s not a race", "Nice reflexes. Wrong turn", "Tick tock… still {o}’s turn", "Plotting already? Wait a moment", "Rules are rules, sneaky one", "I saw that", "Let {o} finish, will you?", "Waiting builds character", "The cards are not impressed"], "greedy": ["One card per turn, greedy", "Whoa there, one’s enough", "Easy, card hoarder", "Throw one away first", "That’s not how Rummy works", "Nice try. Discard first", "Your hand is already full", "Greedy much?", "One at a time, hungry hippo", "The deck said no", "Discard first, then we talk", "Eleven is plenty, trust me", "Save some cards for {o}", "Two cards? Bold strategy. Denied", "Put one back… I mean, throw one away", "Nope. Choose a card to toss", "Card collector spotted", "Ambitious. Also not allowed"], "peek": ["No peeking!", "Eyes on your own hand!", "Those are {o}’s secrets", "Nice try, spy", "Peeking is cheating, sneaky", "{o}’s cards are shy", "Look away, card detective", "Nothing to see here", "Hey! Private hand", "These cards don’t share", "Spying on {o}? Rude", "Close your eyes and count to ten", "No x-ray vision allowed", "Mind your own melds", "{o} caught you looking", "Curiosity killed the card shark", "Stop squinting at {o}’s cards", "Those are face down for a reason", "Tempting, isn’t it? Still no", "Psychic powers not permitted"]};
+const NOPE={turn:o=>NOPE_LINES.turn.map(s=>s.replaceAll('{o}',o)),greedy:o=>NOPE_LINES.greedy.map(s=>s.replaceAll('{o}',o)),peek:o=>NOPE_LINES.peek.map(s=>s.replaceAll('{o}',o))};
 let nopeAt=0;
 function nope(sel,kind){const now=Date.now();if(now-nopeAt<500)return;nopeAt=now;
   const pile=$(sel),card=pile.querySelector('.card'),r=pile.getBoundingClientRect(),opts=NOPE[kind](names[other(me)]),txt=opts[Math.floor(Math.random()*opts.length)];
   const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   if(!reduce){pile.animate([{transform:'translateX(0)'},{transform:'translateX(-9px) rotate(-4deg)'},{transform:'translateX(8px) rotate(3deg)'},{transform:'translateX(-6px) rotate(-2deg)'},{transform:'translateX(4px)'},{transform:'none'}],{duration:520,easing:'ease-out'});
-    if(card)card.animate([{transform:'none'},{transform:'translateY(-16px) rotate(6deg)'},{transform:'translateY(3px)'},{transform:'none'}],{duration:480,easing:'cubic-bezier(.3,1.6,.5,1)'})}
+    if(card&&kind!=='peek')card.animate([{transform:'none'},{transform:'translateY(-16px) rotate(6deg)'},{transform:'translateY(3px)'},{transform:'none'}],{duration:480,easing:'cubic-bezier(.3,1.6,.5,1)'})}
+  if(!reduce&&kind==='peek')pile.querySelectorAll('.card').forEach((c,i)=>{const rot=parseFloat(c.style.getPropertyValue('--rot'))||0;
+    c.animate([{transform:`rotate(${rot}deg)`},{transform:`rotate(0deg) translateY(-8px)`,offset:.35},{transform:`rotate(0deg) translateY(-8px)`,offset:.6},{transform:`rotate(${rot}deg)`}],{duration:900,delay:i*12,easing:'cubic-bezier(.3,1.4,.5,1)'})});
   try{navigator.vibrate&&navigator.vibrate([30,40,30])}catch(e){}
   document.querySelectorAll('.nopeb').forEach(x=>x.remove());
-  const b=document.createElement('div');b.className='nopeb';b.setAttribute('role','status');b.innerHTML=`<b class="nb-x">${kind==='turn'?'Hey!':'Psst!'}</b>${esc(txt)}`;
+  const b=document.createElement('div');b.className='nopeb';b.setAttribute('role','status');b.innerHTML=`<b class="nb-x">${kind==='turn'?'Hey!':kind==='peek'?'Oi!':'Psst!'}</b>${esc(txt)}`;
   b.style.left=Math.min(Math.max(r.left+r.width/2,110),innerWidth-110)+'px';b.style.top=(r.top-8)+'px';document.body.appendChild(b);
   if(reduce){setTimeout(()=>b.remove(),1800);return}
   b.animate([{transform:'translate(-50%,-80%) scale(.5) rotate(-6deg)',opacity:0},{transform:'translate(-50%,-100%) scale(1.08) rotate(2deg)',opacity:1,offset:.15},{transform:'translate(-50%,-100%) scale(1) rotate(0)',opacity:1,offset:.25},{transform:'translate(-50%,-100%)',opacity:1,offset:.8},{transform:'translate(-50%,-130%)',opacity:0}],{duration:2000,easing:'ease-out'}).onfinish=()=>b.remove()}
@@ -396,6 +398,7 @@ $('#sdlg').addEventListener('click',e=>{if(e.target===$('#sdlg'))$('#sdlg').hidd
 document.querySelectorAll('.seatbtn').forEach(b=>b.onclick=()=>{me=Number(b.dataset.me);ls.set('rm-me',me);render();load()});
 $('#seat').onclick=()=>{me=null;ls.set('rm-me',null);render()};
 $('#deal').onclick=deal;
+$('#backs').addEventListener('click',()=>{if(G&&G.status==='playing')nope('#backs','peek')});
 $('#deck').onclick=drawDeck;$('#disc').onclick=takeDisc;
 $('#hand').addEventListener('click',e=>{if(justDragged)return;const b=e.target.closest('[data-c]');if(!b)return;const c=b.dataset.c;
   if(myTurn()&&G.phase==='discard'){sel=sel===c?null:c}else{sel=sel===c?null:c}newCard=null;render()});
