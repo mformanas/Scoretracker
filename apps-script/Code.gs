@@ -53,14 +53,14 @@ function doPost(e) {
       case 'check':
         break;
       case 'game_put': {
-        const cur = readGame_();
+        const cur = readGame_(true);
         if (Number(body.ver) !== cur.ver) return json_({ ok: false, error: 'conflict', ...cur });
         const txt = JSON.stringify(body.game || null);
         if (txt.length > 45000) return json_({ ok: false, error: 'too_big' });
-        const gs = gameSheet_();
-        gs.getRange('A1:B1').setValues([[txt, cur.ver + 1]]);
-        SpreadsheetApp.flush();
-        return json_({ ok: true, ...readGame_() });
+        gameSheet_().getRange('A1:B1').setValues([[txt, cur.ver + 1]]);
+        const out = { game: body.game || null, ver: cur.ver + 1 };
+        try { CacheService.getScriptCache().put('game', JSON.stringify(out), 21600); } catch (e) {}
+        return json_({ ok: true, ...out });
       }
       case 'add': {
         const en = clean_(body.entry);
@@ -111,11 +111,20 @@ function gameSheet_() {
   return gs;
 }
 
-function readGame_() {
+// Reads come from a fast cache so both phones can check for moves often
+// without opening the spreadsheet; the sheet stays the permanent copy.
+function readGame_(fresh) {
+  const cache = CacheService.getScriptCache();
+  if (!fresh) {
+    const hit = cache.get('game');
+    if (hit) { try { return JSON.parse(hit); } catch (e) {} }
+  }
   const v = gameSheet_().getRange('A1:B1').getValues()[0];
   let game = null;
   try { game = JSON.parse(String(v[0] || 'null')); } catch (e) { game = null; }
-  return { game, ver: Number(v[1]) || 0 };
+  const out = { game, ver: Number(v[1]) || 0 };
+  try { cache.put('game', JSON.stringify(out), 21600); } catch (e) {}
+  return out;
 }
 
 function sheet_() {
