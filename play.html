@@ -183,7 +183,7 @@ button{font:inherit;color:inherit;cursor:pointer}
     </div>
     <div class="mine">
       <div class="bubble me" id="mesay" hidden></div>
-      <div class="mehead"><div class="who" id="myname" hidden></div><button class="say" id="say" aria-label="Send a message"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-7l-5 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z" fill="currentColor"/><path d="M12 13.2c-2.4-1.6-1.8-3.6 0-2.6 1.8-1 2.4 1 0 2.6z" fill="#cf1f33"/></svg><span>Tease</span></button><div class="arr" role="group" aria-label="Sort my hand"><button data-a="melds">Melds</button><button data-a="suit">Suit</button><button data-a="rank">Rank</button></div></div>
+      <div class="mehead"><div class="who" id="myname" hidden></div><button class="say" id="say" aria-label="Send a message"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-7l-5 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z" fill="currentColor"/></svg><span>Tease</span></button><div class="arr" role="group" aria-label="Sort my hand"><button data-a="melds">Melds</button><button data-a="suit">Suit</button><button data-a="rank">Rank</button></div></div>
       <div class="hand" id="hand"></div>
       <div class="info" id="info"></div>
       <div class="acts"><button class="btn rummy" id="rummy" disabled>Call Rummy!</button><button class="btn" id="discard" disabled>Discard</button></div>
@@ -348,7 +348,7 @@ function burst(big){if(matchMedia('(prefers-reduced-motion: reduce)').matches)re
 let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),3800)}
 
 // ---- cute messages ----
-const LINES=["Shuffle harder, I dare you ♠", "Is that a run or a cry for help?", "I can smell your leftover cards from here", "Take your time… I’m only aging", "That discard? Bold. Wrong, but bold.", "Rummy is coming. Brace yourself ♥", "You look cute when you’re losing", "Thanks for the card, very generous of you", "Plot twist incoming…", "Are you counting cards or sheep?", "I’d let you win, but where’s the fun in that?", "Good game! Same time tomorrow?", "Rematch? Loser makes the tea", "Your poker face needs work"];
+const LINES=["Shuffle harder, I dare you ♠", "Is that a run or a cry for help?", "I can smell your leftover cards from here", "Take your time… I’m only aging", "That discard? Bold. Wrong, but bold.", "Rummy is coming. Brace yourself", "You look cute when you’re losing", "Thanks for the card, very generous of you", "Plot twist incoming…", "Are you counting cards or sheep?", "I’d let you win, but where’s the fun in that?", "Good game! Same time tomorrow?", "Rematch? Loser makes the tea", "Your poker face needs work"];
 let seenChat=null;
 function bubble(el,txt){el.textContent=txt;el.hidden=false;el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');clearTimeout(el._t);el._t=setTimeout(()=>{el.hidden=true},6000)}
 function checkChat(g){const ch=(g&&g.chat)||[];const last=ch[ch.length-1];
@@ -357,7 +357,7 @@ function checkChat(g){const ch=(g&&g.chat)||[];const last=ch[ch.length-1];
   if(!fresh.length)return;seenChat=last.id;
   fresh.filter(m=>m.p!==me).slice(-1).forEach(m=>{bubble($('#themsay'),m.m);hearts($('#themsay'),m.p)})}
 function hearts(el,p){if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;const r=el.getBoundingClientRect();
-  for(let i=0;i<8;i++){const s=document.createElement('i');s.className='bit';s.textContent=p?'♠':'♥';s.style.color=p?'#fbf8f0':'#ff6b7a';s.style.fontSize=(12+Math.random()*10)+'px';s.style.left=(r.left+r.width*Math.random())+'px';s.style.top=(r.top+r.height/2)+'px';document.body.appendChild(s);
+  for(let i=0;i<8;i++){const s=document.createElement('i');s.className='bit';s.textContent='✦';s.style.color=Math.random()<.5?'#ffd75e':'#fbf8f0';s.style.fontSize=(10+Math.random()*10)+'px';s.style.left=(r.left+r.width*Math.random())+'px';s.style.top=(r.top+r.height/2)+'px';document.body.appendChild(s);
     s.animate([{transform:'translate(-50%,-50%) scale(.4)',opacity:1},{transform:`translate(calc(-50% + ${(Math.random()-.5)*60}px),calc(-50% - ${50+Math.random()*50}px)) scale(1.1)`,opacity:0}],{duration:1100+Math.random()*500,easing:'ease-out'}).onfinish=()=>s.remove()}}
 async function sendMsg(txt){txt=String(txt||'').trim().slice(0,80);if(!txt||!G)return;$('#sdlg').hidden=true;
   const msg={id:Date.now().toString(36)+Math.random().toString(36).slice(2,5),p:me,m:txt,t:Date.now()};
