@@ -89,6 +89,8 @@ button{font:inherit;color:inherit;cursor:pointer}
 @keyframes glow{50%{box-shadow:0 0 0 4px rgb(255 226 122/.5),0 0 30px rgb(255 210 60/.8)}}
 .btn:not(:disabled):active{transform:translateY(3px);box-shadow:0 1px 0 rgb(0 0 0/.25)}
 .start{margin:auto;text-align:center;display:grid;gap:14px;justify-items:center;padding:30px 0}
+.start.loading h2.swap{animation:swapin .4s cubic-bezier(.3,1.4,.5,1)}@keyframes swapin{from{transform:translateY(8px);opacity:0}}
+.start.loading::before{content:'♠ ♥ ♦ ♣';font:700 26px Georgia,serif;letter-spacing:.3em;color:var(--brass);animation:suits 1.2s ease-in-out infinite}@keyframes suits{50%{opacity:.35;transform:scale(.92)}}
 .start h2{margin:0;font:900 clamp(30px,6vw,44px)/1.05 'Playfair Display',Georgia,serif}
 .start p{margin:0;color:var(--mut);max-width:34em}
 .seats{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
@@ -308,13 +310,18 @@ function arranged(cards){
   a.melds.forEach((m,i)=>{R.sortCards(m.cards,m.type==='run'?'suit':'rank').forEach(c=>{order.push(c);groups[c]=i})});
   R.sortCards(a.deadwood,'suit').forEach(c=>order.push(c));return{order,groups,groups0:g0}}
 const PW=()=>innerHeight<620?44:innerHeight<760||innerWidth<600?68:84;
+const LOAD_LINES=[["Shuffling the deck…", "Riffle, bridge, repeat."], ["Dealing you in…", "Face down, no peeking."], ["Finding your seat…", "The chair with the best view of the discard pile."], ["Polishing the felt…", "Only the finest green for this table."], ["Counting to 52…", "Twice, just to be sure."], ["Cutting the deck…", "Somewhere lucky, hopefully."], ["Lining up the runs…", "Four in a row, if the cards allow."], ["Warming up the cards…", "Cold cards make bad hands."], ["Hiding the jokers…", "This table doesn’t use them anyway."], ["Setting out the discard pile…", "Someone’s about to regret a card."], ["Straightening the stack…", "Corners square, edges neat."], ["Checking for card sharks…", "Just the two of you. Good."]];
+let loadI=Math.floor(Math.random()*LOAD_LINES.length),loadT=null;
+function loadingLine(){const [a,b]=LOAD_LINES[loadI%LOAD_LINES.length];$('#lobby h2').textContent=a;$('#lobby p').textContent=b;$('#lobby').classList.add('loading');
+  if(!loadT)loadT=setInterval(()=>{if(loaded){clearInterval(loadT);loadT=null;$('#lobby').classList.remove('loading');return}loadI++;const h2=$('#lobby h2');h2.classList.remove('swap');void h2.offsetWidth;h2.classList.add('swap');loadingLine()},1800)}
 function render(){
   if(drag&&drag.on)return;
   $('#sn0').textContent=names[0];$('#sn1').textContent=names[1];
   const show=id=>['pick','lobby','table'].forEach(x=>$('#'+x).hidden=x!==id);
   if(me==null){show('pick');$('#seat').hidden=true;return}
   $('#seat').hidden=true;
-  if(API&&!loaded){show('lobby');$('#lobby h2').textContent='Loading your game…';$('#lobby p').textContent='Getting the table from your Google Sheet. This can take a few seconds.';$('#deal').hidden=true;$('#lobbynote').textContent='';return}
+  if(API&&!loaded){show('lobby');loadingLine();$('#deal').hidden=true;$('#lobbynote').textContent='';return}
+  $('#lobby').classList.remove('loading');
   if(!G){show('lobby');$('#lobby h2').textContent='Shuffle up and deal';$('#lobby p').textContent='10 cards each. Call Rummy with a run of 4 and two runs or sets of 3.';$('#deal').hidden=false;$('#lobbynote').textContent=API?'':'Connect the Google Sheet first (see README).';return}
   show('table');
   const o=other(me),hand=G.hands[me]||[],opp=G.hands[o]||[];
