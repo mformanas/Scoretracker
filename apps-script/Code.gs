@@ -50,6 +50,18 @@ function doPost(e) {
     switch (body.action) {
       case 'check':
         break;
+      case 'game_get':
+        return json_({ ok: true, ...readGame_() });
+      case 'game_put': {
+        const cur = readGame_();
+        if (Number(body.ver) !== cur.ver) return json_({ ok: false, error: 'conflict', ...cur });
+        const txt = JSON.stringify(body.game || null);
+        if (txt.length > 45000) return json_({ ok: false, error: 'too_big' });
+        const gs = gameSheet_();
+        gs.getRange('A1:B1').setValues([[txt, cur.ver + 1]]);
+        SpreadsheetApp.flush();
+        return json_({ ok: true, ...readGame_() });
+      }
       case 'add': {
         const en = clean_(body.entry);
         if (!en) return json_({ ok: false, error: 'bad_entry' });
@@ -86,6 +98,25 @@ function doPost(e) {
 }
 
 // ---------- helpers ----------
+
+// The digital game lives in its own tab: A1 = game state (JSON), B1 = version number.
+function gameSheet_() {
+  const ss = SpreadsheetApp.getActive();
+  let gs = ss.getSheetByName('Game');
+  if (!gs) {
+    gs = ss.insertSheet('Game');
+    gs.getRange('A1:B1').setValues([['null', 0]]);
+    gs.getRange('A1').setNumberFormat('@');
+  }
+  return gs;
+}
+
+function readGame_() {
+  const v = gameSheet_().getRange('A1:B1').getValues()[0];
+  let game = null;
+  try { game = JSON.parse(String(v[0] || 'null')); } catch (e) { game = null; }
+  return { game, ver: Number(v[1]) || 0 };
+}
 
 function sheet_() {
   const ss = SpreadsheetApp.getActive();

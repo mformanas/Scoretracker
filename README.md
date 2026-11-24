@@ -45,3 +45,13 @@ Open the site and log a hand. The first time on each phone or laptop, it asks fo
 - **Other devices:** they pick up new hands when you reopen or switch back to the tab, and every minute while it's open.
 - **Privacy:** anyone with the site link can *see* the scores. Only someone with the passcode can add, edit or delete hands.
 - **If you change `Code.gs` later:** go to **Deploy → Manage deployments**, click the pencil, choose **Version: New version** and **Deploy**. The URL stays the same.
+
+## Playing Rummy on your phones
+
+Tap **Play a game** on the scoreboard (or open `play.html`). Each of you opens it on your own phone and picks who you are once.
+
+- 10 cards each from one 52-card deck (no jokers; Ace is low, so A-2-3 but not Q-K-A).
+- On your turn, draw from the deck or take the top of the discard pile, then throw a card away.
+- **Call Rummy** when your 10 cards form a run of 4 plus two runs or sets of 3. The button lights up as soon as you can.
+- The other player counts their cards: with a run of 4, their other runs and sets don't count, only leftover cards; without a run of 4, every card counts. A = 1, J = 11, Q = 12, K = 13.
+- The game is stored in a **Game** tab in your Google Sheet and needs the same passcode. Digital games are kept separate from the scoreboard.

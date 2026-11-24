@@ -38,7 +38,7 @@ h2{font:700 22px/1.1 'Playfair Display',Georgia,serif}
 .nav strong{white-space:nowrap;padding:0 6px}
 .ghost,.top select{background:rgb(255 255 255/.14);border:1px solid rgb(255 255 255/.3);color:#fff;border-radius:12px;min-height:44px;padding:0 12px}
 .top select option{color:#14231b}
-.title{font:900 clamp(34px,4.6vw,48px)/1 'Playfair Display',Georgia,serif;color:var(--ivory);margin:0 auto 0 0;display:flex;align-items:baseline;gap:10px;text-shadow:0 2px 0 rgb(0 0 0/.25)}.title span{font:700 .42em/1 Georgia,serif;letter-spacing:.15em;color:var(--brass)}
+.title{font:900 clamp(34px,4.6vw,48px)/1 'Playfair Display',Georgia,serif;color:var(--ivory);margin:0 6px 0 0;display:flex;align-items:baseline;gap:10px;text-shadow:0 2px 0 rgb(0 0 0/.25)}.title span{font:700 .42em/1 Georgia,serif;letter-spacing:.15em;color:var(--brass)}
 @media(max-width:600px){.title{width:100%}}
 .top select{-webkit-appearance:none;appearance:none;padding:0 42px 0 14px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23fbf8f0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;background-size:12px 8px;cursor:pointer}
 .ghost[disabled]{opacity:.35;cursor:default}
@@ -238,6 +238,10 @@ tr.fresh td{animation:dealrow .6s cubic-bezier(.3,1.4,.5,1) both}
 @keyframes namehop{0%{transform:none}30%{transform:translateY(-8px) scale(1.15) rotate(-5deg)}55%{transform:translateY(0) scale(.95,1.05)}75%{transform:translateY(-3px) rotate(3deg)}100%{transform:none}}
 .swirl{position:fixed;pointer-events:none;z-index:8;font-family:Georgia,serif;font-style:normal;line-height:1;text-shadow:0 1px 2px rgb(0 0 0/.3)}
 @media(prefers-reduced-motion:reduce){.nmb.hop,.nmb:hover{animation:none;transform:none}}
+
+.playlink{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 16px;border-radius:999px;background:var(--brass);color:#2b1d05;font:700 15px Rubik,sans-serif;text-decoration:none;box-shadow:0 3px 0 rgb(0 0 0/.25);transition:transform .2s cubic-bezier(.3,1.6,.5,1);margin-right:auto}
+.playlink:hover{transform:translateY(-2px) rotate(-2deg)}
+.playlink b{font:700 16px Georgia,serif}
 </style>
 <script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script>
 </head>
@@ -246,7 +250,7 @@ tr.fresh td{animation:dealrow .6s cubic-bezier(.3,1.4,.5,1) both}
   <div class="wrap">
     <div class="row1" hidden><span><span id="status" class="status">Loading…</span> <button class="ghost" id="rename" style="margin-left:8px">Names &amp; rules</button></span></div>
     <form class="namef" id="nf" hidden><input id="n-a" aria-label="Player one name" maxlength="24"><input id="n-b" aria-label="Player two name" maxlength="24"><select id="n-r" aria-label="Who wins a hand" style="background:#fff;color:#16183a;border:0;border-radius:12px;min-height:44px;padding:0 10px"><option value="low">Lowest score wins</option><option value="high">Highest score wins</option></select><button>Save</button></form>
-    <div class="controls" style="margin-top:0"><h1 class="title">Rummy<span aria-hidden="true">♥♠</span></h1>
+    <div class="controls" style="margin-top:0"><h1 class="title">Rummy<span aria-hidden="true">♥♠</span></h1><a class="playlink" href="play.html">Play a game <b aria-hidden="true">♠</b></a>
       <div class="tabs" role="tablist" aria-label="Time period">
         <button role="tab" data-v="week">Week</button><button role="tab" data-v="month">Month</button><button role="tab" data-v="year">Year</button><button role="tab" data-v="all">All</button>
       </div>

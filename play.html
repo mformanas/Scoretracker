@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rummy table · Leah vs Manas</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%99%A0%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Rubik:wght@400;500;700&display=swap">
+<script>document.write('<script src="config.js?v='+Date.now()+'"><\/script>')</script>
+<script src="rummy.js"></script>
+<style>
+/* VOICE: a cosy two-player card table, playful but clear about whose turn it is
+   IDEA: the green felt of the scoreboard, now with a real deck, discard pile and your hand
+   PICTURE: your fanned hand along the bottom, the opponent's card backs at the top, deck and pile in the middle
+   COLOUR and TYPE: felt green, ivory cards, heart red, spade black, brass accents; Playfair indices, Rubik words
+   LAYOUT: one screen, phone first: opponent, table centre, prompt, your hand, actions */
+:root{--felt:#0f5a38;--felt2:#0b4a2e;--ivory:#fbf8f0;--brass:#d9b25a;--red:#cf1f33;--ink:#1b1b1d;--mut:rgb(255 255 255/.75)}
+*{box-sizing:border-box;min-width:0}[hidden]{display:none!important}
+html,body{margin:0;height:100%}
+body{font:16px/1.45 Rubik,system-ui,sans-serif;color:#fff;overflow-x:clip;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgb(255 255 255/.09),transparent 70%),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96'%3E%3Cg fill='%23ffffff' fill-opacity='.04' font-size='22' font-family='serif'%3E%3Ctext x='8' y='30'%3E%E2%99%A0%3C/text%3E%3Ctext x='56' y='30'%3E%E2%99%A5%3C/text%3E%3Ctext x='32' y='78'%3E%E2%99%A6%3C/text%3E%3Ctext x='80' y='78'%3E%E2%99%A3%3C/text%3E%3C/g%3E%3C/svg%3E"),var(--felt)}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--brass);outline-offset:2px}
+.app{max-width:900px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:max(12px,env(safe-area-inset-top)) 14px max(16px,env(safe-area-inset-bottom))}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.top a{color:#fff;text-decoration:none;font-weight:500;padding:10px 4px;min-height:44px;display:inline-flex;align-items:center}
+.top h1{margin:0;font:900 28px/1 'Playfair Display',Georgia,serif}
+.seat{background:rgb(0 0 0/.22);border:1px solid rgb(255 255 255/.25);border-radius:999px;padding:0 14px;min-height:40px;font-size:14px}
+.opp{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px}
+.who{font:700 20px/1.1 Rubik,sans-serif;display:flex;align-items:center;gap:8px}
+.who i{font:700 20px Georgia,serif;font-style:normal}
+.pill{font-size:13px;font-weight:700;border-radius:999px;padding:4px 12px;background:rgb(0 0 0/.25)}
+.pill.go{background:var(--brass);color:#2b1d05}
+.backs{display:flex;justify-content:center;margin:10px 0 0;min-height:64px}
+.backs .card{margin-left:-30px}.backs .card:first-child{margin-left:0}
+.centre{display:flex;justify-content:center;align-items:flex-start;gap:clamp(20px,8vw,60px);margin:clamp(14px,4vh,34px) 0 8px}
+.pile{display:grid;justify-items:center;gap:6px;background:none;border:0;padding:6px;border-radius:14px;color:#fff}
+.pile small{font-size:13px;color:var(--mut)}
+.pile.can .card{box-shadow:0 0 0 3px var(--brass),0 0 26px rgb(217 178 90/.7),0 8px 18px rgb(0 0 0/.35);animation:breathe 1.6s ease-in-out infinite}
+@keyframes breathe{50%{transform:translateY(-4px)}}
+.pile:disabled{cursor:default}
+.prompt{text-align:center;font:500 17px/1.35 Rubik,sans-serif;min-height:48px;margin:6px 0 4px;text-wrap:balance}
+.prompt b{color:var(--brass)}
+/* cards */
+.card{--w:var(--cw,64px);position:relative;display:inline-block;vertical-align:top;width:var(--w);height:calc(var(--w)*1.42);border-radius:calc(var(--w)*.11);background:var(--ivory);color:var(--ink);box-shadow:0 6px 14px rgb(0 0 0/.35),inset 0 0 0 1px rgb(0 0 0/.08);flex:none;user-select:none;-webkit-user-select:none}
+.card.r{color:var(--red)}
+.card .ix{position:absolute;top:calc(var(--w)*.07);left:calc(var(--w)*.09);display:flex;flex-direction:column;align-items:center;font:900 calc(var(--w)*.3)/1 'Playfair Display',Georgia,serif}
+.card .ix i{font:700 calc(var(--w)*.24)/1 Georgia,serif;font-style:normal}
+.card .ix.b{top:auto;left:auto;bottom:calc(var(--w)*.07);right:calc(var(--w)*.09);transform:rotate(180deg)}
+.card .pip{position:absolute;inset:0;display:grid;place-items:center;font:700 calc(var(--w)*.5)/1 Georgia,serif}
+.card.back{background:repeating-linear-gradient(45deg,#b3192b 0 5px,#cf2d40 5px 10px);box-shadow:0 6px 14px rgb(0 0 0/.35),inset 0 0 0 4px var(--ivory)}
+.card.back.k{background:repeating-linear-gradient(45deg,#1b1b1d 0 5px,#34343a 5px 10px)}
+.card.back::after{content:var(--s,'♥');position:absolute;inset:0;display:grid;place-items:center;color:var(--ivory);font:700 calc(var(--w)*.4) Georgia,serif}
+.card.empty{background:rgb(0 0 0/.2);box-shadow:inset 0 0 0 2px rgb(255 255 255/.25)}
+/* my hand */
+.mine{margin-top:auto;padding-top:10px}
+.mehead{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.arr{display:flex;background:rgb(0 0 0/.22);border-radius:999px;padding:3px}
+.arr button{border:0;background:none;border-radius:999px;padding:0 12px;min-height:34px;font-size:13px}
+.arr button[aria-pressed=true]{background:var(--ivory);color:#14231b}
+.hand{display:flex;justify-content:center;align-items:flex-end;padding:26px 0 8px;min-height:140px}
+.hand .card{transition:transform .2s cubic-bezier(.3,1.5,.5,1),margin .2s;cursor:pointer;border:0;padding:0}
+.hand .card:hover{transform:translateY(-8px)}
+.hand .card.sel{transform:translateY(-22px);box-shadow:0 0 0 3px var(--brass),0 12px 20px rgb(0 0 0/.4)}
+.hand .card.meld::before{content:'';position:absolute;left:12%;right:12%;bottom:-9px;height:4px;border-radius:2px;background:var(--mc,var(--brass))}
+.hand .card.new{animation:newcard .6s cubic-bezier(.3,1.5,.5,1)}
+@keyframes newcard{0%{transform:translateY(-60px) scale(.8);opacity:0}100%{transform:none;opacity:1}}
+.hand .card.deal{animation:dealin .45s cubic-bezier(.3,1.4,.5,1) both}
+@keyframes dealin{0%{transform:translateY(-200px) rotate(-30deg) scale(.6);opacity:0}100%{transform:none;opacity:1}}
+.info{text-align:center;font-size:14px;color:var(--mut);min-height:22px}
+.info b{color:#fff}
+.acts{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin-top:10px}
+.btn{min-height:52px;border-radius:14px;border:0;font:700 18px/1 'Playfair Display',Georgia,serif;background:var(--ivory);color:#14231b;box-shadow:0 4px 0 rgb(0 0 0/.25)}
+.btn:disabled{opacity:.4;cursor:default}
+.btn.rummy{background:var(--brass);color:#2b1d05}
+.btn.rummy:not(:disabled){animation:glow 1.4s ease-in-out infinite}
+@keyframes glow{50%{box-shadow:0 0 0 4px rgb(255 226 122/.5),0 0 30px rgb(255 210 60/.8)}}
+.btn:not(:disabled):active{transform:translateY(3px);box-shadow:0 1px 0 rgb(0 0 0/.25)}
+.start{margin:auto;text-align:center;display:grid;gap:14px;justify-items:center;padding:30px 0}
+.start h2{margin:0;font:900 clamp(30px,6vw,44px)/1.05 'Playfair Display',Georgia,serif}
+.start p{margin:0;color:var(--mut);max-width:34em}
+.seats{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.seatbtn{width:150px;min-height:120px;border-radius:16px;border:0;background:var(--ivory);color:var(--red);display:grid;place-items:center;gap:4px;padding:16px;font:900 24px 'Playfair Display',Georgia,serif;box-shadow:0 8px 20px rgb(0 0 0/.3)}
+.seatbtn i{font:700 40px/1 Georgia,serif;font-style:normal}
+.seatbtn.k{color:var(--ink)}
+.big{min-width:220px;padding:0 26px}
+/* modal + toast */
+.modal{position:fixed;inset:0;background:rgb(6 20 13/.7);display:grid;place-items:center;padding:16px;z-index:9}
+.box{background:var(--ivory);color:#14231b;border-radius:18px;padding:24px;width:min(560px,100%);max-height:92vh;overflow:auto;box-shadow:0 24px 60px rgb(0 0 0/.5);animation:pop .35s cubic-bezier(.3,1.4,.5,1)}
+@keyframes pop{from{transform:scale(.9) rotate(-2deg);opacity:0}}
+.box h3{margin:0 0 6px;font:900 28px/1.1 'Playfair Display',Georgia,serif}
+.box p{margin:0 0 14px;color:#4b5563}
+.box input{width:100%;min-height:48px;border-radius:12px;border:2px solid #ddd;padding:0 12px;font-size:16px;margin-bottom:14px}
+.row{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.row .btn{min-width:120px;padding:0 18px;font-size:16px;background:#fff;border:1px solid #ddd}
+.row .btn.prim{background:var(--felt);color:#fff;border-color:var(--felt)}
+.res{display:grid;gap:14px;margin:10px 0 16px}
+.res h4{margin:0 0 6px;font:700 17px Rubik,sans-serif;display:flex;justify-content:space-between}
+.res h4 b{font:900 22px 'Playfair Display',Georgia,serif}
+.lay{display:flex;flex-wrap:wrap;gap:10px}
+.grp{display:flex;padding:6px;border-radius:10px;background:#efe9da}.grp .card{--cw:40px;margin-left:-14px}.grp .card:first-child{margin-left:0}
+.grp.dead{background:#fde8ea}
+.grp small{display:block}
+.tally{font-size:14px;color:#4b5563;text-align:center;margin-bottom:12px}
+.toast{position:fixed;left:50%;bottom:max(20px,env(safe-area-inset-bottom));transform:translate(-50%,160%);background:var(--ivory);color:#14231b;border-radius:14px;padding:10px 16px;box-shadow:0 12px 28px rgb(0 0 0/.35);transition:transform .25s;z-index:10;max-width:calc(100vw - 28px);text-align:center}
+.toast.on{transform:translate(-50%,0)}
+.bit{position:fixed;font:700 22px/1 Georgia,serif;pointer-events:none;z-index:11}
+.foot{text-align:center;font-size:13px;color:var(--mut);margin-top:12px}
+.foot button{background:none;border:0;color:#fff;text-decoration:underline;font-size:13px;padding:6px}
+@media(max-width:600px){.top h1{font-size:22px}.who{font-size:17px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="top">
+    <a href="./">← Scoreboard</a>
+    <h1>Rummy table</h1>
+    <button class="seat" id="seat" hidden></button>
+  </div>
+
+  <!-- choose seat -->
+  <section class="start" id="pick" hidden>
+    <h2>Who's playing on this phone?</h2>
+    <p>Each of you opens this page on your own phone. Your cards stay on your screen.</p>
+    <div class="seats"><button class="seatbtn" data-me="0"><i>♥</i><span id="sn0">Leah</span></button><button class="seatbtn k" data-me="1"><i>♠</i><span id="sn1">Manas</span></button></div>
+  </section>
+
+  <!-- no game yet -->
+  <section class="start" id="lobby" hidden>
+    <h2>Shuffle up and deal</h2>
+    <p>10 cards each. Call Rummy with a run of 4 and two runs or sets of 3.</p>
+    <button class="btn big" id="deal">Deal a new game</button>
+    <p id="lobbynote"></p>
+  </section>
+
+  <!-- table -->
+  <section id="table" hidden style="display:flex;flex-direction:column;flex:1">
+    <div class="opp"><div class="who" id="oppname"></div><span class="pill" id="opppill"></span></div>
+    <div class="backs" id="backs"></div>
+    <div class="centre">
+      <button class="pile" id="deck" aria-label="Draw from the deck"><span id="deckcard"></span><small id="deckn"></small></button>
+      <button class="pile" id="disc" aria-label="Take the top card of the discard pile"><span id="disccard"></span><small>Discard pile</small></button>
+    </div>
+    <div class="prompt" id="prompt" aria-live="polite"></div>
+    <div class="mine">
+      <div class="mehead"><div class="who" id="myname"></div><div class="arr" role="group" aria-label="Arrange my hand"><button data-a="melds">Melds</button><button data-a="suit">Suit</button><button data-a="rank">Rank</button></div></div>
+      <div class="hand" id="hand"></div>
+      <div class="info" id="info"></div>
+      <div class="acts"><button class="btn" id="discard" disabled>Discard</button><button class="btn rummy" id="rummy" disabled>Call Rummy!</button></div>
+      <div class="foot"><span id="sync"></span> · <button id="newgame">New game</button></div>
+    </div>
+  </section>
+</div>
+
+<div class="modal" id="kdlg" hidden role="dialog" aria-modal="true" aria-labelledby="kt"><form class="box" id="kform"><h3 id="kt">Passcode</h3><p>Enter your scoreboard passcode once on this phone to play.</p><input id="kin" type="password" autocomplete="current-password" aria-label="Passcode"><div class="row"><button class="btn prim">Save passcode</button></div></form></div>
+<div class="modal" id="rdlg" hidden role="dialog" aria-modal="true" aria-labelledby="rt"><div class="box"><h3 id="rt"></h3><p id="rp"></p><div class="res" id="rres"></div><div class="tally" id="rtally"></div><div class="row"><button class="btn" id="rclose">Look at the table</button><button class="btn prim" id="ragain">Deal next game</button></div></div></div>
+<div class="modal" id="ndlg" hidden role="dialog" aria-modal="true" aria-labelledby="nt"><div class="box"><h3 id="nt">Start a new game?</h3><p>The game in progress will be thrown away for both of you.</p><div class="row"><button class="btn" id="nno">Keep playing</button><button class="btn prim" id="nyes">Deal new game</button></div></div></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+{
+const $=s=>document.querySelector(s);
+const R=window.Rummy,CFG=window.SCORE_CONFIG||{},API=(CFG.apiUrl||'').trim();
+const ls={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let names=ls.get('st-names',CFG.names||['Leah','Manas']),me=ls.get('rm-me',null),G=null,ver=0,busy=false,sel=null,arrange=ls.get('rm-arr','melds'),lastSeen=null,dealt=false,newCard=null,resultShown=null;
+const SUITCH=['♥','♠'],other=p=>1-p,lbl=R.label,isRed=c=>/[HD]$/.test(c);
+
+// ---- server ----
+async function post(body){const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({...body,key:ls.get('st-key','')})});return r.json()}
+function needKey(){if(!ls.get('st-key','')){$('#kdlg').hidden=false;setTimeout(()=>$('#kin').focus(),30);return true}return false}
+$('#kform').addEventListener('submit',e=>{e.preventDefault();const k=$('#kin').value.trim();if(!k)return;ls.set('st-key',k);$('#kdlg').hidden=true;load()});
+async function load(){
+  if(!API){$('#sync').textContent='Not connected to the Google Sheet';render();return}
+  if(needKey()||busy)return;
+  try{const j=await post({action:'game_get'});
+    if(!j.ok){if(j.error==='bad_key'){ls.set('st-key','');needKey();toast('That passcode didn’t work')}return}
+    if(j.ver!==ver||!G){const prev=G;G=j.game;ver=j.ver;announce(prev,G);render()}
+    $('#sync').textContent='Connected';
+  }catch(e){$('#sync').textContent='Offline, retrying…'}}
+async function save(next){
+  if(needKey())return false;busy=true;const prev=G;G=next;render();
+  try{const j=await post({action:'game_put',game:next,ver});busy=false;
+    if(j.ok){ver=j.ver;G=j.game;announce(prev,G);render();return true}
+    if(j.error==='conflict'){G=j.game;ver=j.ver;render();toast('The other phone moved first, here’s the latest table');return false}
+    if(j.error==='bad_key'){ls.set('st-key','');needKey()}
+    G=prev;render();toast('Couldn’t save that move');return false
+  }catch(e){busy=false;G=prev;render();toast('No connection, try that move again');return false}}
+
+// ---- game actions ----
+function deal(){
+  const starter=G&&G.starter!=null?other(G.starter):0;
+  const deck=R.shuffle(R.newDeck()),hands=[deck.splice(-10),deck.splice(-10)],discard=[deck.pop()];
+  const tally=(G&&G.tally)||[0,0];
+  dealt=true;sel=null;
+  save({id:Date.now().toString(36),status:'playing',deck,discard,hands,turn:starter,phase:'draw',starter,last:{p:null,act:'deal'},tally,names,moves:0})}
+const clone=o=>JSON.parse(JSON.stringify(o));
+function myTurn(){return G&&G.status==='playing'&&G.turn===me}
+function drawDeck(){if(!myTurn()||G.phase!=='draw')return;const g=clone(G);
+  if(!g.deck.length){const top=g.discard.pop();g.deck=R.shuffle(g.discard);g.discard=[top];toast('Deck ran out, the discard pile was shuffled in')}
+  const c=g.deck.pop();g.hands[me].push(c);g.phase='discard';g.last={p:me,act:'draw'};g.moves++;newCard=c;sel=null;save(g)}
+function takeDisc(){if(!myTurn()||G.phase!=='draw'||!G.discard.length)return;const g=clone(G);
+  const c=g.discard.pop();g.hands[me].push(c);g.phase='discard';g.last={p:me,act:'take',card:c};g.moves++;newCard=c;sel=null;save(g)}
+function discard(){if(!myTurn()||G.phase!=='discard'||!sel)return;const g=clone(G);
+  g.hands[me]=g.hands[me].filter(c=>c!==sel);g.discard.push(sel);g.last={...g.last,p:me,act:g.last&&g.last.p===me?g.last.act:'draw',threw:sel};
+  g.turn=other(me);g.phase='draw';g.moves++;const s=sel;sel=null;newCard=null;save(g).then(ok=>{if(ok)toast(`You threw away ${lbl(s)}`)})}
+function callRummy(){if(!myTurn()||G.phase!=='discard')return;const opts=R.rummyDiscards(G.hands[me]);if(!opts.length)return;
+  const out=opts.includes(sel)?sel:opts[0];const g=clone(G);
+  g.hands[me]=g.hands[me].filter(c=>c!==out);g.discard.push(out);
+  const sc=R.scoreHand(g.hands[other(me)]),win=R.canGoOut(g.hands[me]);
+  g.status='done';g.phase='over';g.last={p:me,act:'rummy',threw:out};
+  g.result={winner:me,points:me?[sc.points,0]:[0,sc.points],melds:{[me]:win.melds.map(m=>m.cards),[other(me)]:sc.melds.map(m=>m.cards)},dead:{[me]:[],[other(me)]:sc.deadwood},hasRun:sc.hasRun};
+  g.tally=g.tally||[0,0];g.tally[me]++;sel=null;
+  save(g).then(ok=>{if(ok)burst(true)})}
+
+// ---- announcements ----
+function announce(prev,g){
+  if(!g||me==null)return;
+  if(g.status==='done'&&resultShown!==g.id){resultShown=g.id;showResult(g);if(g.result.winner===me)burst(true);return}
+  if(!prev||prev.id!==g.id){if(g.last&&g.last.act==='deal'){dealt=true;if(prev)toast(g.starter===me?'New game! You go first':`New game! ${names[g.starter]} goes first`)}return}
+  const L=g.last;if(L&&L.p===other(me)&&g.turn===me&&g.phase==='draw'&&prev.turn!==me){
+    toast(`${names[L.p]} ${L.act==='take'?'took '+lbl(L.card)+' from the pile':'drew from the deck'} and threw away ${lbl(L.threw)}`);
+    pulse('#disccard')}}
+function pulse(s){const e=$(s);if(!e)return;e.animate([{transform:'scale(1)'},{transform:'scale(1.15)'},{transform:'scale(1)'}],{duration:500,easing:'ease-out'})}
+
+// ---- render ----
+function cardHTML(c,extra='',w,style='',tag='span'){const rk=R.NAMES[R.rank(c)]||R.rank(c),su=R.SYM[R.suit(c)];
+  return`<${tag} ${tag==='button'?`type="button" aria-label="${lbl(c)}"`:''} class="card ${isRed(c)?'r':''} ${extra}" style="${w?`--cw:${w}px;`:''}${style}" data-c="${c}"><span class="ix">${rk}<i>${su}</i></span><span class="pip">${su}</span><span class="ix b">${rk}<i>${su}</i></span></${tag}>`}
+const backHTML=(p,w)=>`<span class="card back ${p?'k':''}" style="--s:'${SUITCH[p]}';${w?`--cw:${w}px`:''}"></span>`;
+const MC=['#d9b25a','#7fd1a8','#8fb8ff','#f59fb6'];
+function arranged(cards){
+  if(arrange==='suit'||arrange==='rank')return{order:R.sortCards(cards,arrange),groups:{}};
+  const a=R.analyse(cards),order=[],groups={};
+  a.melds.forEach((m,i)=>{R.sortCards(m.cards,m.type==='run'?'suit':'rank').forEach(c=>{order.push(c);groups[c]=i})});
+  R.sortCards(a.deadwood,'suit').forEach(c=>order.push(c));return{order,groups}}
+function render(){
+  $('#sn0').textContent=names[0];$('#sn1').textContent=names[1];
+  const show=id=>['pick','lobby','table'].forEach(x=>$('#'+x).hidden=x!==id);
+  if(me==null){show('pick');$('#seat').hidden=true;return}
+  $('#seat').hidden=false;$('#seat').textContent=`You're ${names[me]} ${SUITCH[me]}`;
+  if(!G){show('lobby');$('#lobbynote').textContent=API?'':'Connect the Google Sheet first (see README).';return}
+  show('table');
+  const o=other(me),hand=G.hands[me]||[],opp=G.hands[o]||[];
+  $('#oppname').innerHTML=`<i style="color:${o?'#fff':'#ff6b7a'}">${SUITCH[o]}</i>${names[o]}`;
+  $('#myname').innerHTML=`<i style="color:${me?'#fff':'#ff6b7a'}">${SUITCH[me]}</i>You`;
+  const pill=$('#opppill');pill.className='pill'+(G.status==='playing'&&G.turn===o?' go':'');pill.textContent=G.status!=='playing'?'Game over':G.turn===o?`${names[o]}'s turn`:'Waiting for you';
+  const bw=Math.max(30,Math.min(48,Math.floor((Math.min(innerWidth,900)-60)/ (opp.length*0.55+1))));
+  $('#backs').innerHTML=opp.map(()=>backHTML(o,bw)).join('');
+  const canDraw=myTurn()&&G.phase==='draw';
+  $('#deck').classList.toggle('can',canDraw);$('#disc').classList.toggle('can',canDraw&&G.discard.length>0);
+  $('#deck').disabled=!canDraw;$('#disc').disabled=!canDraw||!G.discard.length;
+  $('#deckcard').innerHTML=G.deck.length?backHTML(me?0:1,70):'<span class="card empty" style="--cw:70px"></span>';$('#deckn').textContent=`Deck · ${G.deck.length}`;
+  const top=G.discard[G.discard.length-1];$('#disccard').innerHTML=top?cardHTML(top,'',70):'<span class="card empty" style="--cw:70px"></span>';
+  $('#disc').setAttribute('aria-label',top?`Take ${lbl(top)} from the discard pile`:'Discard pile is empty');
+  // prompt
+  let p='';
+  if(G.status==='done'){const w=G.result.winner;p=w===me?'You called <b>Rummy!</b> 🎉':`<b>${names[w]}</b> called Rummy`;p=p.replace(' 🎉','')}
+  else if(G.turn!==me)p=`Waiting for <b>${names[o]}</b> to play…`;
+  else if(G.phase==='draw')p=`Your turn: <b>draw</b> from the deck${top?` or take the <b>${lbl(top)}</b>`:''}`;
+  else p=sel?`Throw away <b>${lbl(sel)}</b>?`:'Tap a card to <b>throw away</b>';
+  $('#prompt').innerHTML=p;
+  // hand
+  const {order,groups}=arranged(hand);const W=Math.min(innerWidth,900)-28,n=order.length||1;
+  const cw=Math.max(46,Math.min(78,Math.floor(W/5.2))),step=n>1?Math.min(cw+6,(W-cw)/(n-1)):0,ml=step-cw;
+  $('#hand').innerHTML=order.map((c,i)=>{const g=groups[c];const cls=[g!=null?'meld':'',c===sel?'sel':'',c===newCard?'new':'',dealt?'deal':''].join(' ');
+    return cardHTML(c,cls,cw,`margin-left:${i?ml:0}px;${g!=null?`--mc:${MC[g%4]};`:''}${dealt?`animation-delay:${i*60}ms;`:''}`,'button')}).join('');
+  dealt=false;
+  // info
+  const a=R.analyse(hand.length===11&&sel?hand.filter(c=>c!==sel):hand);
+  $('#info').innerHTML=hand.length?(a.melds.length?`Melds: ${a.melds.map(m=>m.cards.length+(m.type==='run'?'-run':'-set')).join(', ')} · `:'')+`if caught now: <b>${a.points}</b> points${a.hasRun?'':' (no run of 4 yet)'}`:'';
+  const canDisc=myTurn()&&G.phase==='discard';
+  $('#discard').disabled=!(canDisc&&sel);$('#discard').textContent=sel&&canDisc?`Discard ${lbl(sel)}`:'Discard';
+  const ro=canDisc?R.rummyDiscards(hand):[];$('#rummy').disabled=!ro.length;
+  $('#rummy').textContent=ro.length?`Call Rummy!${ro.length===1||!ro.includes(sel)?` (throw ${lbl(ro.includes(sel)?sel:ro[0])})`:''}`:'Call Rummy!';
+  document.querySelectorAll('.arr button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.a===arrange));
+}
+function groupsHTML(melds,dead){return melds.map(m=>`<span class="grp">${m.map(c=>cardHTML(c,'',40)).join('')}</span>`).join('')+(dead.length?`<span class="grp dead">${dead.map(c=>cardHTML(c,'',40)).join('')}</span>`:'')}
+function showResult(g){const w=g.result.winner,l=other(w);
+  $('#rt').textContent=w===me?'You called Rummy!':`${names[w]} called Rummy`;
+  $('#rp').textContent=`${names[l]} counts ${g.result.points[l]} points${g.result.hasRun?' (melds don’t count thanks to a run of 4)':' (no run of 4, so every card counts)'}.`;
+  $('#rres').innerHTML=[w,l].map(p=>`<div><h4>${SUITCH[p]} ${names[p]}<b>${g.result.points[p]}</b></h4><div class="lay">${groupsHTML(g.result.melds[p]||[],g.result.dead[p]||[])}</div></div>`).join('');
+  $('#rtally').textContent=`Digital games won: ${names[0]} ${g.tally[0]} · ${names[1]} ${g.tally[1]}`;
+  $('#rdlg').hidden=false}
+
+// ---- fun ----
+function burst(big){if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;const cx=innerWidth/2,cy=innerHeight/2;
+  for(let i=0;i<(big?48:20);i++){const s=document.createElement('i');s.className='bit';const sy=['♥','♠','♦','♣'][i%4];s.textContent=sy;s.style.color=/[♥♦]/.test(sy)?'#ff5a6e':(i%3?'#fbf8f0':'#ffd75e');s.style.left=cx+'px';s.style.top=cy+'px';document.body.appendChild(s);
+    const a=Math.random()*Math.PI*2,v=120+Math.random()*260;s.animate([{transform:'translate(-50%,-50%) scale(.3)',opacity:1},{transform:`translate(calc(-50% + ${Math.cos(a)*v}px),calc(-50% + ${Math.sin(a)*v+120}px)) rotate(${Math.random()*720}deg) scale(1.2)`,opacity:0}],{duration:1200+Math.random()*700,easing:'cubic-bezier(.2,.7,.3,1)'}).onfinish=()=>s.remove()}}
+let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),3800)}
+
+// ---- events ----
+document.querySelectorAll('.seatbtn').forEach(b=>b.onclick=()=>{me=Number(b.dataset.me);ls.set('rm-me',me);render();load()});
+$('#seat').onclick=()=>{me=null;ls.set('rm-me',null);render()};
+$('#deal').onclick=deal;
+$('#deck').onclick=drawDeck;$('#disc').onclick=takeDisc;
+$('#hand').addEventListener('click',e=>{const b=e.target.closest('[data-c]');if(!b)return;const c=b.dataset.c;
+  if(myTurn()&&G.phase==='discard'){sel=sel===c?null:c}else{sel=sel===c?null:c}newCard=null;render()});
+$('#hand').addEventListener('dblclick',e=>{const b=e.target.closest('[data-c]');if(b&&myTurn()&&G.phase==='discard'){sel=b.dataset.c;discard()}});
+$('#discard').onclick=discard;$('#rummy').onclick=callRummy;
+document.querySelectorAll('.arr button').forEach(b=>b.onclick=()=>{arrange=b.dataset.a;ls.set('rm-arr',arrange);render()});
+$('#rclose').onclick=()=>{$('#rdlg').hidden=true};$('#ragain').onclick=()=>{$('#rdlg').hidden=true;deal()};
+$('#newgame').onclick=()=>{if(G&&G.status==='playing')$('#ndlg').hidden=false;else deal()};
+$('#nno').onclick=()=>{$('#ndlg').hidden=true};$('#nyes').onclick=()=>{$('#ndlg').hidden=true;deal()};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')['#ndlg','#rdlg'].forEach(s=>$(s).hidden=true)});
+addEventListener('resize',()=>{if(G)render()});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)load()});
+setInterval(()=>{if(!document.hidden&&me!=null&&!busy)load()},2500);
+render();if(me!=null)load();
+}
+</script>
+</body>
+</html>
