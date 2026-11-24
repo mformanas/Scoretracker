@@ -3,88 +3,126 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Adda · game night headquarters</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%99%A3%3C/text%3E%3C/svg%3E">
+<title>Adda · game night lives here</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='8' y='8' width='84' height='84' rx='22' fill='%23ff5d8f'/%3E%3Ccircle cx='32' cy='32' r='9' fill='%23fff'/%3E%3Ccircle cx='68' cy='68' r='9' fill='%23fff'/%3E%3Ccircle cx='50' cy='50' r='9' fill='%23fff'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Rubik:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800&display=swap">
 <style>
-/* VOICE: the friend's living room where everyone gathers to play: warm, relaxed, a bit cheeky
-   IDEA: "adda" is a long, lively hangout; the page is the room, each game is a table in it
-   LAYOUT: big felt welcome, a row of game tables (Rummy now, more later), quick links back to your recent dashboards */
-:root{color-scheme:light dark;--ink:light-dark(#14231b,#eef3ee);--mut:light-dark(#56665d,#9fb3a6);--felt:light-dark(#0f5a38,#0c4a2e);--ivory:#fbf8f0;--brass:#d9b25a;--paper:light-dark(#fffdf7,#10281c);--frame:light-dark(#ece4cf,#24503a);--soft:light-dark(#f2f6f3,#173524)}
+/* VOICE: the friend's place where everyone hangs out and plays; giggly, bright, welcoming
+   IDEA: a toy box of games: chunky sticker tiles, bouncy letters, little game pieces floating around
+   COLOUR and TYPE: candy brights (bubblegum, tangerine, lemon, mint, sky, grape) on warm cream, chunky ink outlines; Fredoka headings, Nunito text
+   LAYOUT: big sticker wordmark with floating pieces, "jump back in" chips, a grid of game tiles that can keep growing */
+:root{color-scheme:light dark;
+  --bg:light-dark(#fff6e8,#1c1532);--dot:light-dark(#ffd9c2,#2c2350);--ink:light-dark(#2b2240,#fdf6ff);--mut:light-dark(#6b5f80,#c3b8db);--line:#2b2240;
+  --pink:#ff5d8f;--orange:#ff9f1c;--lemon:#ffd23f;--mint:#3ddc97;--sky:#4cc9f0;--grape:#9b5de5;--card:light-dark(#ffffff,#2a2148);--sh:light-dark(#2b2240,#8c6ff0)}
 *{box-sizing:border-box;min-width:0}[hidden]{display:none!important}
-body{margin:0;color:var(--ink);font:16px/1.5 Rubik,system-ui,sans-serif;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cg fill='%230f5a38' fill-opacity='.05' font-size='20' font-family='serif'%3E%3Ctext x='10' y='34'%3E%E2%99%A0%3C/text%3E%3Ctext x='70' y='34'%3E%E2%99%A5%3C/text%3E%3Ctext x='40' y='94'%3E%E2%99%A6%3C/text%3E%3Ctext x='100' y='94'%3E%E2%99%A3%3C/text%3E%3C/g%3E%3C/svg%3E"),light-dark(#eef4ee,#0a1a12)}
-:focus-visible{outline:3px solid var(--brass);outline-offset:2px}
-.wrap{max-width:1000px;margin:0 auto;padding:0 max(5vw,16px)}
-.top{background:radial-gradient(ellipse 70% 90% at 50% 30%,rgb(255 255 255/.12),transparent 70%),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96'%3E%3Cg fill='%23ffffff' fill-opacity='.05' font-size='22' font-family='serif'%3E%3Ctext x='8' y='30'%3E%E2%99%A0%3C/text%3E%3Ctext x='56' y='30'%3E%E2%99%A5%3C/text%3E%3Ctext x='32' y='78'%3E%E2%99%A6%3C/text%3E%3Ctext x='80' y='78'%3E%E2%99%A3%3C/text%3E%3C/g%3E%3C/svg%3E"),var(--felt);box-shadow:inset 0 -10px 0 #6b4a2b,inset 0 -14px 0 #4a321c;color:#fff;padding:clamp(36px,7vw,80px) 0 clamp(44px,7vw,84px);text-align:center}
-h1{margin:0;font:900 clamp(64px,14vw,128px)/.9 'Playfair Display',Georgia,serif;color:var(--ivory);text-shadow:0 4px 0 rgb(0 0 0/.25);display:inline-flex;align-items:flex-start;gap:.08em}
-h1 button{background:none;border:0;padding:0;font:inherit;color:inherit;cursor:pointer;display:inline-block;transition:transform .3s cubic-bezier(.3,1.6,.5,1)}
-h1 button:hover{transform:translateY(-6px) rotate(-6deg)}
-.tag{margin:14px auto 0;font:italic 400 clamp(18px,2.6vw,24px)/1.3 'Playfair Display',Georgia,serif;opacity:.9;max-width:26em}
-.suits{font:700 24px Georgia,serif;letter-spacing:.4em;margin-top:18px}.suits b{color:#ff6b7a}.suits i{color:#8fb8ff;font-style:normal}
-main{padding:32px 0 56px;display:grid;gap:34px}
-h2{margin:0 0 14px;font:700 26px/1.1 'Playfair Display',Georgia,serif}
-.games{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr));gap:18px}
-.game{position:relative;display:grid;gap:10px;align-content:start;min-height:220px;background:var(--paper);border:1px solid var(--frame);border-radius:20px;padding:26px;color:inherit;text-decoration:none;box-shadow:inset 0 0 0 7px var(--paper),inset 0 0 0 8px var(--frame),0 22px 36px -22px rgb(15 90 56/.6);transition:transform .35s cubic-bezier(.3,1.5,.5,1)}
-a.game:hover{transform:translateY(-6px) rotate(-1deg)}
-.game h3{margin:0;font:900 34px/1 'Playfair Display',Georgia,serif}
-.game h3 small{display:block;margin-top:6px;font:700 12px/1 Rubik,sans-serif;letter-spacing:.22em;text-transform:uppercase;color:var(--brass)}
-.game p{margin:0;color:var(--mut)}
-.fan{position:absolute;right:22px;bottom:20px;width:96px;height:70px}
-.fan span{position:absolute;bottom:0;left:30px;width:40px;height:56px;border-radius:6px;background:var(--ivory);box-shadow:0 4px 10px rgb(0 0 0/.25),inset 0 0 0 1px rgb(0 0 0/.08);display:grid;place-items:center;font:700 22px Georgia,serif;transform-origin:50% 120%;transition:transform .35s cubic-bezier(.3,1.5,.5,1)}
-.fan span:nth-child(1){transform:rotate(-22deg);color:#cf1f33}.fan span:nth-child(2){transform:rotate(-7deg);color:#1b1b1d}.fan span:nth-child(3){transform:rotate(8deg);color:#1f5fbf}.fan span:nth-child(4){transform:rotate(23deg);color:#1b1b1d}
-a.game:hover .fan span:nth-child(1){transform:rotate(-32deg)}a.game:hover .fan span:nth-child(2){transform:rotate(-11deg)}a.game:hover .fan span:nth-child(3){transform:rotate(12deg)}a.game:hover .fan span:nth-child(4){transform:rotate(33deg)}
-.go{justify-self:start;margin-top:auto;display:inline-flex;align-items:center;min-height:42px;padding:0 18px;border-radius:999px;background:var(--felt);color:#fff;font-weight:700}
-.soon{border-style:dashed;box-shadow:none;background:transparent;border:2px dashed var(--frame)}
-.soon h3{color:var(--mut)}
-.soon .dice{font-size:40px;line-height:1;opacity:.6}
-.recent{display:flex;flex-wrap:wrap;gap:10px}
-.recent a{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:999px;background:var(--paper);border:1px solid var(--frame);color:inherit;text-decoration:none;font-weight:500;box-shadow:0 6px 14px -10px rgb(15 90 56/.6);transition:transform .2s cubic-bezier(.3,1.6,.5,1)}
-.recent a:hover{transform:translateY(-2px) rotate(-1deg)}
-.recent a small{color:var(--mut);font-weight:400}
-.recent b{font:700 16px Georgia,serif;color:#cf1f33}
-.bit{position:fixed;font:700 22px/1 Georgia,serif;pointer-events:none;z-index:5}
-.foot{text-align:center;padding:0 16px 40px;color:var(--mut);font:italic 400 16px 'Playfair Display',Georgia,serif}
+html{background:var(--bg)}
+body{margin:0;color:var(--ink);font:17px/1.5 Nunito,system-ui,sans-serif;overflow-x:clip;
+  background:radial-gradient(var(--dot) 2.2px,transparent 2.6px) 0 0/26px 26px,var(--bg)}
+:focus-visible{outline:4px solid var(--sky);outline-offset:3px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 max(5vw,18px)}
+/* hero */
+.hero{position:relative;isolation:isolate;text-align:center;padding:clamp(44px,9vw,96px) 0 clamp(26px,5vw,48px)}
+.word{display:inline-flex;gap:clamp(4px,1.2vw,12px);margin:0;font:700 clamp(84px,19vw,176px)/1 Fredoka,system-ui,sans-serif;letter-spacing:-.01em}
+.word button{font:inherit;border:0;background:none;padding:0;cursor:pointer;color:var(--c);-webkit-text-stroke:clamp(3px,.7vw,6px) var(--line);paint-order:stroke fill;
+  text-shadow:clamp(4px,.9vw,8px) clamp(4px,.9vw,8px) 0 var(--sh);display:inline-block;transform:rotate(var(--r));animation:bob 3.4s ease-in-out infinite;animation-delay:var(--d);transition:transform .3s cubic-bezier(.3,1.8,.5,1)}
+.word button:hover{transform:rotate(calc(var(--r) * -1)) translateY(-10px) scale(1.08)}
+.word button.boing{animation:boing .7s cubic-bezier(.3,1.6,.5,1)}
+@keyframes bob{0%,100%{translate:0 0}50%{translate:0 -8px}}
+@keyframes boing{0%{transform:rotate(var(--r)) scale(1)}30%{transform:rotate(-14deg) scale(1.25,.8)}55%{transform:rotate(10deg) scale(.9,1.15) translateY(-24px)}100%{transform:rotate(var(--r))}}
+.tag{margin:18px auto 0;font:600 clamp(19px,2.8vw,26px)/1.3 Fredoka,sans-serif;max-width:24em}
+.tag mark{background:var(--lemon);color:#2b2240;padding:0 .3em;border-radius:.4em;box-decoration-break:clone;-webkit-box-decoration-break:clone;border:2px solid var(--line)}
+/* floating pieces */
+.float{position:absolute;inset:0;pointer-events:none;z-index:-1}
+.float svg{position:absolute;width:var(--s);height:var(--s);animation:drift var(--t,7s) ease-in-out infinite;animation-delay:var(--d,0s);filter:drop-shadow(3px 3px 0 var(--sh))}
+@keyframes drift{0%,100%{transform:translate(0,0) rotate(var(--r0,0deg))}50%{transform:translate(var(--x,8px),var(--y,-14px)) rotate(var(--r1,12deg))}}
+/* sections */
+main.wrap{padding-bottom:56px}
+main{display:grid;gap:clamp(30px,5vw,46px);padding-bottom:56px}
+h2{margin:0 0 16px;font:700 clamp(26px,4vw,34px)/1.1 Fredoka,sans-serif;display:flex;align-items:center;gap:10px}
+h2 i{display:inline-grid;place-items:center;width:1.3em;height:1.3em;border-radius:.4em;border:3px solid var(--line);background:var(--bg-i);font-style:normal;font-size:.75em;box-shadow:3px 3px 0 var(--sh);transform:rotate(-8deg);color:#2b2240}
+.chips{display:flex;flex-wrap:wrap;gap:12px}
+.chips a{display:inline-flex;align-items:center;gap:10px;min-height:50px;padding:0 18px 0 8px;border-radius:999px;border:3px solid var(--line);background:var(--c);color:#2b2240;text-decoration:none;font:600 18px Fredoka,sans-serif;box-shadow:4px 4px 0 var(--sh);transition:transform .25s cubic-bezier(.3,1.8,.5,1),box-shadow .2s}
+.chips a:hover{transform:translate(-2px,-3px) rotate(-2deg);box-shadow:6px 7px 0 var(--sh)}
+.chips a:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--sh)}
+.chips b{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#fff;border:2px solid var(--line);font:700 17px Georgia,serif}
+.chips small{font:700 13px Nunito,sans-serif;opacity:.75}
+.games{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:clamp(18px,3vw,28px)}
+.tile{position:relative;overflow:hidden;display:grid;align-content:start;gap:10px;min-height:270px;padding:26px 26px 24px;border-radius:30px;border:3px solid var(--line);background:var(--c);color:#2b2240;text-decoration:none;box-shadow:8px 8px 0 var(--sh);transition:transform .35s cubic-bezier(.3,1.7,.5,1),box-shadow .25s}
+a.tile:hover{transform:translate(-3px,-5px) rotate(-1.5deg);box-shadow:12px 14px 0 var(--sh)}
+a.tile:active{transform:translate(4px,4px);box-shadow:3px 3px 0 var(--sh)}
+.tile::before{content:'';position:absolute;inset:0;background:radial-gradient(rgb(255 255 255/.35) 2px,transparent 2.5px) 0 0/18px 18px;pointer-events:none}
+.tile h3{position:relative;margin:0;font:700 46px/1 Fredoka,sans-serif;color:#fff;-webkit-text-stroke:3px var(--line);paint-order:stroke fill;text-shadow:4px 4px 0 var(--sh)}
+.tile p{position:relative;margin:0;font-weight:700;max-width:15em}
+.pill{position:relative;justify-self:start;margin-top:auto;display:inline-flex;align-items:center;gap:8px;min-height:46px;padding:0 20px;border-radius:999px;border:3px solid var(--line);background:#fff;font:700 17px Fredoka,sans-serif;box-shadow:3px 3px 0 var(--sh)}
+.pill span{transition:transform .25s}a.tile:hover .pill span{transform:translateX(5px)}
+.fan{position:absolute;right:20px;bottom:18px;width:130px;height:112px}
+.fan i{position:absolute;bottom:0;left:44px;width:52px;height:74px;border-radius:9px;background:#fff;border:3px solid var(--line);display:grid;place-items:center;font:700 28px Georgia,serif;font-style:normal;transform-origin:50% 130%;transition:transform .4s cubic-bezier(.3,1.7,.5,1)}
+.fan i:nth-child(1){transform:rotate(-26deg);color:#e0244a}.fan i:nth-child(2){transform:rotate(-9deg);color:#2b2240}.fan i:nth-child(3){transform:rotate(9deg);color:#2a6fdb}.fan i:nth-child(4){transform:rotate(26deg);color:#2b2240}
+a.tile:hover .fan i:nth-child(1){transform:rotate(-38deg) translateY(-4px)}a.tile:hover .fan i:nth-child(2){transform:rotate(-13deg) translateY(-8px)}a.tile:hover .fan i:nth-child(3){transform:rotate(13deg) translateY(-8px)}a.tile:hover .fan i:nth-child(4){transform:rotate(38deg) translateY(-4px)}
+.soon{background:var(--card);border-style:dashed;box-shadow:none;color:var(--ink)}
+.soon::before{display:none}
+.soon h3{color:var(--lemon);font-size:36px}
+.soon p{color:var(--mut)}
+.mystery{display:flex;gap:12px;margin-top:auto}
+.mystery span{display:grid;place-items:center;width:58px;height:58px;border-radius:16px;border:3px solid var(--line);background:var(--c);color:#2b2240;font:700 30px Fredoka,sans-serif;box-shadow:3px 3px 0 var(--sh);animation:peek 2.6s ease-in-out infinite;animation-delay:var(--d)}
+@keyframes peek{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-8px) rotate(5deg)}}
+.bit{position:fixed;pointer-events:none;z-index:9;font:700 22px/1 Fredoka,sans-serif}
+.foot{text-align:center;padding:0 16px 46px;font:600 18px Fredoka,sans-serif;color:var(--mut)}
+.foot span{display:inline-block;animation:bob 2.4s ease-in-out infinite}
+@media(max-width:600px){.tile h3{font-size:40px}.fan{transform:scale(.85);transform-origin:100% 100%}.float svg:nth-child(3),.float svg:nth-child(4),.float svg:nth-child(7),.float svg:nth-child(8){display:none}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
-<header class="top"><div class="wrap">
-  <h1 aria-label="Adda"><button type="button" aria-hidden="true" tabindex="-1">A</button><button type="button" aria-hidden="true" tabindex="-1">d</button><button type="button" aria-hidden="true" tabindex="-1">d</button><button type="button" aria-hidden="true" tabindex="-1">a</button></h1>
-  <p class="tag">Pull up a chair. The cards are out and the scores are kept.</p>
-  <div class="suits" aria-hidden="true"><b>♥</b>♠<i>♦</i>♣</div>
-</div></header>
+<header class="hero wrap">
+  <div class="float" aria-hidden="true">
+    <svg style="--s:64px;left:4%;top:16%;--r0:-14deg;--r1:8deg;--t:7s" viewBox="0 0 64 64"><rect x="4" y="4" width="56" height="56" rx="14" fill="#ff5d8f" stroke="#2b2240" stroke-width="4"/><circle cx="20" cy="20" r="6" fill="#fff"/><circle cx="44" cy="44" r="6" fill="#fff"/><circle cx="32" cy="32" r="6" fill="#fff"/></svg>
+    <svg style="--s:56px;right:6%;top:12%;--r0:12deg;--r1:-6deg;--t:8s;--d:-2s" viewBox="0 0 48 64"><rect x="3" y="3" width="42" height="58" rx="7" fill="#fff" stroke="#2b2240" stroke-width="4"/><text x="24" y="42" text-anchor="middle" font-size="28" font-family="Georgia" fill="#e0244a">♥</text></svg>
+    <svg style="--s:50px;left:13%;bottom:4%;--r0:6deg;--r1:-10deg;--t:6s;--d:-1s" viewBox="0 0 50 50"><circle cx="25" cy="25" r="21" fill="#4cc9f0" stroke="#2b2240" stroke-width="4"/><circle cx="25" cy="25" r="9" fill="#fff" stroke="#2b2240" stroke-width="3"/></svg>
+    <svg style="--s:58px;right:13%;bottom:2%;--r0:-6deg;--r1:10deg;--t:7.5s;--d:-3s" viewBox="0 0 48 60"><path d="M24 4a10 10 0 0 1 6 18l4 14H14l4-14a10 10 0 0 1 6-18zM10 40h28l4 14H6z" fill="#3ddc97" stroke="#2b2240" stroke-width="4" stroke-linejoin="round"/></svg>
+    <svg style="--s:42px;left:28%;top:2%;--r0:0deg;--r1:30deg;--t:5.5s;--d:-2.5s" viewBox="0 0 50 50"><path d="M25 3l6 14 15 2-11 10 3 15-13-7-13 7 3-15L4 19l15-2z" fill="#ffd23f" stroke="#2b2240" stroke-width="4" stroke-linejoin="round"/></svg>
+    <svg style="--s:46px;right:28%;top:4%;--r0:-10deg;--r1:10deg;--t:6.5s;--d:-4s" viewBox="0 0 60 50"><path d="M6 40L10 12l12 12L30 6l8 18 12-12 4 28z" fill="#ff9f1c" stroke="#2b2240" stroke-width="4" stroke-linejoin="round"/></svg>
+    <svg style="--s:40px;left:2%;top:58%;--r0:20deg;--r1:-4deg;--t:6s;--d:-3.5s" viewBox="0 0 50 50"><rect x="5" y="5" width="40" height="40" rx="10" fill="#9b5de5" stroke="#2b2240" stroke-width="4"/><circle cx="25" cy="25" r="6" fill="#fff"/></svg>
+    <svg style="--s:44px;right:2%;top:54%;--r0:-8deg;--r1:14deg;--t:7s;--d:-1.5s" viewBox="0 0 48 64"><rect x="3" y="3" width="42" height="58" rx="7" fill="#fff" stroke="#2b2240" stroke-width="4"/><text x="24" y="42" text-anchor="middle" font-size="28" font-family="Georgia" fill="#2b2240">♠</text></svg>
+  </div>
+  <h1 class="word" aria-label="Adda"><button type="button" tabindex="-1" aria-hidden="true" style="--c:var(--pink);--r:-6deg;--d:0s">A</button><button type="button" tabindex="-1" aria-hidden="true" style="--c:var(--lemon);--r:4deg;--d:-.4s">d</button><button type="button" tabindex="-1" aria-hidden="true" style="--c:var(--mint);--r:-3deg;--d:-.8s">d</button><button type="button" tabindex="-1" aria-hidden="true" style="--c:var(--sky);--r:6deg;--d:-1.2s">a</button></h1>
+  <p class="tag">Game night lives here. <mark>Pick a game</mark>, grab your people, keep the score.</p>
+</header>
 <main class="wrap">
   <section id="recentsec" hidden>
-    <h2>Jump back in</h2>
-    <div class="recent" id="recent"></div>
+    <h2><i style="--bg-i:var(--lemon)">★</i>Jump back in</h2>
+    <div class="chips" id="recent"></div>
   </section>
   <section>
-    <h2>Games</h2>
+    <h2><i style="--bg-i:var(--mint)">⚄</i>Games</h2>
     <div class="games">
-      <a class="game" href="rummy/"><h3>Rummy<small>Scoretracker</small></h3><p>Keep score for 2 or 3 players, or deal a game on your phones.</p><span class="go">Open Rummy</span><span class="fan" aria-hidden="true"><span>♥</span><span>♠</span><span>♦</span><span>♣</span></span></a>
-      <div class="game soon"><span class="dice" aria-hidden="true">⚄</span><h3>More games<small>Coming soon</small></h3><p>New tables are being set up in the back room.</p></div>
+      <a class="tile" href="rummy/" style="--c:var(--pink)"><h3>Rummy</h3><p>Keep score for 2 or 3 players, or deal a game on your phones.</p><span class="pill">Let’s play <span aria-hidden="true">→</span></span><span class="fan" aria-hidden="true"><i>♥</i><i>♠</i><i>♦</i><i>♣</i></span></a>
+      <div class="tile soon"><h3>More games</h3><p>New tables are being set up. Bring snacks.</p><div class="mystery" aria-hidden="true"><span style="--c:var(--sky);--d:0s">?</span><span style="--c:var(--orange);--d:-.6s">?</span><span style="--c:var(--grape);--d:-1.2s">?</span></div></div>
     </div>
   </section>
 </main>
-<footer class="foot">May the best hand win</footer>
+<footer class="foot">Made for long evenings and loud tables <span aria-hidden="true">✦</span></footer>
 <script>
 {
 const $=s=>document.querySelector(s);
 const ls={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}}};
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const COLS=['#ff5d8f','#ffd23f','#3ddc97','#4cc9f0','#ff9f1c','#9b5de5'];
 let r=ls.get('adda-recent',[]);if(!Array.isArray(r))r=[];
 // phones that used the original Leah vs Manas scoreboard get it here too
 if(!r.some(x=>x&&x.id==='leah-manas')&&(localStorage.getItem('st-key')||localStorage.getItem('st-cache')))r.push({id:'leah-manas',game:'rummy',name:'Leah vs Manas'});
 r=r.filter(x=>x&&x.id).slice(0,6);
 if(r.length){$('#recentsec').hidden=false;
-  $('#recent').innerHTML=r.map(x=>`<a href="rummy/board.html?b=${encodeURIComponent(x.id)}"><b aria-hidden="true">♥</b>${esc(x.name||x.id)}<small>Rummy</small></a>`).join('')}
-// tap the letters for a little shower of suits
-document.querySelectorAll('h1 button').forEach((b,i)=>b.addEventListener('click',()=>{
-  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;const q=b.getBoundingClientRect();
-  b.animate([{transform:'none'},{transform:'translateY(-18px) rotate(-12deg) scale(1.1)'},{transform:'none'}],{duration:600,easing:'cubic-bezier(.3,1.6,.5,1)'});
-  for(let k=0;k<14;k++){const s=document.createElement('i');s.className='bit';const su='♥♠♦♣'[k%4];s.textContent=su;s.style.color=su==='♥'?'#ff5a6e':su==='♦'?'#8fb8ff':'#fbf8f0';s.style.left=(q.left+q.width/2)+'px';s.style.top=(q.top+q.height/2)+'px';document.body.appendChild(s);
-    const a=Math.random()*Math.PI*2,v=60+Math.random()*120;s.animate([{transform:'translate(-50%,-50%) scale(.3)',opacity:1},{transform:`translate(calc(-50% + ${Math.cos(a)*v}px),calc(-50% + ${Math.sin(a)*v+80}px)) rotate(${Math.random()*540}deg)`,opacity:0}],{duration:1000+Math.random()*500,easing:'cubic-bezier(.2,.7,.3,1)'}).onfinish=()=>s.remove()}}));
+  $('#recent').innerHTML=r.map((x,i)=>`<a href="rummy/board.html?b=${encodeURIComponent(x.id)}" style="--c:${COLS[i%COLS.length]}"><b aria-hidden="true" style="color:${['#e0244a','#2b2240','#2a6fdb'][i%3]}">${['♥','♠','♦'][i%3]}</b>${esc(x.name||x.id)}<small>Rummy</small></a>`).join('')}
+const reduce=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
+function pop(x,y,n){if(reduce())return;for(let k=0;k<n;k++){const s=document.createElement('i');s.className='bit';s.textContent=['♥','♠','♦','♣','★','●','✦'][k%7];s.style.color=COLS[k%COLS.length];s.style.left=x+'px';s.style.top=y+'px';s.style.fontSize=(16+Math.random()*16)+'px';document.body.appendChild(s);
+  const a=Math.random()*Math.PI*2,v=70+Math.random()*140;s.animate([{transform:'translate(-50%,-50%) scale(.2)',opacity:1},{transform:`translate(calc(-50% + ${Math.cos(a)*v}px),calc(-50% + ${Math.sin(a)*v+90}px)) rotate(${Math.random()*540-270}deg) scale(1.1)`,opacity:0}],{duration:1000+Math.random()*600,easing:'cubic-bezier(.2,.7,.3,1)'}).onfinish=()=>s.remove()}}
+// tap a letter: it boings and throws confetti
+document.querySelectorAll('.word button').forEach(b=>b.addEventListener('click',()=>{b.classList.remove('boing');void b.offsetWidth;b.classList.add('boing');const q=b.getBoundingClientRect();pop(q.left+q.width/2,q.top+q.height/2,16)}));
+// the mystery tile shuffles its question marks
+$('.soon').addEventListener('click',e=>{const q=e.currentTarget.getBoundingClientRect();pop(e.clientX||q.left+q.width/2,e.clientY||q.top+q.height/2,10);
+  e.currentTarget.querySelectorAll('.mystery span').forEach((s,i)=>{s.textContent=['?','⚄','♛','●','★','?'][Math.floor(Math.random()*6)];setTimeout(()=>s.textContent='?',1400+i*150)})});
 }
 </script>
 </body>

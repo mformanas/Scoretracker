@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Rummy Scoretracker · Adda</title>
+<title>Rummy · Adda</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%99%A5%3C/text%3E%3C/svg%3E">
 <script>document.write('<script src="../config.js?v='+Date.now()+'"><\/script>')</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -192,7 +192,7 @@ td.num.hit{animation:hitnum .9s cubic-bezier(.3,1.6,.5,1) both}
 <header class="band top">
   <div class="wrap">
     <nav class="crumb" aria-label="Breadcrumb"><a href="../">Adda</a><span class="sep" aria-hidden="true">›</span><a href="./">Rummy</a><span class="sep" aria-hidden="true">›</span><span class="here" id="bname"></span></nav>
-    <div class="controls"><h1 class="title">Rummy<span>Scoretracker</span></h1>
+    <div class="controls"><h1 class="title">Rummy</h1>
       <div class="tabs" role="tablist" aria-label="Time period">
         <button role="tab" data-v="week">Week</button><button role="tab" data-v="month">Month</button><button role="tab" data-v="year">Year</button><button role="tab" data-v="all">All</button>
       </div>
@@ -307,7 +307,7 @@ function build(){
   $('#scores').style.setProperty('--n',n);
   $('#scores').innerHTML=names.map((nm,i)=>`<label class="p${i}"><span>${esc(nm)} <span style="color:${P[i].css}">${P[i].s}</span></span><input id="in${i}" type="number" step="any" inputmode="decimal" placeholder="0"></label>`).join('');
   $('#thead').innerHTML='<th>Date</th>'+names.map((nm,i)=>`<th class="num"><span class="ls" style="color:${P[i].css}">${P[i].s}</span>${esc(nm)}</th>`).join('')+'<th>Winner</th><th><span hidden>Actions</span></th>';
-  $('#bname').textContent=board.name;document.title=`${board.name} · Rummy Scoretracker · Adda`;
+  $('#bname').textContent=board.name;document.title=`${board.name} · Rummy · Adda`;
   $('#playlink').href='play.html?b='+encodeURIComponent(BID);
 }
 

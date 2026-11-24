@@ -1,13 +1,13 @@
 # Adda: game night headquarters
 
-Adda is a home for your game scoreboards. Each game has its own scoretracker (Rummy is the first), and each game can have many dashboards, such as **Leah vs Manas** or a three-player **Friday crew**. Scores live in one Google Sheet, so they're the same on every phone and laptop, and the site is hosted for free on GitHub Pages.
+Adda is a home for your game scoreboards. Each game has its own page (Rummy is the first), and each game can have many dashboards, such as **Leah vs Manas** or a three-player **Friday crew**. Scores live in one Google Sheet, so they're the same on every phone and laptop, and the site is hosted for free on GitHub Pages.
 
 ## What's where
 
 | File | What it is |
 | --- | --- |
 | `index.html` | Adda, the home page listing every game |
-| `rummy/index.html` | Rummy Scoretracker: all Rummy dashboards, plus a form to start a new one |
+| `rummy/index.html` | Rummy: all Rummy dashboards, plus a form to start a new one |
 | `rummy/board.html?b=<id>` | One dashboard's scoreboard (2 or 3 players) |
 | `rummy/play.html?b=<id>` | Play Rummy on your phones for that dashboard |
 | `rummy/rummy.js` | Rummy rules |
