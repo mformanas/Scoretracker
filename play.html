@@ -33,7 +33,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .pill.go{background:var(--brass);color:#2b1d05}
 .backs{display:flex;justify-content:center;margin:10px 0 0;min-height:64px}
 .backs{padding-bottom:14px}.backs .card{margin-left:-30px;transform-origin:50% -110%;transform:rotate(var(--rot,0deg))}.backs .card:first-child{margin-left:0}
-.centre{flex:1;display:flex;justify-content:center;align-items:center;gap:clamp(24px,10vw,70px);margin:8px 0 0}
+.centre{flex:1;display:flex;justify-content:center;align-items:center;gap:clamp(24px,10vw,70px);margin:2px 0 0}
 .pile{display:grid;justify-items:center;gap:6px;background:none;border:0;padding:6px;border-radius:14px;color:#fff}
 .pile small{font-size:13px;color:var(--mut)}
 .pile.can .card{box-shadow:0 0 0 3px var(--brass),0 0 26px rgb(217 178 90/.7),0 8px 18px rgb(0 0 0/.35);animation:breathe 1.6s ease-in-out infinite}
@@ -56,16 +56,16 @@ button{font:inherit;color:inherit;cursor:pointer}
 .card.empty{background:rgb(0 0 0/.2);box-shadow:inset 0 0 0 2px rgb(255 255 255/.25)}
 /* my hand */
 .mine{padding-top:6px;padding-bottom:14px}
-.mehead{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.mehead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .hint{font-size:12px;color:var(--mut);text-align:center;margin-top:2px}
 .mehead .arr{margin-left:auto}
 .arr{display:flex;background:rgb(0 0 0/.22);border-radius:999px;padding:3px}
 .arr button{border:0;background:none;border-radius:999px;padding:0 12px;min-height:34px;font-size:13px}
 .arr button[aria-pressed=true]{background:var(--ivory);color:#14231b}
-.hand{display:flex;justify-content:center;align-items:flex-end;padding:48px 0 28px;min-height:170px}
+.hand{display:flex;justify-content:center;align-items:flex-end;padding:36px 0 40px;min-height:170px}
 .hand .card{transition:transform .2s cubic-bezier(.3,1.5,.5,1),margin .2s;cursor:pointer;border:0;padding:0}
 .hand{touch-action:none}
-.hand .card{transform-origin:50% 210%;transform:rotate(var(--rot,0deg)) translateY(var(--lift,0px))}
+.hand .card{transform-origin:50% 165%;transform:rotate(var(--rot,0deg)) translateY(var(--lift,0px))}
 .hand .card:hover{--lift:-10px}
 .hand.is-dragging .card{transition:transform .18s ease;animation:none!important}
 .hand .card.dragging{transition:none!important;z-index:5;box-shadow:0 0 0 3px var(--brass),0 18px 30px rgb(0 0 0/.45);cursor:grabbing}
@@ -103,13 +103,16 @@ button{font:inherit;color:inherit;cursor:pointer}
 .row{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
 .row .btn{min-width:120px;padding:0 18px;font-size:16px;background:#fff;border:1px solid #ddd}
 .row .btn.prim{background:var(--felt);color:#fff;border-color:var(--felt)}
-.res{display:grid;gap:14px;margin:10px 0 16px}
+.res{display:grid;gap:10px;margin:8px 0 12px}
+@media(max-height:760px){.box{padding:18px}.box h3{font-size:24px}.lay{gap:6px}.grp .card{margin-left:-10px}}
 .res h4{margin:0 0 6px;font:700 17px Rubik,sans-serif;display:flex;justify-content:space-between}
 .res h4 b{font:900 22px 'Playfair Display',Georgia,serif}
 .lay{display:flex;flex-wrap:wrap;gap:10px}
 .grp{display:flex;padding:6px;border-radius:10px;background:#efe9da}.grp .card{--cw:40px;margin-left:-14px}.grp .card:first-child{margin-left:0}
 .grp.dead{background:#fde8ea}
 .grp small{display:block}
+.addsb{width:100%;margin:0 0 12px;background:var(--brass);color:#2b1d05}
+.addsb:disabled{opacity:.75}
 .tally{font-size:14px;color:#4b5563;text-align:center;margin-bottom:12px}
 .toast{position:fixed;left:50%;bottom:max(20px,env(safe-area-inset-bottom));transform:translate(-50%,160%);background:var(--ivory);color:#14231b;border-radius:14px;padding:10px 16px;box-shadow:0 12px 28px rgb(0 0 0/.35);transition:transform .25s;z-index:10;max-width:calc(100vw - 28px);text-align:center}
 .toast.on{transform:translate(-50%,0)}
@@ -136,12 +139,12 @@ button{font:inherit;color:inherit;cursor:pointer}
   .top{flex-wrap:nowrap}.top a{min-height:36px;padding:4px 2px;font-size:15px}.seat{min-height:32px;font-size:13px;padding:0 10px}
   .opp{margin-top:6px}.backs{margin-top:6px;min-height:0;padding-bottom:6px}
   .centre{margin:10px 0 4px}.pile{padding:2px}.pile small{font-size:12px}
-  .prompt{font-size:15px;min-height:0;margin:6px 0 14px}
-  .mine{padding-top:2px;padding-bottom:10px}.hand{padding:38px 0 24px;min-height:0}
+  .prompt{font-size:15px;min-height:0;margin:0 0 6px}
+  .mine{padding-top:2px;padding-bottom:10px}.hand{padding:26px 0 34px;min-height:0}
   .info{font-size:13px;min-height:18px}.acts{margin-top:6px}.btn{min-height:46px;font-size:17px}.foot{margin-top:4px}
   .say{min-height:32px}.arr button{min-height:30px}
 }
-@media(max-height:620px){.centre{margin:4px 0 0}.prompt{margin:2px 0 6px!important}.hand{padding:28px 0 18px}.btn{min-height:42px;font-size:16px}.hint{display:none}.prompt{font-size:14px}.opp{margin-top:2px}.mehead .who{font-size:15px}}
+@media(max-height:620px){.centre{margin:4px 0 0}.prompt{margin:2px 0 6px!important}.hand{padding:18px 0 24px}.btn{min-height:42px;font-size:16px}.hint{display:none}.prompt{font-size:14px}.opp{margin-top:2px}.mehead .who{font-size:15px}}
 @media(max-width:600px){.top h1{font-size:20px}.who{font-size:17px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -180,7 +183,7 @@ button{font:inherit;color:inherit;cursor:pointer}
     <div class="prompt" id="prompt" aria-live="polite"></div>
     <div class="mine">
       <div class="bubble me" id="mesay" hidden></div>
-      <div class="mehead"><div class="who" id="myname"></div><button class="say" id="say" aria-label="Send a message"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-7l-5 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z" fill="currentColor"/><path d="M12 13.2c-2.4-1.6-1.8-3.6 0-2.6 1.8-1 2.4 1 0 2.6z" fill="#cf1f33"/></svg><span>Tease</span></button><div class="arr" role="group" aria-label="Sort my hand"><button data-a="melds">Melds</button><button data-a="suit">Suit</button><button data-a="rank">Rank</button></div></div>
+      <div class="mehead"><div class="who" id="myname" hidden></div><button class="say" id="say" aria-label="Send a message"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-7l-5 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z" fill="currentColor"/><path d="M12 13.2c-2.4-1.6-1.8-3.6 0-2.6 1.8-1 2.4 1 0 2.6z" fill="#cf1f33"/></svg><span>Tease</span></button><div class="arr" role="group" aria-label="Sort my hand"><button data-a="melds">Melds</button><button data-a="suit">Suit</button><button data-a="rank">Rank</button></div></div>
       <div class="hand" id="hand"></div>
       <div class="info" id="info"></div>
       <div class="acts"><button class="btn rummy" id="rummy" disabled>Call Rummy!</button><button class="btn" id="discard" disabled>Discard</button></div>
@@ -190,7 +193,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 </div>
 
 <div class="modal" id="kdlg" hidden role="dialog" aria-modal="true" aria-labelledby="kt"><form class="box" id="kform"><h3 id="kt">Passcode</h3><p>Enter your scoreboard passcode once on this phone to play.</p><input id="kin" type="password" autocomplete="current-password" aria-label="Passcode"><div class="row"><button class="btn prim">Save passcode</button></div></form></div>
-<div class="modal" id="rdlg" hidden role="dialog" aria-modal="true" aria-labelledby="rt"><div class="box"><h3 id="rt"></h3><p id="rp"></p><div class="res" id="rres"></div><div class="tally" id="rtally"></div><div class="row"><button class="btn" id="rclose">Look at the table</button><button class="btn prim" id="ragain">Deal next game</button></div></div></div>
+<div class="modal" id="rdlg" hidden role="dialog" aria-modal="true" aria-labelledby="rt"><div class="box"><h3 id="rt"></h3><p id="rp"></p><div class="res" id="rres"></div><div class="tally" id="rtally"></div><button class="btn addsb" id="radd">Add to scoreboard</button><div class="row"><button class="btn" id="rclose">Look at the table</button><button class="btn prim" id="ragain">Deal next game</button></div></div></div>
 <div class="modal" id="ndlg" hidden role="dialog" aria-modal="true" aria-labelledby="nt"><div class="box"><h3 id="nt">Start a new game?</h3><p>The game in progress will be thrown away for both of you.</p><div class="row"><button class="btn" id="nno">Keep playing</button><button class="btn prim" id="nyes">Deal new game</button></div></div></div>
 <div class="modal sheet" id="sdlg" hidden role="dialog" aria-modal="true" aria-labelledby="st"><div class="box"><h3 id="st">Say something cute</h3><div class="lines" id="lines"></div><form class="own" id="sform"><input id="sin" maxlength="80" placeholder="Or write your own…" aria-label="Your message" autocomplete="off"><button class="btn prim">Send</button></form><div class="row"><button class="btn" id="sno">Close</button></div></div></div>
 <div class="toast" id="toast" role="status"></div>
@@ -280,7 +283,7 @@ function arranged(cards){
   const a=R.analyse(cards),order=[],groups={};
   a.melds.forEach((m,i)=>{R.sortCards(m.cards,m.type==='run'?'suit':'rank').forEach(c=>{order.push(c);groups[c]=i})});
   R.sortCards(a.deadwood,'suit').forEach(c=>order.push(c));return{order,groups,groups0:g0}}
-const PW=()=>innerHeight<620?48:innerHeight<760||innerWidth<600?76:92;
+const PW=()=>innerHeight<620?44:innerHeight<760||innerWidth<600?68:84;
 function render(){
   if(drag&&drag.on)return;
   $('#sn0').textContent=names[0];$('#sn1').textContent=names[1];
@@ -308,7 +311,7 @@ function render(){
   $('#prompt').innerHTML=p;
   // hand
   const groups=arranged(hand).groups0;const order=myOrder(hand);const W=Math.min(innerWidth,900)-28-Math.min(48,innerWidth*.08),n=order.length||1;
-  const cw=Math.max(44,Math.min(innerHeight<620?56:innerHeight<760?62:78,Math.floor(W/5.4))),per=Math.min(4.2,34/Math.max(n-1,1)),maxA=per*(n-1)/2*Math.PI/180,rad=cw*1.42*1.6,
+  const cw=Math.max(48,Math.min(innerHeight<620?60:innerHeight<760?70:88,Math.floor(W/4.8))),per=Math.min(6,52/Math.max(n-1,1)),maxA=per*(n-1)/2*Math.PI/180,rad=cw*1.42*1.15,
     step=n>1?Math.max(14,Math.min(cw*.62,(W-cw*1.45-2*rad*Math.sin(maxA))/(n-1))):0,ml=step-cw;
   $('#hand').innerHTML=order.map((c,i)=>{const g=groups[c];const cls=[c===sel?'sel':'',c===newCard?'new':'',dealt?'deal':''].join(' ');
     return cardHTML(c,cls,cw,`--rot:${((i-(n-1)/2)*per).toFixed(2)}deg;margin-left:${i?ml:0}px;${dealt?`animation-delay:${i*60}ms;`:''}`,'button')}).join('');
@@ -322,13 +325,21 @@ function render(){
   $('#rummy').textContent=ro.length?`Call Rummy!${ro.length===1||!ro.includes(sel)?` (throw ${lbl(ro.includes(sel)?sel:ro[0])})`:''}`:'Call Rummy!';
 
 }
-function groupsHTML(melds,dead){return melds.map(m=>`<span class="grp">${m.map(c=>cardHTML(c,'',40)).join('')}</span>`).join('')+(dead.length?`<span class="grp dead">${dead.map(c=>cardHTML(c,'',40)).join('')}</span>`:'')}
+function groupsHTML(melds,dead){const s=innerHeight<760?30:40;return melds.map(m=>`<span class="grp">${m.map(c=>cardHTML(c,'',s)).join('')}</span>`).join('')+(dead.length?`<span class="grp dead">${dead.map(c=>cardHTML(c,'',s)).join('')}</span>`:'')}
 function showResult(g){const w=g.result.winner,l=other(w);
   $('#rt').textContent=w===me?'You called Rummy!':`${names[w]} called Rummy`;
   $('#rp').textContent=`${names[l]} counts ${g.result.points[l]} points${g.result.hasRun?' (melds don’t count thanks to a run of 4)':' (no run of 4, so every card counts)'}.`;
   $('#rres').innerHTML=[w,l].map(p=>`<div><h4>${SUITCH[p]} ${names[p]}<b>${g.result.points[p]}</b></h4><div class="lay">${groupsHTML(g.result.melds[p]||[],g.result.dead[p]||[])}</div></div>`).join('');
   $('#rtally').textContent=`Digital games won: ${names[0]} ${g.tally[0]} · ${names[1]} ${g.tally[1]}`;
+  const ab=$('#radd');ab.disabled=!!g.result.logged;ab.textContent=g.result.logged?'Added to scoreboard ✓':`Add to scoreboard (${names[l]} ${g.result.points[l]})`;
   $('#rdlg').hidden=false}
+async function addToScoreboard(){if(!G||G.status!=='done'||G.result.logged||needKey())return;const ab=$('#radd');ab.disabled=true;ab.textContent='Adding…';
+  const d=new Date(),day=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  const entry={id:'g'+G.id,d:day,g:'Rummy',a:G.result.points[0],b:G.result.points[1],t:Date.now()};
+  try{const j=await post({action:'add',entry});if(!j.ok)throw 0;
+    for(let k=0;k<3;k++){const g=clone(G);g.result.logged=true;if(await save(g,true))break}
+    ab.textContent='Added to scoreboard ✓';toast('Added to your scoreboard');burst(false)}
+  catch(e){ab.disabled=false;ab.textContent='Couldn’t add, try again'}}
 
 // ---- fun ----
 function burst(big){if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;const cx=innerWidth/2,cy=innerHeight/2;
@@ -383,7 +394,7 @@ function endDrag(e){if(!drag||(e&&e.pointerId!==drag.id))return;const d=drag;dra
   if(!d.on)return;justDragged=true;setTimeout(()=>justDragged=false,50);
   const o=myOrder(G.hands[me]||[]).filter(c=>c!==d.c);o.splice(d.to,0,d.c);ls.set(ordKey(),o);render()}
 $('#hand').addEventListener('pointerup',endDrag);$('#hand').addEventListener('pointercancel',endDrag);
-$('#rclose').onclick=()=>{$('#rdlg').hidden=true};$('#ragain').onclick=()=>{$('#rdlg').hidden=true;deal()};
+$('#radd').onclick=addToScoreboard;$('#rclose').onclick=()=>{$('#rdlg').hidden=true};$('#ragain').onclick=()=>{$('#rdlg').hidden=true;deal()};
 $('#newgame').onclick=()=>{if(G&&G.status==='playing')$('#ndlg').hidden=false;else deal()};
 $('#nno').onclick=()=>{$('#ndlg').hidden=true};$('#nyes').onclick=()=>{$('#ndlg').hidden=true;deal()};
 document.addEventListener('keydown',e=>{if(e.key==='Escape')['#ndlg','#rdlg','#sdlg'].forEach(s=>$(s).hidden=true)});
