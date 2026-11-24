@@ -40,7 +40,8 @@ button{font:inherit;color:inherit;cursor:pointer}
 @keyframes breathe{50%{transform:translateY(-4px)}}
 .pile:disabled{cursor:default}
 .prompt{text-align:center;font:500 17px/1.35 Rubik,sans-serif;min-height:48px;margin:6px 0 4px;text-wrap:balance}
-.prompt b{color:var(--brass)}
+.prompt b{color:var(--brass);font:900 22px/1.2 'Playfair Display',Georgia,serif}.prompt .tw{font:700 18px Georgia,serif;margin-right:6px;opacity:.85}
+.prompt.mine-turn b{animation:yt 1.8s ease-in-out infinite;display:inline-block}@keyframes yt{50%{transform:scale(1.08)}}
 /* cards */
 .card{--w:var(--cw,64px);position:relative;display:inline-block;vertical-align:top;width:var(--w);height:calc(var(--w)*1.42);border-radius:calc(var(--w)*.11);background:var(--ivory);color:var(--ink);box-shadow:0 6px 14px rgb(0 0 0/.35),inset 0 0 0 1px rgb(0 0 0/.08);flex:none;user-select:none;-webkit-user-select:none}
 .card.r{color:var(--red)}
@@ -170,7 +171,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 
   <!-- table -->
   <section id="table" hidden style="display:flex;flex-direction:column;flex:1">
-    <div class="opp"><div class="who" id="oppname"></div><span class="pill" id="opppill"></span><div class="bubble them" id="themsay" hidden></div></div>
+    <div class="opp"><div class="who" id="oppname"></div><div class="bubble them" id="themsay" hidden></div></div>
     <div class="backs" id="backs"></div>
     <div class="centre">
       <button class="pile" id="deck" aria-label="Draw from the deck"><span id="deckcard"></span><small id="deckn"></small></button>
@@ -184,7 +185,7 @@ button{font:inherit;color:inherit;cursor:pointer}
       <div class="hint">Drag cards to rearrange · tap one to select it</div>
       <div class="info" id="info"></div>
       <div class="acts"><button class="btn rummy" id="rummy" disabled>Call Rummy!</button><button class="btn" id="discard" disabled>Discard</button></div>
-      <div class="foot"><span id="sync"></span> · <button id="newgame">New game</button></div>
+      <div class="foot"><span id="sync"></span> · <button id="newgame">New game</button> · <button id="switch">Switch player</button></div>
     </div>
   </section>
 </div>
@@ -286,13 +287,12 @@ function render(){
   $('#sn0').textContent=names[0];$('#sn1').textContent=names[1];
   const show=id=>['pick','lobby','table'].forEach(x=>$('#'+x).hidden=x!==id);
   if(me==null){show('pick');$('#seat').hidden=true;return}
-  $('#seat').hidden=false;$('#seat').textContent=`You're ${names[me]} ${SUITCH[me]}`;
+  $('#seat').hidden=true;
   if(!G){show('lobby');$('#lobbynote').textContent=API?'':'Connect the Google Sheet first (see README).';return}
   show('table');
   const o=other(me),hand=G.hands[me]||[],opp=G.hands[o]||[];
   $('#oppname').innerHTML=`<i style="color:${o?'#fff':'#ff6b7a'}">${SUITCH[o]}</i>${names[o]}`;
   $('#myname').innerHTML=`<i style="color:${me?'#fff':'#ff6b7a'}">${SUITCH[me]}</i>You`;
-  const pill=$('#opppill');pill.className='pill'+(G.status==='playing'&&G.turn===o?' go':'');pill.textContent=G.status!=='playing'?'Game over':G.turn===o?`${names[o]}'s turn`:'Waiting for you';
   const bw=Math.max(26,Math.min(innerHeight<620?30:innerHeight<760?36:48,Math.floor((Math.min(innerWidth,900)-60)/ (opp.length*0.55+1))));
   {const m=opp.length,pa=Math.min(4,30/Math.max(m-1,1));$('#backs').innerHTML=opp.map((_,i)=>backHTML(o,bw).replace('style="',`style="--rot:${(-(i-(m-1)/2)*pa).toFixed(2)}deg;`)).join('')}
   const canDraw=myTurn()&&G.phase==='draw';
@@ -303,10 +303,9 @@ function render(){
   $('#disc').setAttribute('aria-label',top?`Take ${lbl(top)} from the discard pile`:'Discard pile is empty');
   // prompt
   let p='';
-  if(G.status==='done'){const w=G.result.winner;p=w===me?'You called <b>Rummy!</b> 🎉':`<b>${names[w]}</b> called Rummy`;p=p.replace(' 🎉','')}
-  else if(G.turn!==me)p=`Waiting for <b>${names[o]}</b> to play…`;
-  else if(G.phase==='draw')p=`Your turn: <b>draw</b> from the deck${top?` or take the <b>${lbl(top)}</b>`:''}`;
-  else p=sel?`Throw away <b>${lbl(sel)}</b>?`:'Tap a card to <b>throw away</b>';
+  if(G.status==='done'){const w=G.result.winner;p=w===me?'You called <b>Rummy!</b>':`<b>${names[w]}</b> called Rummy`}
+  else p=G.turn===me?'<b>Your turn</b>':`<span class="tw">${SUITCH[o]}</span><b>${names[o]}'s turn</b>`;
+  $('#prompt').className='prompt'+(G.status==='playing'&&G.turn===me?' mine-turn':'');
   $('#prompt').innerHTML=p;
   // hand
   const groups=arranged(hand).groups0;const order=myOrder(hand);const W=Math.min(innerWidth,900)-28,n=order.length||1;
@@ -362,7 +361,7 @@ $('#sform').addEventListener('submit',e=>{e.preventDefault();sendMsg($('#sin').v
 $('#sdlg').addEventListener('click',e=>{if(e.target===$('#sdlg'))$('#sdlg').hidden=true});
 // ---- events ----
 document.querySelectorAll('.seatbtn').forEach(b=>b.onclick=()=>{me=Number(b.dataset.me);ls.set('rm-me',me);render();load()});
-$('#seat').onclick=()=>{me=null;ls.set('rm-me',null);render()};
+$('#seat').onclick=$('#switch').onclick=()=>{me=null;ls.set('rm-me',null);render()};
 $('#deal').onclick=deal;
 $('#deck').onclick=drawDeck;$('#disc').onclick=takeDisc;
 $('#hand').addEventListener('click',e=>{if(justDragged)return;const b=e.target.closest('[data-c]');if(!b)return;const c=b.dataset.c;
