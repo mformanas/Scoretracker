@@ -6,7 +6,8 @@
  *               board_id | game | name | player_1 | player_2 | player_3 | low_wins | passcode_hash | created_at | deleted_at
  *               (a deleted dashboard only gets a deleted_at date; its hands stay in Scores. Clear the date to bring it back.)
  *   Scores      one row per hand, tagged with its dashboard
- *               board_id | hand_id | date | player_1_score | player_2_score | player_3_score | logged_at
+ *               board_id | hand_id | date | player_1_score | player_2_score | player_3_score | logged_at | note
+ *               (note says how a game ended, e.g. "checkmate · 34 moves · Leah white")
  *   Live games  one row per dashboard with a phone game in progress
  *               board_id | state (JSON) | version | updated_at
  *
@@ -20,13 +21,16 @@
 // Master passcode: works for every dashboard. It is also the passcode of "Leah vs Manas".
 const PASSCODE = 'CHANGE-ME';
 
-const GAMES = { rummy: { name: 'Rummy', minPlayers: 2, maxPlayers: 3, lowWins: true } };
+const GAMES = {
+  rummy: { name: 'Rummy', minPlayers: 2, maxPlayers: 3, lowWins: true },
+  chess: { name: 'Chess', minPlayers: 2, maxPlayers: 2, lowWins: false }, // win = 1, draw = ½ each
+};
 const MAX_PLAYERS = 3;
 const LEGACY_BOARD = 'leah-manas';
 
 const T = { BOARDS: 'Boards', SCORES: 'Scores', LIVE: 'Live games' };
 const BOARD_HEAD = ['board_id', 'game', 'name', 'player_1', 'player_2', 'player_3', 'low_wins', 'passcode_hash', 'created_at', 'deleted_at'];
-const SCORE_HEAD = ['board_id', 'hand_id', 'date', 'player_1_score', 'player_2_score', 'player_3_score', 'logged_at'];
+const SCORE_HEAD = ['board_id', 'hand_id', 'date', 'player_1_score', 'player_2_score', 'player_3_score', 'logged_at', 'note'];
 const LIVE_HEAD = ['board_id', 'state', 'version', 'updated_at'];
 
 // ---------------- web app ----------------
@@ -63,6 +67,7 @@ function doPost(e) {
       case 'add': {
         const en = clean_(body.entry, board);
         if (!en) return json_({ ok: false, error: 'bad_entry' });
+        if (en.note) noteHead_();
         if (rowOfHand_(board.id, en.id) < 0) sheet_(T.SCORES).appendRow(scoreRow_(board.id, en));
         break;
       }
@@ -205,6 +210,7 @@ function readScores_(board) {
       s,
       a: s[0], b: s[1], // kept for older pages
       t: t instanceof Date ? t.getTime() : (Number(t) || 0),
+      note: String(r[4 + MAX_PLAYERS] || ''),
     };
   });
 }
@@ -217,11 +223,17 @@ function clean_(en, board) {
   while (s.length < n) s.push(0);
   if (!s.every(x => isFinite(x))) return null;
   const t = Number(en.t);
-  return { id: String(en.id).slice(0, 40), d: String(en.d), s, t: t > 0 ? t : 0 };
+  return { id: String(en.id).slice(0, 40), d: String(en.d), s, t: t > 0 ? t : 0, note: String(en.note || '').slice(0, 80) };
 }
 
 function scoreRow_(boardId, en) {
-  return [boardId, en.id, en.d].concat(pad_(en.s, MAX_PLAYERS, '')).concat([en.t ? new Date(en.t) : new Date()]);
+  return [boardId, en.id, en.d].concat(pad_(en.s, MAX_PLAYERS, '')).concat([en.t ? new Date(en.t) : new Date(), en.note || '']);
+}
+
+// older sheets were made before the note column existed
+function noteHead_() {
+  const sh = sheet_(T.SCORES), c = SCORE_HEAD.length;
+  if (String(sh.getRange(1, c).getValues()[0][0]) === '') sh.getRange(1, c).setValue('note').setFontWeight('bold');
 }
 
 function rowOfHand_(boardId, handId) {
