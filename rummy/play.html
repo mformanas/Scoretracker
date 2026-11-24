@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rummy table · Adda</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%99%A0%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Rubik:wght@400;500;700&display=swap">
+<script>document.write('<script src="../config.js?v='+Date.now()+'"><\/script>')</script>
+<script src="rummy.js"></script>
+<style>
+/* VOICE: a cosy card table for 2 or 3, playful but clear about whose turn it is
+   IDEA: the green felt of the scoreboard, now with a real deck, discard pile and your hand
+   PICTURE: your fanned hand along the bottom, the opponent's card backs at the top, deck and pile in the middle
+   COLOUR and TYPE: felt green, ivory cards, heart red, spade black, brass accents; Playfair indices, Rubik words
+   LAYOUT: one screen, phone first: opponent, table centre, prompt, your hand, actions */
+:root{--felt:#0f5a38;--felt2:#0b4a2e;--ivory:#fbf8f0;--brass:#d9b25a;--red:#cf1f33;--ink:#1b1b1d;--mut:rgb(255 255 255/.75)}
+*{box-sizing:border-box;min-width:0}[hidden]{display:none!important}
+html,body{margin:0;height:100%}
+body{font:16px/1.45 Rubik,system-ui,sans-serif;color:#fff;overflow-x:clip;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgb(255 255 255/.09),transparent 70%),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96'%3E%3Cg fill='%23ffffff' fill-opacity='.04' font-size='22' font-family='serif'%3E%3Ctext x='8' y='30'%3E%E2%99%A0%3C/text%3E%3Ctext x='56' y='30'%3E%E2%99%A5%3C/text%3E%3Ctext x='32' y='78'%3E%E2%99%A6%3C/text%3E%3Ctext x='80' y='78'%3E%E2%99%A3%3C/text%3E%3C/g%3E%3C/svg%3E"),var(--felt)}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--brass);outline-offset:2px}
+.app{max-width:900px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:max(12px,env(safe-area-inset-top)) 14px max(16px,env(safe-area-inset-bottom))}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.top a{color:#fff;text-decoration:none;font-weight:500;padding:10px 4px;min-height:44px;display:inline-flex;align-items:center}
+.top h1{margin:0;font:900 28px/1 'Playfair Display',Georgia,serif}
+.seat{background:rgb(0 0 0/.22);border:1px solid rgb(255 255 255/.25);border-radius:999px;padding:0 14px;min-height:40px;font-size:14px}
+.opp{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px}
+.who{font:700 20px/1.1 Rubik,sans-serif;display:flex;align-items:center;gap:8px}
+.who i{font:700 20px Georgia,serif;font-style:normal}
+.pill{font-size:13px;font-weight:700;border-radius:999px;padding:4px 12px;background:rgb(0 0 0/.25)}
+.pill.go{background:var(--brass);color:#2b1d05}
+.backs{display:flex;justify-content:center;margin:10px 0 0;min-height:64px}
+.backs{padding-bottom:14px;cursor:pointer}.backs .card{margin-left:var(--ov,-30px);transform-origin:50% -110%;transform:rotate(var(--rot,0deg))}.backs .card:first-child{margin-left:0}
+.centre{flex:1;display:flex;justify-content:center;align-items:center;gap:clamp(24px,10vw,70px);margin:2px 0 0}
+.pile{display:grid;justify-items:center;gap:6px;background:none;border:0;padding:6px;border-radius:14px;color:#fff}
+.pile small{font-size:13px;color:var(--mut)}
+.pile.can .card{box-shadow:0 0 0 3px var(--brass),0 0 26px rgb(217 178 90/.7),0 8px 18px rgb(0 0 0/.35);animation:breathe 1.6s ease-in-out infinite}
+@keyframes breathe{50%{transform:translateY(-4px)}}
+.pile[aria-disabled=true]{cursor:not-allowed}
+.nopeb{position:fixed;transform:translate(-50%,-100%);background:var(--ivory);color:#14231b;border-radius:14px;padding:8px 14px;font:700 15px/1.25 Rubik,sans-serif;box-shadow:0 10px 24px rgb(0 0 0/.35);z-index:12;white-space:nowrap;pointer-events:none;display:flex;gap:6px;align-items:center}
+.nopeb::after{content:'';position:absolute;left:50%;bottom:-7px;margin-left:-7px;border:7px solid transparent;border-bottom:0;border-top-color:var(--ivory)}
+.nb-x{color:#cf1f33;font-weight:800}
+.prompt{text-align:center;font:500 17px/1.35 Rubik,sans-serif;min-height:48px;margin:6px 0 4px;text-wrap:balance}
+.prompt b{color:var(--brass);font:900 22px/1.2 'Playfair Display',Georgia,serif}.prompt .tw{font:700 18px Georgia,serif;margin-right:6px;opacity:.85}
+.prompt.mine-turn b{animation:yt 1.8s ease-in-out infinite;display:inline-block}@keyframes yt{50%{transform:scale(1.08)}}
+/* cards */
+.card{--w:var(--cw,64px);position:relative;display:inline-block;vertical-align:top;width:var(--w);height:calc(var(--w)*1.42);border-radius:calc(var(--w)*.11);background:var(--ivory);color:var(--ink);box-shadow:0 6px 14px rgb(0 0 0/.35),inset 0 0 0 1px rgb(0 0 0/.08);flex:none;user-select:none;-webkit-user-select:none}
+.card.r{color:var(--red)}
+.card .ix{position:absolute;top:calc(var(--w)*.07);left:calc(var(--w)*.09);display:flex;flex-direction:column;align-items:center;font:900 calc(var(--w)*.3)/1 'Playfair Display',Georgia,serif}
+.card .ix i{font:700 calc(var(--w)*.24)/1 Georgia,serif;font-style:normal}
+.card .ix.b{top:auto;left:auto;bottom:calc(var(--w)*.07);right:calc(var(--w)*.09);transform:rotate(180deg)}
+.card .pip{position:absolute;inset:0;display:grid;place-items:center;font:700 calc(var(--w)*.5)/1 Georgia,serif}
+.card.back{--bk:#a8142a;--bk2:#d0283f;--ln:rgb(255 226 160/.42);background:repeating-linear-gradient(45deg,var(--ln) 0 1px,transparent 1px calc(var(--w)*.11)),repeating-linear-gradient(-45deg,var(--ln) 0 1px,transparent 1px calc(var(--w)*.11)),radial-gradient(ellipse at 50% 40%,var(--bk2),var(--bk) 75%);box-shadow:0 6px 14px rgb(0 0 0/.35),inset 0 0 0 calc(var(--w)*.06) var(--ivory),inset 0 0 0 calc(var(--w)*.085) var(--bk),inset 0 0 0 calc(var(--w)*.1) #e8c26a}
+.card.back.k{--bk:#161a26;--bk2:#2c3348;--ln:rgb(232 194 106/.45)}
+.card.back::after{content:var(--s,'♥');position:absolute;left:50%;top:50%;width:calc(var(--w)*.5);height:calc(var(--w)*.5);transform:translate(-50%,-50%);border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,var(--bk2),var(--bk));box-shadow:0 0 0 calc(var(--w)*.025) #e8c26a,0 0 0 calc(var(--w)*.05) var(--bk),0 0 0 calc(var(--w)*.065) rgb(232 194 106/.6);color:#ffe7a8;font:700 calc(var(--w)*.28)/1 Georgia,serif}
+.card.back::before{content:'';position:absolute;inset:calc(var(--w)*.16);border-radius:calc(var(--w)*.05);border:1px solid rgb(232 194 106/.55)}
+.card.empty{background:rgb(0 0 0/.2);box-shadow:inset 0 0 0 2px rgb(255 255 255/.25)}
+/* my hand */
+.mine{padding-top:6px;padding-bottom:14px}
+.mehead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.hint{font-size:12px;color:var(--mut);text-align:center;margin-top:2px}
+.mehead .arr{margin-left:auto}
+.arr{display:flex;background:rgb(0 0 0/.22);border-radius:999px;padding:3px}
+.arr button{border:0;background:none;border-radius:999px;padding:0 12px;min-height:34px;font-size:13px}
+.arr button[aria-pressed=true]{background:var(--ivory);color:#14231b}
+.hand{display:flex;justify-content:center;align-items:flex-end;padding:36px 0 40px;min-height:170px}
+.hand .card{transition:transform .2s cubic-bezier(.3,1.5,.5,1),margin .2s;cursor:pointer;border:0;padding:0}
+.hand{touch-action:none}
+.hand .card{transform-origin:50% 165%;transform:rotate(var(--rot,0deg)) translateY(var(--lift,0px))}
+.hand .card:hover{--lift:-10px}
+.hand.is-dragging .card{transition:transform .18s ease;animation:none!important}
+.hand .card.dragging{transition:none!important;z-index:5;box-shadow:0 0 0 3px var(--brass),0 18px 30px rgb(0 0 0/.45);cursor:grabbing}
+.hand .card{cursor:grab}
+.hand .card.sel{--lift:-26px;box-shadow:0 0 0 3px var(--brass),0 12px 20px rgb(0 0 0/.4)}
+.hand .card.meld::before{content:'';position:absolute;left:12%;right:12%;bottom:-9px;height:4px;border-radius:2px;background:var(--mc,var(--brass))}
+.hand .card.new{animation:newcard .6s cubic-bezier(.3,1.5,.5,1) backwards}
+@keyframes newcard{0%{transform:rotate(var(--rot,0deg)) translateY(-70px) scale(.8);opacity:0}100%{transform:rotate(var(--rot,0deg));opacity:1}}
+.hand .card.deal{animation:dealin .45s cubic-bezier(.3,1.4,.5,1) backwards}
+@keyframes dealin{0%{transform:translateY(-220px) rotate(-30deg) scale(.6);opacity:0}100%{transform:rotate(var(--rot,0deg));opacity:1}}
+.info{text-align:center;font-size:14px;color:var(--mut);min-height:22px}
+.info b{color:#fff}
+.acts{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin-top:10px}
+.btn{min-height:52px;border-radius:14px;border:0;font:700 18px/1 'Playfair Display',Georgia,serif;background:var(--ivory);color:#14231b;box-shadow:0 4px 0 rgb(0 0 0/.25)}
+.btn:disabled{opacity:.4;cursor:default}
+.btn.rummy{background:var(--brass);color:#2b1d05}
+.btn.rummy:not(:disabled){animation:glow 1.4s ease-in-out infinite}
+@keyframes glow{50%{box-shadow:0 0 0 4px rgb(255 226 122/.5),0 0 30px rgb(255 210 60/.8)}}
+.btn:not(:disabled):active{transform:translateY(3px);box-shadow:0 1px 0 rgb(0 0 0/.25)}
+.start{margin:auto;text-align:center;display:grid;gap:14px;justify-items:center;padding:30px 0}
+.start.loading h2.swap{animation:swapin .4s cubic-bezier(.3,1.4,.5,1)}@keyframes swapin{from{transform:translateY(8px);opacity:0}}
+.start.loading::before{content:'♠ ♥ ♦ ♣';font:700 26px Georgia,serif;letter-spacing:.3em;color:var(--brass);animation:suits 1.2s ease-in-out infinite}@keyframes suits{50%{opacity:.35;transform:scale(.92)}}
+.start h2{margin:0;font:900 clamp(30px,6vw,44px)/1.05 'Playfair Display',Georgia,serif}
+.start p{margin:0;color:var(--mut);max-width:34em}
+.seats{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.seatbtn{width:150px;min-height:120px;border-radius:16px;border:0;background:var(--ivory);color:var(--red);display:grid;place-items:center;gap:4px;padding:16px;font:900 24px 'Playfair Display',Georgia,serif;box-shadow:0 8px 20px rgb(0 0 0/.3)}
+.seatbtn i{font:700 40px/1 Georgia,serif;font-style:normal}
+.seatbtn.k{color:var(--ink)}.seatbtn.d{color:#1f5fbf}
+.opps{display:grid;grid-template-columns:repeat(var(--o,1),minmax(0,1fr));gap:10px;margin-top:14px}
+.opps .opp{margin-top:0;display:block;position:relative}.opps .who{justify-content:flex-start}
+.opps.o2 .who{justify-content:center;font-size:16px}
+.opp .who.on{color:var(--brass)}
+.opp .bubble.them{top:30px}.opps.o2 .opp:last-child .bubble.them{left:auto;right:0}.opps.o2 .opp:last-child .bubble.them::before{left:auto;right:18px}
+.opps.o2 .bubble{max-width:min(240px,92%)}
+.res .ix{font-size:16px}
+.big{min-width:220px;padding:0 26px}
+/* modal + toast */
+.modal{position:fixed;inset:0;background:rgb(6 20 13/.7);display:grid;place-items:center;padding:16px;z-index:9}
+.box{background:var(--ivory);color:#14231b;border-radius:18px;padding:24px;width:min(560px,100%);max-height:92vh;overflow:auto;box-shadow:0 24px 60px rgb(0 0 0/.5);animation:pop .35s cubic-bezier(.3,1.4,.5,1)}
+@keyframes pop{from{transform:scale(.9) rotate(-2deg);opacity:0}}
+.box h3{margin:0 0 6px;font:900 28px/1.1 'Playfair Display',Georgia,serif}
+.box p{margin:0 0 14px;color:#4b5563}
+.box input{width:100%;min-height:48px;border-radius:12px;border:2px solid #ddd;padding:0 12px;font-size:16px;margin-bottom:14px}
+.row{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.row .btn{min-width:120px;padding:0 18px;font-size:16px;background:#fff;border:1px solid #ddd}
+.row .btn.prim{background:var(--felt);color:#fff;border-color:var(--felt)}
+.res{display:grid;gap:10px;margin:8px 0 12px}
+@media(max-height:760px){.box{padding:18px}.box h3{font-size:24px}.lay{gap:6px}.grp .card{margin-left:-10px}}
+.res h4{margin:0 0 6px;font:700 17px Rubik,sans-serif;display:flex;justify-content:space-between}
+.res h4 b{font:900 22px 'Playfair Display',Georgia,serif}
+.lay{display:flex;flex-wrap:wrap;gap:10px}
+.grp{display:flex;padding:6px;border-radius:10px;background:#efe9da}.grp .card{--cw:40px;margin-left:-14px}.grp .card:first-child{margin-left:0}
+.grp.dead{background:#fde8ea}
+.grp small{display:block}
+.addsb{width:100%;margin:0 0 12px;background:var(--brass);color:#2b1d05}
+.addsb:disabled{opacity:.75}
+.tally{font-size:14px;color:#4b5563;text-align:center;margin-bottom:12px}
+.toast{position:fixed;left:50%;bottom:max(20px,env(safe-area-inset-bottom));transform:translate(-50%,160%);background:var(--ivory);color:#14231b;border-radius:14px;padding:10px 16px;box-shadow:0 12px 28px rgb(0 0 0/.35);transition:transform .25s;z-index:10;max-width:calc(100vw - 28px);text-align:center}
+.toast.on{transform:translate(-50%,0)}
+.bit{position:fixed;font:700 22px/1 Georgia,serif;pointer-events:none;z-index:11}
+.foot{text-align:center;font-size:13px;color:var(--mut);margin-top:12px}
+.foot button{background:none;border:0;color:#fff;text-decoration:underline;font-size:13px;padding:6px}
+
+/* messages */
+.say{display:inline-flex;align-items:center;gap:6px;border:0;border-radius:999px;background:var(--ivory);color:#14231b;min-height:36px;padding:0 12px 0 10px;font:700 13px Rubik,sans-serif;box-shadow:0 3px 0 rgb(0 0 0/.25);transition:transform .2s cubic-bezier(.3,1.6,.5,1)}
+.say:hover{transform:rotate(-4deg) scale(1.05)}
+.bubble{position:relative;max-width:min(320px,80%);background:var(--ivory);color:#14231b;border-radius:16px;padding:10px 14px;font:500 15px/1.35 Rubik,sans-serif;box-shadow:0 10px 24px rgb(0 0 0/.3);z-index:3}
+.opp{position:relative}.bubble.them{position:absolute;left:0;top:calc(100% + 8px);z-index:4}.bubble.them::before{content:'';position:absolute;top:-8px;left:18px;border:8px solid transparent;border-top:0;border-bottom-color:var(--ivory)}
+.mine{position:relative}.bubble.me{position:absolute;right:0;bottom:calc(100% - 2px)}.bubble.me::after{content:'';position:absolute;bottom:-8px;right:22px;border:8px solid transparent;border-bottom:0;border-top-color:var(--ivory)}
+.bubble.pop{animation:bpop .45s cubic-bezier(.3,1.6,.5,1)}
+@keyframes bpop{0%{transform:scale(.6);opacity:0}100%{transform:none;opacity:1}}
+.sheet{align-items:end;padding:10px}.sheet .box{border-radius:20px 20px 14px 14px;max-height:calc(100dvh - 20px);display:flex;flex-direction:column;padding:18px;overflow:hidden}.sheet .box h3{font-size:22px}
+.lines{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 12px;overflow-y:auto;min-height:0;flex:1 1 auto;padding:2px}
+.line{border:1px solid #e3dccb;background:#fff;border-radius:999px;padding:7px 12px;font:500 14px/1.3 Rubik,sans-serif;color:#14231b;text-align:left;transition:transform .15s}
+.line:hover{transform:translateY(-2px);border-color:var(--brass)}
+.own{display:flex;gap:8px;margin-bottom:12px}.own input{margin:0;flex:1}.own .btn{min-width:90px;font-size:16px;background:var(--felt);color:#fff}
+.mehead .who{margin-right:4px}
+@media(max-height:900px),(max-width:600px){
+  .opps{margin-top:6px}
+  .app{min-height:100dvh;padding-top:max(8px,env(safe-area-inset-top));padding-bottom:max(10px,env(safe-area-inset-bottom))}
+  .top{flex-wrap:nowrap}.top a{min-height:36px;padding:4px 2px;font-size:15px}.seat{min-height:32px;font-size:13px;padding:0 10px}
+  .opp{margin-top:6px}.backs{margin-top:6px;min-height:0;padding-bottom:6px}
+  .centre{margin:10px 0 4px}.pile{padding:2px}.pile small{font-size:12px}
+  .prompt{font-size:15px;min-height:0;margin:4px 0 0}
+  .mine{padding-top:2px;padding-bottom:10px}.hand{padding:26px 0 34px;min-height:0}
+  .info{font-size:13px;min-height:18px}.acts{margin-top:6px}.btn{min-height:46px;font-size:17px}.foot{margin-top:4px}
+  .say{min-height:32px}.arr button{min-height:30px}
+}
+@media(max-height:620px){.centre{margin:4px 0 0}.prompt{margin:2px 0 6px!important}.hand{padding:18px 0 24px}.btn{min-height:42px;font-size:16px}.hint{display:none}.prompt{font-size:14px}.opp{margin-top:2px}.mehead .who{font-size:15px}}
+@media(max-width:600px){.top h1{font-size:20px}.who{font-size:17px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="top">
+    <a href="./" id="back">← Scores</a>
+    <h1>Rummy table</h1>
+    <button class="seat" id="seat" hidden></button>
+  </div>
+
+  <!-- choose seat -->
+  <section class="start" id="pick" hidden>
+    <h2>Who's playing on this phone?</h2>
+    <p>Each of you opens this page on your own phone. Your cards stay on your screen.</p>
+    <div class="seats" id="seats"></div>
+  </section>
+
+  <!-- no game yet -->
+  <section class="start" id="lobby" hidden>
+    <h2>Shuffle up and deal</h2>
+    <p>10 cards each. Call Rummy with a run of 4 and two runs or sets of 3.</p>
+    <button class="btn big" id="deal">Deal a new game</button>
+    <p id="lobbynote"></p>
+  </section>
+
+  <!-- table -->
+  <section id="table" hidden style="display:flex;flex-direction:column;flex:1">
+    <div class="opps" id="opps"></div>
+    <div class="prompt" id="prompt" aria-live="polite"></div>
+    <div class="centre">
+      <button class="pile" id="deck" aria-label="Draw from the deck"><span id="deckcard"></span><small id="deckn"></small></button>
+      <button class="pile" id="disc" aria-label="Take the top card of the discard pile"><span id="disccard"></span><small>Discard pile</small></button>
+    </div>
+    <div class="mine">
+      <div class="bubble me" id="mesay" hidden></div>
+      <div class="mehead"><div class="who" id="myname" hidden></div><button class="say" id="say" aria-label="Send a message"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-7l-5 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z" fill="currentColor"/></svg><span>Tease</span></button><div class="arr" role="group" aria-label="Sort my hand"><button data-a="melds">Melds</button><button data-a="suit">Suit</button><button data-a="rank">Rank</button></div></div>
+      <div class="hand" id="hand"></div>
+      <div class="info" id="info"></div>
+      <div class="acts"><button class="btn rummy" id="rummy" disabled>Call Rummy!</button><button class="btn" id="discard" disabled>Discard</button></div>
+      <div class="foot"><span id="sync"></span> · <button id="newgame">New game</button></div>
+    </div>
+  </section>
+</div>
+
+<div class="modal" id="kdlg" hidden role="dialog" aria-modal="true" aria-labelledby="kt"><form class="box" id="kform"><h3 id="kt">Passcode</h3><p id="kmsg">Enter this dashboard’s passcode once on this phone to play.</p><input id="kin" type="password" autocomplete="current-password" aria-label="Passcode"><div class="row"><button class="btn prim">Save passcode</button></div></form></div>
+<div class="modal" id="rdlg" hidden role="dialog" aria-modal="true" aria-labelledby="rt"><div class="box"><h3 id="rt"></h3><p id="rp"></p><div class="res" id="rres"></div><div class="tally" id="rtally"></div><button class="btn addsb" id="radd">Add to scoreboard</button><div class="row"><button class="btn" id="rclose">Look at the table</button><button class="btn prim" id="ragain">Deal next game</button></div></div></div>
+<div class="modal" id="ndlg" hidden role="dialog" aria-modal="true" aria-labelledby="nt"><div class="box"><h3 id="nt">Start a new game?</h3><p>The game in progress will be thrown away for everyone.</p><div class="row"><button class="btn" id="nno">Keep playing</button><button class="btn prim" id="nyes">Deal new game</button></div></div></div>
+<div class="modal sheet" id="sdlg" hidden role="dialog" aria-modal="true" aria-labelledby="st"><div class="box"><h3 id="st">Say something cute</h3><div class="lines" id="lines"></div><form class="own" id="sform"><input id="sin" maxlength="80" placeholder="Or write your own…" aria-label="Your message" autocomplete="off"><button class="btn prim">Send</button></form><div class="row"><button class="btn" id="sno">Close</button></div></div></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+{
+const $=s=>document.querySelector(s);
+const R=window.Rummy,CFG=window.SCORE_CONFIG||{},API=(CFG.apiUrl||'').trim();
+const ls={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const BID=new URLSearchParams(location.search).get('b')||'';
+if(!BID)location.replace('./');
+const LEG=BID==='leah-manas';
+const SEATK='rm-me-'+BID,KEYK='st-key-'+BID;
+let board=ls.get('adda-board-'+BID,null)||(LEG?{id:BID,name:'Leah vs Manas',players:CFG.names||['Leah','Manas']}:null);
+let names=board?board.players:[],me=ls.get(SEATK,LEG?ls.get('rm-me',null):null),G=null,ver=0,busy=false,sel=null,arrange=ls.get('rm-arr','melds'),dealt=false,newCard=null,resultShown=null;
+if(me!=null&&names.length&&me>=names.length)me=null;
+let drag=null,justDragged=false,noFallback=false;
+const SUITCH=['♥','♠','♦'],FELT=['#ff6b7a','#fff','#8fb8ff'],lbl=R.label,isRed=c=>/[HD]$/.test(c);
+const NP=()=>(G&&G.hands?G.hands.length:names.length)||2;
+const next=p=>(p+1)%NP();
+const others=()=>{const o=[];for(let k=1;k<NP();k++)o.push((me+k)%NP());return o};
+$('#back').href='board.html?b='+encodeURIComponent(BID);
+
+// ---- server ----
+const myKey=()=>ls.get(KEYK,'')||(noFallback?'':ls.get('st-key',''));
+async function post(body,ms=30000){const ac=new AbortController(),t=setTimeout(()=>ac.abort(),ms);try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({...body,board:BID,key:myKey()}),signal:ac.signal});return await r.json()}finally{clearTimeout(t)}}
+function badKey(){if(ls.get(KEYK,''))ls.set(KEYK,'');else noFallback=true;needKey()}
+let loading=false,loaded=false;
+function needKey(){if(!myKey()){$('#kmsg').textContent=`Enter the passcode for ${board?board.name:'this dashboard'} once on this phone to play.`;$('#kdlg').hidden=false;setTimeout(()=>$('#kin').focus(),30);return true}return false}
+$('#kform').addEventListener('submit',e=>{e.preventDefault();const k=$('#kin').value.trim();if(!k)return;ls.set(KEYK,k);$('#kin').value='';$('#kdlg').hidden=true;load()});
+async function loadBoard(){if(!API)return;
+  try{const r=await fetch(API+(API.includes('?')?'&':'?')+'board='+encodeURIComponent(BID)+'&t='+Date.now()),j=await r.json();
+    if(j.ok&&j.board){board=j.board;names=board.players;ls.set('adda-board-'+BID,board);ls.set('st-cache'+(LEG?'':'-'+BID),j.entries);if(me!=null&&me>=names.length)me=null;render()}
+    else if(j.error==='no_board'){$('#pick').hidden=false;$('#pick').innerHTML='<h2>This table isn’t set up</h2><p>We couldn’t find this dashboard.</p><a class="btn big" style="display:inline-grid;place-items:center;text-decoration:none" href="./">See all Rummy dashboards</a>';['#lobby','#table'].forEach(s=>$(s).hidden=true)}}
+  catch(e){}}
+async function load(){
+  if(!API){$('#sync').textContent='Not connected to the Google Sheet';render();return}
+  if(me==null||needKey()||busy||loading)return;loading=true;
+  try{const j=await post({action:'game_get'});if(busy)return;
+    if(!j.ok){if(j.error==='bad_key'){badKey();toast('That passcode didn’t work')}return}
+    const first=!loaded;loaded=true;
+    if(first||j.ver!==ver){const prev=G;G=j.game&&Array.isArray(j.game.hands)?j.game:null;ver=j.ver;announce(prev,G);render()}
+    $('#sync').textContent='Connected';
+  }catch(e){$('#sync').textContent='Slow connection, still trying…';if(!loaded)render()}
+  finally{loading=false}}
+async function save(nextG,quiet,retried){
+  if(needKey())return false;busy=true;const prev=G;G=nextG;render();
+  try{const j=await post({action:'game_put',game:nextG,ver});busy=false;
+    if(j.ok){ver=j.ver;G=j.game;announce(prev,G);render();return true}
+    if(j.error==='conflict'){const strip=x=>JSON.stringify({...(x||{}),chat:null});
+      if(j.game&&prev&&strip(j.game)===strip(prev)&&!retried){ver=j.ver;G=prev;return save({...nextG,chat:j.game.chat},quiet,true)}
+      G=j.game;ver=j.ver;render();if(!quiet)toast('Someone else moved first, here’s the latest table');return false}
+    if(j.error==='bad_key')badKey();
+    G=prev;render();toast('Couldn’t save that move');return false
+  }catch(e){busy=false;G=prev;render();toast('No connection, try that move again');return false}}
+
+// ---- game actions ----
+function deal(){
+  const n=names.length,starter=G&&G.starter!=null&&G.hands&&G.hands.length===n?(G.starter+1)%n:0;
+  const deck=R.shuffle(R.newDeck()),hands=names.map(()=>deck.splice(-10)),discard=[deck.pop()];
+  const tally=G&&G.tally&&G.tally.length===n?G.tally:names.map(()=>0);
+  dealt=true;sel=null;
+  save({id:Date.now().toString(36),status:'playing',deck,discard,hands,turn:starter,phase:'draw',starter,last:{p:null,act:'deal'},tally,names,moves:0})}
+const clone=o=>JSON.parse(JSON.stringify(o));
+function myTurn(){return G&&G.status==='playing'&&G.turn===me}
+// cheeky "not so fast" when you tap the piles out of turn
+const NOPE_LINES={"turn": ["Patience, card shark", "Nice try. It’s {o}’s turn", "Hands off, it’s {o}’s turn", "Eyes on your own cards!", "Wait your turn, sneaky", "No cheating at this table", "{o} is thinking… shh", "Nope. {o} goes first", "Sit on your hands for a sec", "Easy, speedy. Not yet", "The deck can wait. So can you", "Not your move, champ", "Ooh, so eager. Hold that thought", "Your turn is coming, promise", "Paws off the deck", "Slow down, it’s not a race", "Nice reflexes. Wrong turn", "Tick tock… still {o}’s turn", "Plotting already? Wait a moment", "Rules are rules, sneaky one", "I saw that", "Let {o} finish, will you?", "Waiting builds character", "The cards are not impressed"], "greedy": ["One card per turn, greedy", "Whoa there, one’s enough", "Easy, card hoarder", "Throw one away first", "That’s not how Rummy works", "Nice try. Discard first", "Your hand is already full", "Greedy much?", "One at a time, hungry hippo", "The deck said no", "Discard first, then we talk", "Eleven is plenty, trust me", "Save some cards for {o}", "Two cards? Bold strategy. Denied", "Put one back… I mean, throw one away", "Nope. Choose a card to toss", "Card collector spotted", "Ambitious. Also not allowed"], "peek": ["No peeking!", "Eyes on your own hand!", "Those are {o}’s secrets", "Nice try, spy", "Peeking is cheating, sneaky", "{o}’s cards are shy", "Look away, card detective", "Nothing to see here", "Hey! Private hand", "These cards don’t share", "Spying on {o}? Rude", "Close your eyes and count to ten", "No x-ray vision allowed", "Mind your own melds", "{o} caught you looking", "Curiosity killed the card shark", "Stop squinting at {o}’s cards", "Those are face down for a reason", "Tempting, isn’t it? Still no", "Psychic powers not permitted"]};
+let nopeAt=0;
+function nope(selr,kind,who){const now=Date.now();if(now-nopeAt<500)return;nopeAt=now;
+  const pile=$(selr),card=pile.querySelector('.card'),r=pile.getBoundingClientRect(),opts=NOPE_LINES[kind].map(s=>s.replaceAll('{o}',names[who]||'they')),txt=opts[Math.floor(Math.random()*opts.length)];
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!reduce){pile.animate([{transform:'translateX(0)'},{transform:'translateX(-9px) rotate(-4deg)'},{transform:'translateX(8px) rotate(3deg)'},{transform:'translateX(-6px) rotate(-2deg)'},{transform:'translateX(4px)'},{transform:'none'}],{duration:520,easing:'ease-out'});
+    if(card&&kind!=='peek')card.animate([{transform:'none'},{transform:'translateY(-16px) rotate(6deg)'},{transform:'translateY(3px)'},{transform:'none'}],{duration:480,easing:'cubic-bezier(.3,1.6,.5,1)'})}
+  if(!reduce&&kind==='peek')pile.querySelectorAll('.card').forEach((c,i)=>{const rot=parseFloat(c.style.getPropertyValue('--rot'))||0;
+    c.animate([{transform:`rotate(${rot}deg)`},{transform:`rotate(0deg) translateY(-8px)`,offset:.35},{transform:`rotate(0deg) translateY(-8px)`,offset:.6},{transform:`rotate(${rot}deg)`}],{duration:900,delay:i*12,easing:'cubic-bezier(.3,1.4,.5,1)'})});
+  try{navigator.vibrate&&navigator.vibrate([30,40,30])}catch(e){}
+  document.querySelectorAll('.nopeb').forEach(x=>x.remove());
+  const b=document.createElement('div');b.className='nopeb';b.setAttribute('role','status');b.innerHTML=`<b class="nb-x">${kind==='turn'?'Hey!':kind==='peek'?'Oi!':'Psst!'}</b>${esc(txt)}`;
+  b.style.left=Math.min(Math.max(r.left+r.width/2,110),innerWidth-110)+'px';b.style.top=Math.max(r.top-8,60)+'px';document.body.appendChild(b);
+  if(reduce){setTimeout(()=>b.remove(),1800);return}
+  b.animate([{transform:'translate(-50%,-80%) scale(.5) rotate(-6deg)',opacity:0},{transform:'translate(-50%,-100%) scale(1.08) rotate(2deg)',opacity:1,offset:.15},{transform:'translate(-50%,-100%) scale(1) rotate(0)',opacity:1,offset:.25},{transform:'translate(-50%,-100%)',opacity:1,offset:.8},{transform:'translate(-50%,-130%)',opacity:0}],{duration:2000,easing:'ease-out'}).onfinish=()=>b.remove()}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function drawDeck(){if(!G||G.status!=='playing')return;if(!myTurn())return nope('#deck','turn',G.turn);if(G.phase!=='draw')return nope('#deck','greedy',next(me));const g=clone(G);
+  if(!g.deck.length){const top=g.discard.pop();g.deck=R.shuffle(g.discard);g.discard=[top];toast('Deck ran out, the discard pile was shuffled in')}
+  const c=g.deck.pop();g.hands[me].push(c);g.phase='discard';g.last={p:me,act:'draw'};g.moves++;newCard=c;sel=null;save(g)}
+function takeDisc(){if(!G||G.status!=='playing'||!G.discard.length)return;if(!myTurn())return nope('#disc','turn',G.turn);if(G.phase!=='draw')return nope('#disc','greedy',next(me));const g=clone(G);
+  const c=g.discard.pop();g.hands[me].push(c);g.phase='discard';g.last={p:me,act:'take',card:c};g.moves++;newCard=c;sel=null;save(g)}
+function discard(){if(!myTurn()||G.phase!=='discard'||!sel)return;const g=clone(G);
+  g.hands[me]=g.hands[me].filter(c=>c!==sel);g.discard.push(sel);g.last={...g.last,p:me,act:g.last&&g.last.p===me?g.last.act:'draw',threw:sel};
+  g.turn=next(me);g.phase='draw';g.moves++;const s=sel;sel=null;newCard=null;save(g).then(ok=>{if(ok)toast(`You threw away ${lbl(s)}`)})}
+function callRummy(){if(!myTurn()||G.phase!=='discard')return;const opts=R.rummyDiscards(G.hands[me]);if(!opts.length)return;
+  const out=opts.includes(sel)?sel:opts[0];const g=clone(G);
+  g.hands[me]=g.hands[me].filter(c=>c!==out);g.discard.push(out);
+  const win=R.canGoOut(g.hands[me]),points=[],melds={},dead={},hasRun={};
+  g.hands.forEach((h,p)=>{if(p===me){points[p]=0;melds[p]=win.melds.map(m=>m.cards);dead[p]=[];return}
+    const sc=R.scoreHand(h);points[p]=sc.points;melds[p]=sc.melds.map(m=>m.cards);dead[p]=sc.deadwood;hasRun[p]=sc.hasRun});
+  g.status='done';g.phase='over';g.last={p:me,act:'rummy',threw:out};
+  g.result={winner:me,points,melds,dead,hasRun};
+  g.tally=g.tally&&g.tally.length===g.hands.length?g.tally:g.hands.map(()=>0);g.tally[me]++;sel=null;
+  save(g).then(ok=>{if(ok)burst(true)})}
+
+// ---- announcements ----
+function announce(prev,g){
+  checkChat(g);
+  if(!g||me==null)return;
+  if(g.status==='done'&&resultShown!==g.id){resultShown=g.id;showResult(g);if(g.result.winner===me)burst(true);return}
+  if(!prev||prev.id!==g.id){if(g.last&&g.last.act==='deal'){dealt=true;if(prev)toast(g.starter===me?'New game! You go first':`New game! ${names[g.starter]} goes first`)}return}
+  const L=g.last;if(L&&L.p!=null&&L.p!==me&&L.threw&&g.phase==='draw'&&prev.moves!==g.moves&&prev.turn!==g.turn){
+    toast(`${names[L.p]} ${L.act==='take'?'took '+lbl(L.card)+' from the pile':'drew from the deck'} and threw away ${lbl(L.threw)}`);
+    pulse('#disccard')}}
+function pulse(s){const e=$(s);if(!e)return;e.animate([{transform:'scale(1)'},{transform:'scale(1.15)'},{transform:'scale(1)'}],{duration:500,easing:'ease-out'})}
+
+// ---- render ----
+function cardHTML(c,extra='',w,style='',tag='span'){const rk=R.NAMES[R.rank(c)]||R.rank(c),su=R.SYM[R.suit(c)];
+  return`<${tag} ${tag==='button'?`type="button" aria-label="${lbl(c)}"`:''} class="card ${isRed(c)?'r':''} ${extra}" style="${w?`--cw:${w}px;`:''}${style}" data-c="${c}"><span class="ix">${rk}<i>${su}</i></span><span class="pip">${su}</span><span class="ix b">${rk}<i>${su}</i></span></${tag}>`}
+const backHTML=(w,rot)=>`<span class="card back k" style="--s:'✦';--rot:${rot}deg;${w?`--cw:${w}px`:''}"></span>`;
+function ordKey(){return G?`rm-ord-${G.id}-${me}`:''}
+function myOrder(hand){const k=ordKey();let o=ls.get(k,null);
+  if(!o){arrange='melds';o=arranged(hand).order}
+  const out=o.filter(c=>hand.includes(c)).concat(hand.filter(c=>!o.includes(c)));
+  if(JSON.stringify(out)!==JSON.stringify(o))ls.set(k,out);return out}
+function arranged(cards){
+  const g0={};R.analyse(cards).melds.forEach((m,i)=>m.cards.forEach(c=>{g0[c]=i}));
+  if(arrange==='suit'||arrange==='rank')return{order:R.sortCards(cards,arrange),groups:{},groups0:g0};
+  const a=R.analyse(cards),order=[],groups={};
+  a.melds.forEach((m,i)=>{R.sortCards(m.cards,m.type==='run'?'suit':'rank').forEach(c=>{order.push(c);groups[c]=i})});
+  R.sortCards(a.deadwood,'suit').forEach(c=>order.push(c));return{order,groups,groups0:g0}}
+const PW=()=>innerHeight<620?44:innerHeight<760||innerWidth<600?68:84;
+const LOAD_LINES=[["Shuffling the deck…", "Riffle, bridge, repeat."], ["Dealing you in…", "Face down, no peeking."], ["Finding your seat…", "The chair with the best view of the discard pile."], ["Polishing the felt…", "Only the finest green for this table."], ["Counting to 52…", "Twice, just to be sure."], ["Cutting the deck…", "Somewhere lucky, hopefully."], ["Lining up the runs…", "Four in a row, if the cards allow."], ["Warming up the cards…", "Cold cards make bad hands."], ["Hiding the jokers…", "This table doesn’t use them anyway."], ["Setting out the discard pile…", "Someone’s about to regret a card."], ["Straightening the stack…", "Corners square, edges neat."], ["Checking for card sharks…", "Just friends at this table. Good."]];
+let loadI=Math.floor(Math.random()*LOAD_LINES.length),loadT=null;
+function loadingLine(){const [a,b]=LOAD_LINES[loadI%LOAD_LINES.length];$('#lobby h2').textContent=a;$('#lobby p').textContent=b;$('#lobby').classList.add('loading');
+  if(!loadT)loadT=setInterval(()=>{if(loaded){clearInterval(loadT);loadT=null;$('#lobby').classList.remove('loading');return}loadI++;const h2=$('#lobby h2');h2.classList.remove('swap');void h2.offsetWidth;h2.classList.add('swap');loadingLine()},1800)}
+let oppsFor='';
+function buildOpps(){const o=others(),sig=me+':'+o.join(',');if(sig===oppsFor)return;oppsFor=sig;
+  const el=$('#opps');el.style.setProperty('--o',o.length);el.className='opps o'+o.length;
+  el.innerHTML=o.map(p=>`<div class="opp" data-p="${p}"><div class="who" id="on${p}"></div><div class="bubble them" id="say${p}" hidden></div><div class="backs" id="bk${p}" data-p="${p}"></div></div>`).join('')}
+function render(){
+  if(drag&&drag.on)return;
+  const show=id=>['pick','lobby','table'].forEach(x=>$('#'+x).hidden=x!==id);
+  if(!board){show('lobby');loadingLine();$('#deal').hidden=true;$('#lobbynote').textContent='';return}
+  if(me==null){show('pick');const c=['','k','d'];$('#seats').innerHTML=names.map((nm,i)=>`<button class="seatbtn ${c[i]}" data-me="${i}"><i>${SUITCH[i]}</i><span>${esc(nm)}</span></button>`).join('');return}
+  if(API&&!loaded){show('lobby');loadingLine();$('#deal').hidden=true;$('#lobbynote').textContent='';return}
+  $('#lobby').classList.remove('loading');
+  if(!G){show('lobby');$('#lobby h2').textContent='Shuffle up and deal';$('#lobby p').textContent='10 cards each. Call Rummy with a run of 4 and two runs or sets of 3.';$('#deal').hidden=false;$('#lobbynote').textContent=API?'':'Connect the Google Sheet first (see README).';return}
+  show('table');
+  if(G.names&&G.names.length)names=G.names;
+  buildOpps();
+  const hand=G.hands[me]||[],opps=others(),half=opps.length>1;
+  opps.forEach(o=>{const opp=G.hands[o]||[],m=opp.length;
+    $('#on'+o).innerHTML=`<i style="color:${FELT[o]}">${SUITCH[o]}</i>${esc(names[o])}`;$('#on'+o).classList.toggle('on',G.status==='playing'&&G.turn===o);
+    const avail=(Math.min(innerWidth,900)-28)/(half?2:1)-(half?10:32);
+    const bw=Math.max(half?20:26,Math.min(innerHeight<620?30:innerHeight<760?36:48,Math.floor(avail/(m*0.55+1))-(half?4:0)));
+    const pa=Math.min(4,30/Math.max(m-1,1));
+    $('#bk'+o).innerHTML=opp.map((_,i)=>backHTML(bw,(-(i-(m-1)/2)*pa).toFixed(2))).join('');
+    $('#bk'+o).style.setProperty('--ov',`${-Math.round(bw*.62)}px`)});
+  const canDraw=myTurn()&&G.phase==='draw';
+  $('#deck').classList.toggle('can',canDraw);$('#disc').classList.toggle('can',canDraw&&G.discard.length>0);
+  $('#deck').setAttribute('aria-disabled',String(!canDraw));$('#disc').setAttribute('aria-disabled',String(!canDraw||!G.discard.length));
+  $('#deckcard').innerHTML=G.deck.length?`<span class="card back k deck" style="--s:'✦';--cw:${PW()}px"></span>`:`<span class="card empty" style="--cw:${PW()}px"></span>`;$('#deckn').textContent=`Deck · ${G.deck.length}`;
+  const top=G.discard[G.discard.length-1];$('#disccard').innerHTML=top?cardHTML(top,'',PW()):`<span class="card empty" style="--cw:${PW()}px"></span>`;
+  $('#disc').setAttribute('aria-label',top?`Take ${lbl(top)} from the discard pile`:'Discard pile is empty');
+  // prompt
+  let p='';
+  if(G.status==='done'){const w=G.result.winner;p=w===me?'You called <b>Rummy!</b>':`<b>${esc(names[w])}</b> called Rummy`}
+  else p=G.turn===me?'<b>Your turn</b>':`<span class="tw">${SUITCH[G.turn]}</span><b>${esc(names[G.turn])}'s turn</b>`;
+  $('#prompt').className='prompt'+(G.status==='playing'&&G.turn===me?' mine-turn':'');
+  $('#prompt').innerHTML=p;
+  // hand
+  const order=myOrder(hand);const W=Math.min(innerWidth,900)-28-Math.min(48,innerWidth*.08),n=order.length||1;
+  const cw=Math.max(48,Math.min(innerHeight<620?60:innerHeight<760?70:88,Math.floor(W/4.8))),per=Math.min(6,52/Math.max(n-1,1)),maxA=per*(n-1)/2*Math.PI/180,rad=cw*1.42*1.15,
+    step=n>1?Math.max(14,Math.min(cw*.62,(W-cw*1.45-2*rad*Math.sin(maxA))/(n-1))):0,ml=step-cw;
+  $('#hand').innerHTML=order.map((c,i)=>{const cls=[c===sel?'sel':'',c===newCard?'new':'',dealt?'deal':''].join(' ');
+    return cardHTML(c,cls,cw,`--rot:${((i-(n-1)/2)*per).toFixed(2)}deg;margin-left:${i?ml:0}px;${dealt?`animation-delay:${i*60}ms;`:''}`,'button')}).join('');
+  dealt=false;
+  const a=R.analyse(hand.length===11&&sel?hand.filter(c=>c!==sel):hand);
+  $('#info').innerHTML=hand.length?`<b>${a.points}</b> points if caught`:'';
+  const canDisc=myTurn()&&G.phase==='discard';
+  $('#discard').disabled=!(canDisc&&sel);$('#discard').textContent=sel&&canDisc?`Discard ${lbl(sel)}`:'Discard';
+  const ro=canDisc?R.rummyDiscards(hand):[];$('#rummy').disabled=!ro.length;
+  $('#rummy').textContent=ro.length?`Call Rummy!${ro.length===1||!ro.includes(sel)?` (throw ${lbl(ro.includes(sel)?sel:ro[0])})`:''}`:'Call Rummy!';
+}
+function groupsHTML(melds,dead){const s=innerHeight<760?30:40;return melds.map(m=>`<span class="grp">${m.map(c=>cardHTML(c,'',s)).join('')}</span>`).join('')+(dead.length?`<span class="grp dead">${dead.map(c=>cardHTML(c,'',s)).join('')}</span>`:'')}
+function showResult(g){const w=g.result.winner,n=g.hands.length,losers=[];for(let k=1;k<n;k++)losers.push((w+k)%n);
+  const hr=g.result.hasRun||{},why=p=>(typeof hr==='object'?hr[p]:hr)?'melds don’t count thanks to a run of 4':'no run of 4, so every card counts';
+  $('#rt').textContent=w===me?'You called Rummy!':`${names[w]} called Rummy`;
+  $('#rp').textContent=losers.map(p=>`${names[p]} counts ${g.result.points[p]} (${why(p)})`).join('. ')+'.';
+  $('#rres').innerHTML=[w,...losers].map(p=>`<div><h4>${SUITCH[p]} ${esc(names[p])}<b>${g.result.points[p]}</b></h4><div class="lay">${groupsHTML(g.result.melds[p]||[],g.result.dead[p]||[])}</div></div>`).join('');
+  $('#rtally').textContent='Digital games won: '+names.map((nm,i)=>`${nm} ${(g.tally||[])[i]||0}`).join(' · ');
+  const ab=$('#radd');ab.disabled=!!g.result.logged;ab.textContent=g.result.logged?'Added to scoreboard ✓':`Add to scoreboard (${losers.map(p=>`${names[p]} ${g.result.points[p]}`).join(', ')})`;
+  $('#rdlg').hidden=false}
+async function addToScoreboard(){if(!G||G.status!=='done'||G.result.logged||needKey())return;const ab=$('#radd');ab.disabled=true;ab.textContent='Adding…';
+  const d=new Date(),day=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  const s=G.hands.map((_,i)=>Number(G.result.points[i])||0);
+  const entry={id:'g'+G.id,d:day,g:'Rummy',s,a:s[0],b:s[1],t:Date.now()};
+  try{const j=await post({action:'add',entry});if(!j.ok)throw 0;
+    for(let k=0;k<3;k++){const g=clone(G);g.result.logged=true;if(await save(g,true))break}
+    ab.textContent='Added to scoreboard ✓';toast('Added to your scoreboard');burst(false)}
+  catch(e){ab.disabled=false;ab.textContent='Couldn’t add, try again'}}
+
+// ---- fun ----
+function burst(big){if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;const cx=innerWidth/2,cy=innerHeight/2;
+  for(let i=0;i<(big?48:20);i++){const s=document.createElement('i');s.className='bit';const sy=['♥','♠','♦','♣'][i%4];s.textContent=sy;s.style.color=sy==='♥'?'#ff5a6e':sy==='♦'?'#8fb8ff':(i%3?'#fbf8f0':'#ffd75e');s.style.left=cx+'px';s.style.top=cy+'px';document.body.appendChild(s);
+    const a=Math.random()*Math.PI*2,v=120+Math.random()*260;s.animate([{transform:'translate(-50%,-50%) scale(.3)',opacity:1},{transform:`translate(calc(-50% + ${Math.cos(a)*v}px),calc(-50% + ${Math.sin(a)*v+120}px)) rotate(${Math.random()*720}deg) scale(1.2)`,opacity:0}],{duration:1200+Math.random()*700,easing:'cubic-bezier(.2,.7,.3,1)'}).onfinish=()=>s.remove()}}
+let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),3800)}
+
+// ---- cute messages ----
+const LINES=["Shuffle harder, I dare you ♠", "Is that a run or a cry for help?", "I can smell your leftover cards from here", "Take your time… I’m only aging", "That discard? Bold. Wrong, but bold.", "Rummy is coming. Brace yourself", "You look cute when you’re losing", "Thanks for the card, very generous of you", "Plot twist incoming…", "Are you counting cards or sheep?", "I’d let you win, but where’s the fun in that?", "Good game! Same time tomorrow?", "Rematch? Loser makes the tea", "Your poker face needs work"];
+let seenChat=null;
+function bubble(el,txt){if(!el)return;el.textContent=txt;el.hidden=false;el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');clearTimeout(el._t);el._t=setTimeout(()=>{el.hidden=true},6000)}
+function checkChat(g){const ch=(g&&g.chat)||[];const last=ch[ch.length-1];
+  if(seenChat===null){seenChat=last?last.id:'';return}
+  const fresh=[];for(let i=ch.length-1;i>=0&&ch[i].id!==seenChat;i--)fresh.unshift(ch[i]);
+  if(!fresh.length)return;seenChat=last.id;
+  const latest={};fresh.filter(m=>m.p!==me).forEach(m=>{latest[m.p]=m});
+  setTimeout(()=>Object.values(latest).forEach(m=>{const el=$('#say'+m.p);bubble(el,m.m);if(el)sparkle(el)}),0)}
+function sparkle(el){if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;const r=el.getBoundingClientRect();
+  for(let i=0;i<8;i++){const s=document.createElement('i');s.className='bit';s.textContent='✦';s.style.color=Math.random()<.5?'#ffd75e':'#fbf8f0';s.style.fontSize=(10+Math.random()*10)+'px';s.style.left=(r.left+r.width*Math.random())+'px';s.style.top=(r.top+r.height/2)+'px';document.body.appendChild(s);
+    s.animate([{transform:'translate(-50%,-50%) scale(.4)',opacity:1},{transform:`translate(calc(-50% + ${(Math.random()-.5)*60}px),calc(-50% - ${50+Math.random()*50}px)) scale(1.1)`,opacity:0}],{duration:1100+Math.random()*500,easing:'ease-out'}).onfinish=()=>s.remove()}}
+async function sendMsg(txt){txt=String(txt||'').trim().slice(0,80);if(!txt||!G)return;$('#sdlg').hidden=true;
+  const msg={id:Date.now().toString(36)+Math.random().toString(36).slice(2,5),p:me,m:txt,t:Date.now()};
+  bubble($('#mesay'),txt);sparkle($('#mesay'));
+  for(let k=0;k<3;k++){const g=clone(G);g.chat=(g.chat||[]).concat(msg).slice(-20);seenChat=msg.id;if(await save(g,true))return;await new Promise(r=>setTimeout(r,400))}
+  toast('Couldn’t send that, try again')}
+$('#lines').innerHTML=LINES.map(l=>`<button type="button" class="line">${l}</button>`).join('');
+$('#lines').addEventListener('click',e=>{const b=e.target.closest('.line');if(b)sendMsg(b.textContent)});
+$('#say').onclick=()=>{$('#sdlg').hidden=false};$('#sno').onclick=()=>{$('#sdlg').hidden=true};
+$('#sform').addEventListener('submit',e=>{e.preventDefault();sendMsg($('#sin').value);$('#sin').value=''});
+$('#sdlg').addEventListener('click',e=>{if(e.target===$('#sdlg'))$('#sdlg').hidden=true});
+// ---- events ----
+$('#seats').addEventListener('click',e=>{const b=e.target.closest('[data-me]');if(!b)return;me=Number(b.dataset.me);ls.set(SEATK,me);oppsFor='';render();load()});
+$('#deal').onclick=deal;
+$('#opps').addEventListener('click',e=>{const b=e.target.closest('.backs');if(b&&G&&G.status==='playing')nope('#'+b.id,'peek',Number(b.dataset.p))});
+$('#deck').onclick=drawDeck;$('#disc').onclick=takeDisc;
+$('#hand').addEventListener('click',e=>{if(justDragged)return;const b=e.target.closest('[data-c]');if(!b)return;const c=b.dataset.c;
+  sel=sel===c?null:c;newCard=null;render()});
+$('#hand').addEventListener('dblclick',e=>{const b=e.target.closest('[data-c]');if(b&&myTurn()&&G.phase==='discard'){sel=b.dataset.c;discard()}});
+$('#discard').onclick=discard;$('#rummy').onclick=callRummy;
+document.querySelectorAll('.arr button').forEach(b=>b.onclick=()=>{if(!G)return;arrange=b.dataset.a;ls.set(ordKey(),arranged(G.hands[me]||[]).order);render();
+  document.querySelectorAll('#hand .card').forEach((c,i)=>c.animate([{transform:'translateY(-14px)'},{transform:'none'}],{duration:350,delay:i*25,easing:'cubic-bezier(.3,1.5,.5,1)'}))});
+// drag to rearrange (touch and mouse)
+$('#hand').addEventListener('pointerdown',e=>{const el=e.target.closest('[data-c]');if(!el||e.button>0)return;
+  const cards=[...document.querySelectorAll('#hand .card')];
+  drag={el,c:el.dataset.c,x0:e.clientX,y0:e.clientY,id:e.pointerId,on:false,cards,from:cards.indexOf(el),to:cards.indexOf(el),
+    centers:cards.map(x=>{const r=x.getBoundingClientRect();return r.left+r.width/2}),step:cards.length>1?cards[1].getBoundingClientRect().left-cards[0].getBoundingClientRect().left:0}});
+$('#hand').addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;const dx=e.clientX-drag.x0,dy=e.clientY-drag.y0;
+  if(!drag.on){if(Math.hypot(dx,dy)<8)return;drag.on=true;try{drag.el.setPointerCapture(e.pointerId)}catch(_){}drag.el.classList.add('dragging');$('#hand').classList.add('is-dragging')}
+  e.preventDefault();drag.el.style.transform=`translate(${dx}px,${Math.min(0,dy)-18}px) rotate(${Math.max(-8,Math.min(8,dx/12))}deg)`;
+  let to=0;drag.centers.forEach((cx,i)=>{if(i!==drag.from&&e.clientX>cx)to++});drag.to=to;
+  drag.cards.forEach((x,i)=>{if(x===drag.el)return;let s=0;if(drag.from<to&&i>drag.from&&i<=to)s=-drag.step;if(drag.from>to&&i>=to&&i<drag.from)s=drag.step;x.style.transform=s?`translateX(${s}px) rotate(var(--rot,0deg))`:''})});
+function endDrag(e){if(!drag||(e&&e.pointerId!==drag.id))return;const d=drag;drag=null;$('#hand').classList.remove('is-dragging');
+  if(!d.on)return;justDragged=true;setTimeout(()=>justDragged=false,50);
+  const o=myOrder(G.hands[me]||[]).filter(c=>c!==d.c);o.splice(d.to,0,d.c);ls.set(ordKey(),o);render()}
+$('#hand').addEventListener('pointerup',endDrag);$('#hand').addEventListener('pointercancel',endDrag);
+$('#radd').onclick=addToScoreboard;$('#rclose').onclick=()=>{$('#rdlg').hidden=true};$('#ragain').onclick=()=>{$('#rdlg').hidden=true;deal()};
+$('#newgame').onclick=()=>{if(G&&G.status==='playing')$('#ndlg').hidden=false;else deal()};
+$('#nno').onclick=()=>{$('#ndlg').hidden=true};$('#nyes').onclick=()=>{$('#ndlg').hidden=true;deal()};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')['#ndlg','#rdlg','#sdlg'].forEach(s=>$(s).hidden=true)});
+addEventListener('resize',()=>{if(G)render()});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)load()});
+setInterval(()=>{if(!document.hidden&&me!=null&&!busy&&!loading)load()},3000);
+render();loadBoard();if(me!=null)load();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rummy Scoretracker · Adda</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%99%A5%3C/text%3E%3C/svg%3E">
+<script>document.write('<script src="../config.js?v='+Date.now()+'"><\/script>')</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Rubik:wght@400;500;700&display=swap">
+<style>
+/* VOICE: friendly host at the card table: "pick your table or pull up a new one"
+   IDEA: each dashboard is a little table card you can open
+   LAYOUT: felt header, list of dashboards as playing-card tiles, a new-dashboard form */
+:root{color-scheme:light dark;--ink:light-dark(#14231b,#eef3ee);--mut:light-dark(#56665d,#9fb3a6);--line:light-dark(#d9e3dc,#1f4231);--felt:light-dark(#0f5a38,#0c4a2e);--ivory:#fbf8f0;--brass:#d9b25a;--paper:light-dark(#fffdf7,#10281c);--frame:light-dark(#ece4cf,#24503a);--soft:light-dark(#f2f6f3,#173524);--a:#cf1f33;--b:light-dark(#1b1b1d,#e9e5da);--c:light-dark(#1f5fbf,#7aa8ff)}
+*{box-sizing:border-box;min-width:0}[hidden]{display:none!important}
+body{margin:0;color:var(--ink);font:16px/1.5 Rubik,system-ui,sans-serif;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cg fill='%230f5a38' fill-opacity='.05' font-size='20' font-family='serif'%3E%3Ctext x='10' y='34'%3E%E2%99%A0%3C/text%3E%3Ctext x='70' y='34'%3E%E2%99%A5%3C/text%3E%3Ctext x='40' y='94'%3E%E2%99%A6%3C/text%3E%3Ctext x='100' y='94'%3E%E2%99%A3%3C/text%3E%3C/g%3E%3C/svg%3E"),light-dark(#eef4ee,#0a1a12)}
+button,input{font:inherit;font-size:16px;color:inherit}button{cursor:pointer}
+:focus-visible{outline:3px solid var(--brass);outline-offset:2px}
+.wrap{max-width:1000px;margin:0 auto;padding:0 max(5vw,16px)}
+.top{background:radial-gradient(ellipse 70% 90% at 50% 35%,rgb(255 255 255/.10),transparent 70%),var(--felt);box-shadow:inset 0 -10px 0 #6b4a2b,inset 0 -14px 0 #4a321c;color:#fff;padding:clamp(18px,4vw,40px) 0 clamp(34px,5vw,54px)}
+.crumb{font-size:14px;margin-bottom:12px}.crumb a{color:#fff;text-decoration:none;font-weight:500;padding:6px 2px}.crumb a:hover{text-decoration:underline}
+h1{margin:0;font:900 clamp(36px,6vw,56px)/1 'Playfair Display',Georgia,serif;color:var(--ivory);text-shadow:0 2px 0 rgb(0 0 0/.25)}
+h1 span{display:block;margin-top:6px;font:700 13px/1 Rubik,sans-serif;letter-spacing:.24em;text-transform:uppercase;color:var(--brass);text-shadow:none}
+.top p{margin:12px 0 0;opacity:.85;max-width:34em}
+.suits{font:700 22px Georgia,serif;letter-spacing:.3em;margin-top:14px}.suits b{color:#ff6b7a}.suits i{color:#8fb8ff;font-style:normal}
+main{padding:28px 0 56px;display:grid;gap:28px}
+h2{margin:0 0 12px;font:700 26px/1.1 'Playfair Display',Georgia,serif}
+.list{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,270px),1fr));gap:16px}
+.tbl{position:relative;display:grid;gap:10px;align-content:start;background:var(--paper);border:1px solid var(--frame);border-radius:18px;padding:22px 22px 18px;box-shadow:inset 0 0 0 7px var(--paper),inset 0 0 0 8px var(--frame),0 18px 32px -20px rgb(15 90 56/.55);color:inherit;text-decoration:none;transition:transform .3s cubic-bezier(.3,1.5,.5,1),box-shadow .3s}
+.tbl:hover{transform:translateY(-4px) rotate(-.6deg)}
+.tbl::after{content:attr(data-s);position:absolute;top:14px;right:18px;font:700 20px Georgia,serif;color:light-dark(#efb7bd,#7a2a33)}
+.tbl h3{margin:0;padding-right:26px;font:700 22px/1.15 'Playfair Display',Georgia,serif;overflow-wrap:anywhere}
+.pl{display:flex;flex-wrap:wrap;gap:6px}
+.pl span{display:inline-flex;align-items:center;gap:5px;background:var(--soft);border-radius:999px;padding:3px 10px;font-size:14px}
+.pl i{font:700 15px Georgia,serif;font-style:normal}
+.meta{font-size:14px;color:var(--mut)}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.open,.play{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 16px;border-radius:12px;text-decoration:none;font-weight:700;font-size:15px}
+.open{background:var(--felt);color:#fff;flex:1}
+.play{background:var(--brass);color:#2b1d05}
+.mut{color:var(--mut)}
+.newc{background:var(--paper);border:1px solid var(--frame);border-radius:18px;padding:24px;box-shadow:inset 0 0 0 7px var(--paper),inset 0 0 0 8px var(--frame),0 18px 32px -20px rgb(15 90 56/.55);max-width:640px}
+form{display:grid;gap:14px}
+label{display:grid;gap:6px;font-size:14px;font-weight:500}
+label small{font-weight:400;color:var(--mut)}
+input{background:light-dark(#fff,#0c2016);border:2px solid var(--line);border-radius:12px;min-height:48px;padding:8px 12px;width:100%}
+input:focus{outline:none;border-color:var(--brass);box-shadow:0 0 0 4px color-mix(in srgb,var(--brass) 35%,transparent)}
+.players{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.players label>span i{font:700 15px Georgia,serif;font-style:normal;margin-left:4px}
+.go{background:var(--felt);color:#fff;border:0;border-radius:14px;min-height:52px;font:700 20px 'Playfair Display',Georgia,serif;box-shadow:inset 0 -4px 0 rgb(0 0 0/.25)}
+.go:disabled{opacity:.6}
+.err{color:#cf1f33;font-size:14px;min-height:1.2em;margin:0}
+.newbtn{border:2px dashed color-mix(in srgb,var(--felt) 50%,transparent);background:none;border-radius:18px;min-height:120px;display:grid;place-items:center;gap:4px;color:var(--felt);font:700 20px 'Playfair Display',Georgia,serif;padding:20px}
+:root .newbtn{color:light-dark(#0f5a38,#9fe0bc)}
+.newbtn b{font:700 30px/1 Georgia,serif}
+.empty{padding:24px;border-radius:16px;background:var(--soft);color:var(--mut)}
+@media(max-width:600px){.players{grid-template-columns:minmax(0,1fr)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <nav class="crumb" aria-label="Breadcrumb"><a href="../">← Adda</a></nav>
+  <h1>Rummy<span>Scoretracker</span></h1>
+  <p>Every dashboard is its own table: its own players, scores and passcode. Open yours, or set up a new one for up to 3 players.</p>
+  <div class="suits" aria-hidden="true"><b>♥</b>♠<i>♦</i>♣</div>
+</div></header>
+<main class="wrap">
+  <section>
+    <h2>Dashboards</h2>
+    <div class="list" id="list"><p class="mut">Gathering the tables…</p></div>
+  </section>
+  <section id="newsec">
+    <h2>New dashboard</h2>
+    <div class="newc">
+      <form id="nf" autocomplete="off">
+        <div class="players">
+          <label><span>Player 1<i style="color:var(--a)">♥</i></span><input id="p0" maxlength="24" required placeholder="Name"></label>
+          <label><span>Player 2<i style="color:var(--b)">♠</i></span><input id="p1" maxlength="24" required placeholder="Name"></label>
+          <label><span>Player 3<i style="color:var(--c)">♦</i> <small>(optional)</small></span><input id="p2" maxlength="24" placeholder="Name"></label>
+        </div>
+        <label>Dashboard name <small>(optional, e.g. Friday night crew)</small><input id="nm" maxlength="40" placeholder="Player 1 vs Player 2"></label>
+        <label>Passcode <small>(at least 4 characters; anyone with it can log hands and play)</small><input id="pw" type="password" minlength="4" required autocomplete="new-password"></label>
+        <p class="err" id="err" role="alert"></p>
+        <button class="go" id="create">Pull up a chair</button>
+      </form>
+    </div>
+  </section>
+</main>
+<script>
+{
+const $=s=>document.querySelector(s);
+const CFG=window.SCORE_CONFIG||{},API=(CFG.apiUrl||'').trim();
+const ls={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const SU=[['♥','var(--a)'],['♠','var(--b)'],['♦','var(--c)']];
+function show(boards){
+  const el=$('#list');
+  if(!boards.length){el.innerHTML='<p class="empty">No dashboards yet. Start one below.</p>';return}
+  el.innerHTML=boards.map((b,k)=>{const u=encodeURIComponent(b.id);return`<article class="tbl" data-s="${['♥','♠','♦','♣'][k%4]}"><h3>${esc(b.name)}</h3>
+    <div class="pl">${b.players.map((p,i)=>`<span><i style="color:${SU[i][1]}">${SU[i][0]}</i>${esc(p)}</span>`).join('')}</div>
+    <div class="meta">${b.hands?`${b.hands} hand${b.hands===1?'':'s'} logged`:'No hands yet'}</div>
+    <div class="acts"><a class="open" href="board.html?b=${u}">Open scores</a><a class="play" href="play.html?b=${u}">Play ♠</a></div></article>`}).join('')}
+let boards=ls.get('adda-boards-rummy',null);
+if(Array.isArray(boards))show(boards);
+async function load(){if(!API){$('#list').innerHTML='<p class="empty">The Google Sheet isn’t connected yet, so dashboards can’t be listed.</p>';return}
+  try{const r=await fetch(API+(API.includes('?')?'&':'?')+'action=boards&game=rummy&t='+Date.now()),j=await r.json();
+    if(j.ok){boards=j.boards;ls.set('adda-boards-rummy',boards);show(boards)}}
+  catch(e){if(!Array.isArray(boards))$('#list').innerHTML='<p class="empty">Couldn’t reach the Google Sheet. Try again in a moment.</p>'}}
+load();
+const ERR={same_names:'Each player needs a different name.',bad_players:'Add 2 or 3 players.',short_passcode:'The passcode needs at least 4 characters.',busy:'The sheet is busy, try again in a moment.'};
+$('#nf').addEventListener('submit',async e=>{e.preventDefault();
+  const players=['#p0','#p1','#p2'].map(s=>$(s).value.trim()).filter(Boolean),pass=$('#pw').value;
+  if(players.length<2){$('#err').textContent=ERR.bad_players;return}
+  if(new Set(players.map(p=>p.toLowerCase())).size!==players.length){$('#err').textContent=ERR.same_names;return}
+  if(pass.length<4){$('#err').textContent=ERR.short_passcode;return}
+  if(!API){$('#err').textContent='Connect the Google Sheet first.';return}
+  $('#err').textContent='';const btn=$('#create');btn.disabled=true;btn.textContent='Setting the table…';
+  try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'board_create',game:'rummy',name:$('#nm').value.trim(),players,passcode:pass})}),j=await r.json();
+    if(!j.ok)throw new Error(ERR[j.error]||'Couldn’t create it, try again.');
+    ls.set('st-key-'+j.board.id,pass);ls.set('adda-board-'+j.board.id,j.board);
+    location.href='board.html?b='+encodeURIComponent(j.board.id)}
+  catch(err){$('#err').textContent=err.message&&!/fetch/i.test(err.message)?err.message:'Couldn’t reach the Google Sheet, try again.';btn.disabled=false;btn.textContent='Pull up a chair'}});
+}
+</script>
+</body>
+</html>

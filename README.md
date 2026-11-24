@@ -1,57 +1,61 @@
-# Leah vs Manas: Rummy score tracker
+# Adda: game night headquarters
 
-A card-table scoreboard for two players. Scores are stored in a Google Sheet, so they're the same on every phone and laptop, and the site is hosted for free on GitHub Pages.
+Adda is a home for your game scoreboards. Each game has its own scoretracker (Rummy is the first), and each game can have many dashboards, such as **Leah vs Manas** or a three-player **Friday crew**. Scores live in one Google Sheet, so they're the same on every phone and laptop, and the site is hosted for free on GitHub Pages.
 
-- `index.html`: the whole site
-- `config.js`: the one setting you fill in (your Google Sheet link)
-- `apps-script/Code.gs`: the small script that lets the site read and write your Google Sheet
+## What's where
 
-## One-time setup (about 5 minutes)
+| File | What it is |
+| --- | --- |
+| `index.html` | Adda, the home page listing every game |
+| `rummy/index.html` | Rummy Scoretracker: all Rummy dashboards, plus a form to start a new one |
+| `rummy/board.html?b=<id>` | One dashboard's scoreboard (2 or 3 players) |
+| `rummy/play.html?b=<id>` | Play Rummy on your phones for that dashboard |
+| `rummy/rummy.js` | Rummy rules |
+| `config.js` | The one setting: your Google Sheet web app link |
+| `apps-script/Code.gs` | The script that lets the site read and write the Google Sheet |
+| `play.html` | Old link, now forwards to the Leah vs Manas table |
 
-### 1. Create the sheet and add the script
+## How the Google Sheet is organised
 
-1. Go to [sheets.new](https://sheets.new) to create a new Google Sheet. Name it something like **Rummy scores**.
-2. In the sheet, open **Extensions → Apps Script**.
-3. Delete the starter code in `Code.gs` and paste in everything from [`apps-script/Code.gs`](apps-script/Code.gs).
-4. Near the top, change `const PASSCODE = 'CHANGE-ME';` to a passcode only the two of you know. Save (the disk icon or Ctrl/Cmd + S).
-5. In the function dropdown at the top, choose **setup** and click **Run**. Approve the permission prompt; Google calls the app "unverified" because it's your own script. Click **Advanced → Go to (project name)**, then **Allow**.
-   This creates a **Hands** tab with the 4 hands you've already played.
+The script creates and manages three tabs:
 
-### 2. Publish the script as a web app
+| Tab | One row per | Columns |
+| --- | --- | --- |
+| **Boards** | dashboard | `board_id, game, name, player_1, player_2, player_3, low_wins, passcode_hash, created_at` |
+| **Scores** | hand, for every dashboard | `board_id, hand_id, date, player_1_score, player_2_score, player_3_score, logged_at` |
+| **Live games** | dashboard with a phone game in progress | `board_id, state, version, updated_at` |
 
-1. Click **Deploy → New deployment**.
-2. Click the gear next to "Select type" and choose **Web app**.
-3. Set **Execute as: Me** and **Who has access: Anyone**.
-4. Click **Deploy**, then copy the **Web app URL** (it ends in `/exec`).
+- `board_id` links the tabs together. Filter **Scores** by `board_id` to see one dashboard.
+- Passcodes are stored only as a scrambled hash, never as plain text.
+- The original **Hands** and **Game** tabs were copied into the `leah-manas` dashboard the first time the new script ran. They're left untouched as a backup; you can delete them once you're happy.
+- Avoid editing `board_id` and `hand_id` by hand. Renaming a player in **Boards** renames them everywhere.
 
-### 3. Connect the site to the sheet
+## Passcodes
 
-1. In this repo on GitHub, open `config.js` and click the pencil icon to edit it.
-2. Paste your Web app URL between the quotes on the `apiUrl:` line:
-   ```js
-   apiUrl: 'https://script.google.com/macros/s/XXXXXXXX/exec',
-   ```
-3. Click **Commit changes**. The site updates in about a minute.
+- Each dashboard has its own passcode, chosen when it's created. Anyone with it can log hands and play on that dashboard.
+- The `PASSCODE` at the top of `Code.gs` is the master passcode: it works for every dashboard and is also the Leah vs Manas passcode.
+- Anyone with the link can *see* scores. Only someone with the passcode can change them.
 
-### 4. Use it
+## Adding another game later
 
-Open the site and log a hand. The first time on each phone or laptop, it asks for your passcode once, then remembers it on that device.
+1. Add it to `GAMES` near the top of `Code.gs`, e.g. `scrabble: { name: 'Scrabble', minPlayers: 2, maxPlayers: 3, lowWins: false }`.
+2. Copy the `rummy/` folder to a new folder for that game and adjust the pages.
+3. Add a tile for it on `index.html`.
+Its dashboards and scores go into the same three tabs, tagged with the game name.
 
-## Good to know
+## One-time setup (already done for this site)
 
-- **The sheet is the database.** Each row is one hand: `id | date | game | Leah | Manas | logged_at`. You can view it any time. Avoid editing the `id` column by hand.
-- **Changing names:** rename the `Leah` / `Manas` header cells (D1 and E1) in the sheet.
-- **Offline or slow connection:** the site keeps your changes on the device and sends them to the sheet when it can reach it again. The line at the bottom of the page shows whether it's synced.
-- **Other devices:** they pick up new hands when you reopen or switch back to the tab, and every minute while it's open.
-- **Privacy:** anyone with the site link can *see* the scores. Only someone with the passcode can add, edit or delete hands.
-- **If you change `Code.gs` later:** go to **Deploy → Manage deployments**, click the pencil, choose **Version: New version** and **Deploy**. The URL stays the same.
+1. Create a Google Sheet, open **Extensions → Apps Script**, paste in [`apps-script/Code.gs`](apps-script/Code.gs) and set `PASSCODE`.
+2. **Deploy → New deployment → Web app**, Execute as **Me**, access **Anyone**. Copy the `/exec` URL.
+3. Paste that URL into `config.js` as `apiUrl`.
+4. **If you change `Code.gs` later:** go to **Deploy → Manage deployments**, click the pencil, choose **Version: New version** and **Deploy**. The URL stays the same.
 
 ## Playing Rummy on your phones
 
-Tap **Play a game** on the scoreboard (or open `play.html`). Each of you opens it on your own phone and picks who you are once.
+Tap **Play a game** on a dashboard. Each player opens it on their own phone and picks who they are once.
 
-- 10 cards each from one 52-card deck (no jokers; Ace is low, so A-2-3 but not Q-K-A).
+- 10 cards each from one 52-card deck (no jokers; Ace is low, so A-2-3 but not Q-K-A). With 3 players, turns go around in order.
 - On your turn, draw from the deck or take the top of the discard pile, then throw a card away.
-- **Call Rummy** when your 10 cards form a run of 4 plus two runs or sets of 3. The button lights up as soon as you can.
-- The other player counts their cards: with a run of 4, their other runs and sets don't count, only leftover cards; without a run of 4, every card counts. A = 1, J = 11, Q = 12, K = 13.
-- The game is stored in a **Game** tab in your Google Sheet and needs the same passcode. Digital games are kept separate from the scoreboard.
+- **Call Rummy** when your 10 cards form a run of 4 plus two runs or sets of 3.
+- Everyone else counts their cards: with a run of 4, their other runs and sets don't count, only leftover cards; without a run of 4, every card counts. A = 1, J = 11, Q = 12, K = 13.
+- After a game, tap **Add to scoreboard** to log it as a hand on that dashboard.
