@@ -300,7 +300,7 @@ function render(){
   const canDraw=myTurn()&&G.phase==='draw';
   $('#deck').classList.toggle('can',canDraw);$('#disc').classList.toggle('can',canDraw&&G.discard.length>0);
   $('#deck').disabled=!canDraw;$('#disc').disabled=!canDraw||!G.discard.length;
-  $('#deckcard').innerHTML=G.deck.length?backHTML(me?0:1,PW()):`<span class="card empty" style="--cw:${PW()}px"></span>`;$('#deckn').textContent=`Deck · ${G.deck.length}`;
+  $('#deckcard').innerHTML=G.deck.length?`<span class="card back k deck" style="--s:'✦';--cw:${PW()}px"></span>`:`<span class="card empty" style="--cw:${PW()}px"></span>`;$('#deckn').textContent=`Deck · ${G.deck.length}`;
   const top=G.discard[G.discard.length-1];$('#disccard').innerHTML=top?cardHTML(top,'',PW()):`<span class="card empty" style="--cw:${PW()}px"></span>`;
   $('#disc').setAttribute('aria-label',top?`Take ${lbl(top)} from the discard pile`:'Discard pile is empty');
   // prompt
