@@ -32,7 +32,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .pill{font-size:13px;font-weight:700;border-radius:999px;padding:4px 12px;background:rgb(0 0 0/.25)}
 .pill.go{background:var(--brass);color:#2b1d05}
 .backs{display:flex;justify-content:center;margin:10px 0 0;min-height:64px}
-.backs .card{margin-left:-30px}.backs .card:first-child{margin-left:0}
+.backs{padding-bottom:14px}.backs .card{margin-left:-30px;transform-origin:50% -110%;transform:rotate(var(--rot,0deg))}.backs .card:first-child{margin-left:0}
 .centre{display:flex;justify-content:center;align-items:flex-start;gap:clamp(20px,8vw,60px);margin:clamp(14px,4vh,34px) 0 8px}
 .pile{display:grid;justify-items:center;gap:6px;background:none;border:0;padding:6px;border-radius:14px;color:#fff}
 .pile small{font-size:13px;color:var(--mut)}
@@ -48,9 +48,10 @@ button{font:inherit;color:inherit;cursor:pointer}
 .card .ix i{font:700 calc(var(--w)*.24)/1 Georgia,serif;font-style:normal}
 .card .ix.b{top:auto;left:auto;bottom:calc(var(--w)*.07);right:calc(var(--w)*.09);transform:rotate(180deg)}
 .card .pip{position:absolute;inset:0;display:grid;place-items:center;font:700 calc(var(--w)*.5)/1 Georgia,serif}
-.card.back{background:repeating-linear-gradient(45deg,#b3192b 0 5px,#cf2d40 5px 10px);box-shadow:0 6px 14px rgb(0 0 0/.35),inset 0 0 0 4px var(--ivory)}
-.card.back.k{background:repeating-linear-gradient(45deg,#1b1b1d 0 5px,#34343a 5px 10px)}
-.card.back::after{content:var(--s,'♥');position:absolute;inset:0;display:grid;place-items:center;color:var(--ivory);font:700 calc(var(--w)*.4) Georgia,serif}
+.card.back{--bk:#a8142a;--bk2:#d0283f;--ln:rgb(255 226 160/.42);background:repeating-linear-gradient(45deg,var(--ln) 0 1px,transparent 1px calc(var(--w)*.11)),repeating-linear-gradient(-45deg,var(--ln) 0 1px,transparent 1px calc(var(--w)*.11)),radial-gradient(ellipse at 50% 40%,var(--bk2),var(--bk) 75%);box-shadow:0 6px 14px rgb(0 0 0/.35),inset 0 0 0 calc(var(--w)*.06) var(--ivory),inset 0 0 0 calc(var(--w)*.085) var(--bk),inset 0 0 0 calc(var(--w)*.1) #e8c26a}
+.card.back.k{--bk:#161a26;--bk2:#2c3348;--ln:rgb(232 194 106/.45)}
+.card.back::after{content:var(--s,'♥');position:absolute;left:50%;top:50%;width:calc(var(--w)*.5);height:calc(var(--w)*.5);transform:translate(-50%,-50%);border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,var(--bk2),var(--bk));box-shadow:0 0 0 calc(var(--w)*.025) #e8c26a,0 0 0 calc(var(--w)*.05) var(--bk),0 0 0 calc(var(--w)*.065) rgb(232 194 106/.6);color:#ffe7a8;font:700 calc(var(--w)*.28)/1 Georgia,serif}
+.card.back::before{content:'';position:absolute;inset:calc(var(--w)*.16);border-radius:calc(var(--w)*.05);border:1px solid rgb(232 194 106/.55)}
 .card.empty{background:rgb(0 0 0/.2);box-shadow:inset 0 0 0 2px rgb(255 255 255/.25)}
 /* my hand */
 .mine{margin-top:auto;padding-top:10px}
@@ -59,19 +60,20 @@ button{font:inherit;color:inherit;cursor:pointer}
 .arr{display:flex;background:rgb(0 0 0/.22);border-radius:999px;padding:3px}
 .arr button{border:0;background:none;border-radius:999px;padding:0 12px;min-height:34px;font-size:13px}
 .arr button[aria-pressed=true]{background:var(--ivory);color:#14231b}
-.hand{display:flex;justify-content:center;align-items:flex-end;padding:26px 0 8px;min-height:140px}
+.hand{display:flex;justify-content:center;align-items:flex-end;padding:40px 0 18px;min-height:170px}
 .hand .card{transition:transform .2s cubic-bezier(.3,1.5,.5,1),margin .2s;cursor:pointer;border:0;padding:0}
 .hand{touch-action:none}
-.hand .card:hover{transform:translateY(-8px)}
+.hand .card{transform-origin:50% 210%;transform:rotate(var(--rot,0deg)) translateY(var(--lift,0px))}
+.hand .card:hover{--lift:-10px}
 .hand.is-dragging .card{transition:transform .18s ease;animation:none!important}
 .hand .card.dragging{transition:none!important;z-index:5;box-shadow:0 0 0 3px var(--brass),0 18px 30px rgb(0 0 0/.45);cursor:grabbing}
 .hand .card{cursor:grab}
-.hand .card.sel{transform:translateY(-22px);box-shadow:0 0 0 3px var(--brass),0 12px 20px rgb(0 0 0/.4)}
+.hand .card.sel{--lift:-26px;box-shadow:0 0 0 3px var(--brass),0 12px 20px rgb(0 0 0/.4)}
 .hand .card.meld::before{content:'';position:absolute;left:12%;right:12%;bottom:-9px;height:4px;border-radius:2px;background:var(--mc,var(--brass))}
-.hand .card.new{animation:newcard .6s cubic-bezier(.3,1.5,.5,1)}
-@keyframes newcard{0%{transform:translateY(-60px) scale(.8);opacity:0}100%{transform:none;opacity:1}}
-.hand .card.deal{animation:dealin .45s cubic-bezier(.3,1.4,.5,1) both}
-@keyframes dealin{0%{transform:translateY(-200px) rotate(-30deg) scale(.6);opacity:0}100%{transform:none;opacity:1}}
+.hand .card.new{animation:newcard .6s cubic-bezier(.3,1.5,.5,1) backwards}
+@keyframes newcard{0%{transform:rotate(var(--rot,0deg)) translateY(-70px) scale(.8);opacity:0}100%{transform:rotate(var(--rot,0deg));opacity:1}}
+.hand .card.deal{animation:dealin .45s cubic-bezier(.3,1.4,.5,1) backwards}
+@keyframes dealin{0%{transform:translateY(-220px) rotate(-30deg) scale(.6);opacity:0}100%{transform:rotate(var(--rot,0deg));opacity:1}}
 .info{text-align:center;font-size:14px;color:var(--mut);min-height:22px}
 .info b{color:#fff}
 .acts{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin-top:10px}
@@ -112,6 +114,21 @@ button{font:inherit;color:inherit;cursor:pointer}
 .bit{position:fixed;font:700 22px/1 Georgia,serif;pointer-events:none;z-index:11}
 .foot{text-align:center;font-size:13px;color:var(--mut);margin-top:12px}
 .foot button{background:none;border:0;color:#fff;text-decoration:underline;font-size:13px;padding:6px}
+
+/* messages */
+.say{display:inline-flex;align-items:center;gap:6px;border:0;border-radius:999px;background:var(--ivory);color:#14231b;min-height:36px;padding:0 12px 0 10px;font:700 13px Rubik,sans-serif;box-shadow:0 3px 0 rgb(0 0 0/.25);transition:transform .2s cubic-bezier(.3,1.6,.5,1)}
+.say:hover{transform:rotate(-4deg) scale(1.05)}
+.bubble{position:relative;max-width:min(320px,80%);background:var(--ivory);color:#14231b;border-radius:16px;padding:10px 14px;font:500 15px/1.35 Rubik,sans-serif;box-shadow:0 10px 24px rgb(0 0 0/.3);z-index:3}
+.bubble.them{margin:8px 0 0 6px}.bubble.them::before{content:'';position:absolute;top:-8px;left:18px;border:8px solid transparent;border-top:0;border-bottom-color:var(--ivory)}
+.bubble.me{margin:0 0 8px auto}.bubble.me::after{content:'';position:absolute;bottom:-8px;right:22px;border:8px solid transparent;border-bottom:0;border-top-color:var(--ivory)}
+.bubble.pop{animation:bpop .45s cubic-bezier(.3,1.6,.5,1)}
+@keyframes bpop{0%{transform:scale(.6);opacity:0}100%{transform:none;opacity:1}}
+.sheet{align-items:end}.sheet .box{border-radius:20px 20px 14px 14px}
+.lines{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px}
+.line{border:1px solid #e3dccb;background:#fff;border-radius:999px;padding:8px 14px;font:500 14px/1.3 Rubik,sans-serif;color:#14231b;text-align:left;transition:transform .15s}
+.line:hover{transform:translateY(-2px);border-color:var(--brass)}
+.own{display:flex;gap:8px;margin-bottom:12px}.own input{margin:0;flex:1}.own .btn{min-width:90px;font-size:16px;background:var(--felt);color:#fff}
+.mehead .who{margin-right:4px}
 @media(max-width:600px){.top h1{font-size:22px}.who{font-size:17px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -141,7 +158,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 
   <!-- table -->
   <section id="table" hidden style="display:flex;flex-direction:column;flex:1">
-    <div class="opp"><div class="who" id="oppname"></div><span class="pill" id="opppill"></span></div>
+    <div class="opp"><div class="who" id="oppname"></div><span class="pill" id="opppill"></span></div><div class="bubble them" id="themsay" hidden></div>
     <div class="backs" id="backs"></div>
     <div class="centre">
       <button class="pile" id="deck" aria-label="Draw from the deck"><span id="deckcard"></span><small id="deckn"></small></button>
@@ -149,10 +166,11 @@ button{font:inherit;color:inherit;cursor:pointer}
     </div>
     <div class="prompt" id="prompt" aria-live="polite"></div>
     <div class="mine">
-      <div class="mehead"><div class="who" id="myname"></div><span class="hint">Drag cards to rearrange</span><div class="arr" role="group" aria-label="Sort my hand"><button data-a="melds">Melds</button><button data-a="suit">Suit</button><button data-a="rank">Rank</button></div></div>
+      <div class="bubble me" id="mesay" hidden></div>
+      <div class="mehead"><div class="who" id="myname"></div><button class="say" id="say" aria-label="Send a message"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-7l-5 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z" fill="currentColor"/><path d="M12 13.2c-2.4-1.6-1.8-3.6 0-2.6 1.8-1 2.4 1 0 2.6z" fill="#cf1f33"/></svg><span>Tease</span></button><span class="hint">Drag cards to rearrange</span><div class="arr" role="group" aria-label="Sort my hand"><button data-a="melds">Melds</button><button data-a="suit">Suit</button><button data-a="rank">Rank</button></div></div>
       <div class="hand" id="hand"></div>
       <div class="info" id="info"></div>
-      <div class="acts"><button class="btn" id="discard" disabled>Discard</button><button class="btn rummy" id="rummy" disabled>Call Rummy!</button></div>
+      <div class="acts"><button class="btn rummy" id="rummy" disabled>Call Rummy!</button><button class="btn" id="discard" disabled>Discard</button></div>
       <div class="foot"><span id="sync"></span> · <button id="newgame">New game</button></div>
     </div>
   </section>
@@ -161,6 +179,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 <div class="modal" id="kdlg" hidden role="dialog" aria-modal="true" aria-labelledby="kt"><form class="box" id="kform"><h3 id="kt">Passcode</h3><p>Enter your scoreboard passcode once on this phone to play.</p><input id="kin" type="password" autocomplete="current-password" aria-label="Passcode"><div class="row"><button class="btn prim">Save passcode</button></div></form></div>
 <div class="modal" id="rdlg" hidden role="dialog" aria-modal="true" aria-labelledby="rt"><div class="box"><h3 id="rt"></h3><p id="rp"></p><div class="res" id="rres"></div><div class="tally" id="rtally"></div><div class="row"><button class="btn" id="rclose">Look at the table</button><button class="btn prim" id="ragain">Deal next game</button></div></div></div>
 <div class="modal" id="ndlg" hidden role="dialog" aria-modal="true" aria-labelledby="nt"><div class="box"><h3 id="nt">Start a new game?</h3><p>The game in progress will be thrown away for both of you.</p><div class="row"><button class="btn" id="nno">Keep playing</button><button class="btn prim" id="nyes">Deal new game</button></div></div></div>
+<div class="modal sheet" id="sdlg" hidden role="dialog" aria-modal="true" aria-labelledby="st"><div class="box"><h3 id="st">Say something cute</h3><div class="lines" id="lines"></div><form class="own" id="sform"><input id="sin" maxlength="80" placeholder="Or write your own…" aria-label="Your message" autocomplete="off"><button class="btn prim">Send</button></form><div class="row"><button class="btn" id="sno">Close</button></div></div></div>
 <div class="toast" id="toast" role="status"></div>
 
 <script>
@@ -184,11 +203,13 @@ async function load(){
     if(j.ver!==ver||!G){const prev=G;G=j.game;ver=j.ver;announce(prev,G);render()}
     $('#sync').textContent='Connected';
   }catch(e){$('#sync').textContent='Offline, retrying…'}}
-async function save(next){
+async function save(next,quiet,retried){
   if(needKey())return false;busy=true;const prev=G;G=next;render();
   try{const j=await post({action:'game_put',game:next,ver});busy=false;
     if(j.ok){ver=j.ver;G=j.game;announce(prev,G);render();return true}
-    if(j.error==='conflict'){G=j.game;ver=j.ver;render();toast('The other phone moved first, here’s the latest table');return false}
+    if(j.error==='conflict'){const strip=x=>JSON.stringify({...(x||{}),chat:null});
+      if(j.game&&prev&&strip(j.game)===strip(prev)&&!retried){ver=j.ver;G=prev;return save({...next,chat:j.game.chat},quiet,true)}
+      G=j.game;ver=j.ver;render();if(!quiet)toast('The other phone moved first, here’s the latest table');return false}
     if(j.error==='bad_key'){ls.set('st-key','');needKey()}
     G=prev;render();toast('Couldn’t save that move');return false
   }catch(e){busy=false;G=prev;render();toast('No connection, try that move again');return false}}
@@ -221,6 +242,7 @@ function callRummy(){if(!myTurn()||G.phase!=='discard')return;const opts=R.rummy
 
 // ---- announcements ----
 function announce(prev,g){
+  checkChat(g);
   if(!g||me==null)return;
   if(g.status==='done'&&resultShown!==g.id){resultShown=g.id;showResult(g);if(g.result.winner===me)burst(true);return}
   if(!prev||prev.id!==g.id){if(g.last&&g.last.act==='deal'){dealt=true;if(prev)toast(g.starter===me?'New game! You go first':`New game! ${names[g.starter]} goes first`)}return}
@@ -258,7 +280,7 @@ function render(){
   $('#myname').innerHTML=`<i style="color:${me?'#fff':'#ff6b7a'}">${SUITCH[me]}</i>You`;
   const pill=$('#opppill');pill.className='pill'+(G.status==='playing'&&G.turn===o?' go':'');pill.textContent=G.status!=='playing'?'Game over':G.turn===o?`${names[o]}'s turn`:'Waiting for you';
   const bw=Math.max(30,Math.min(48,Math.floor((Math.min(innerWidth,900)-60)/ (opp.length*0.55+1))));
-  $('#backs').innerHTML=opp.map(()=>backHTML(o,bw)).join('');
+  {const m=opp.length,pa=Math.min(4,30/Math.max(m-1,1));$('#backs').innerHTML=opp.map((_,i)=>backHTML(o,bw).replace('style="',`style="--rot:${(-(i-(m-1)/2)*pa).toFixed(2)}deg;`)).join('')}
   const canDraw=myTurn()&&G.phase==='draw';
   $('#deck').classList.toggle('can',canDraw);$('#disc').classList.toggle('can',canDraw&&G.discard.length>0);
   $('#deck').disabled=!canDraw;$('#disc').disabled=!canDraw||!G.discard.length;
@@ -274,9 +296,10 @@ function render(){
   $('#prompt').innerHTML=p;
   // hand
   const groups=arranged(hand).groups0;const order=myOrder(hand);const W=Math.min(innerWidth,900)-28,n=order.length||1;
-  const cw=Math.max(46,Math.min(78,Math.floor(W/5.2))),step=n>1?Math.min(cw+6,(W-cw)/(n-1)):0,ml=step-cw;
+  const cw=Math.max(46,Math.min(78,Math.floor(W/5.2))),per=Math.min(4.2,34/Math.max(n-1,1)),maxA=per*(n-1)/2*Math.PI/180,rad=cw*1.42*1.6,
+    step=n>1?Math.max(14,Math.min(cw*.62,(W-cw*1.45-2*rad*Math.sin(maxA))/(n-1))):0,ml=step-cw;
   $('#hand').innerHTML=order.map((c,i)=>{const g=groups[c];const cls=[g!=null?'meld':'',c===sel?'sel':'',c===newCard?'new':'',dealt?'deal':''].join(' ');
-    return cardHTML(c,cls,cw,`margin-left:${i?ml:0}px;${g!=null?`--mc:${MC[g%4]};`:''}${dealt?`animation-delay:${i*60}ms;`:''}`,'button')}).join('');
+    return cardHTML(c,cls,cw,`--rot:${((i-(n-1)/2)*per).toFixed(2)}deg;margin-left:${i?ml:0}px;${g!=null?`--mc:${MC[g%4]};`:''}${dealt?`animation-delay:${i*60}ms;`:''}`,'button')}).join('');
   dealt=false;
   // info
   const a=R.analyse(hand.length===11&&sel?hand.filter(c=>c!==sel):hand);
@@ -301,6 +324,28 @@ function burst(big){if(matchMedia('(prefers-reduced-motion: reduce)').matches)re
     const a=Math.random()*Math.PI*2,v=120+Math.random()*260;s.animate([{transform:'translate(-50%,-50%) scale(.3)',opacity:1},{transform:`translate(calc(-50% + ${Math.cos(a)*v}px),calc(-50% + ${Math.sin(a)*v+120}px)) rotate(${Math.random()*720}deg) scale(1.2)`,opacity:0}],{duration:1200+Math.random()*700,easing:'cubic-bezier(.2,.7,.3,1)'}).onfinish=()=>s.remove()}}
 let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),3800)}
 
+// ---- cute messages ----
+const LINES=["Shuffle harder, I dare you ♠", "Is that a run or a cry for help?", "I can smell your leftover cards from here", "Take your time… I’m only aging", "That discard? Bold. Wrong, but bold.", "Rummy is coming. Brace yourself ♥", "You look cute when you’re losing", "Thanks for the card, sweetheart", "Plot twist incoming…", "Are you counting cards or sheep?", "I’d let you win, but I love winning more", "Good game, love ♥", "Rematch? Loser makes the tea", "Your poker face needs work"];
+let seenChat=null;
+function bubble(el,txt){el.textContent=txt;el.hidden=false;el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');clearTimeout(el._t);el._t=setTimeout(()=>{el.hidden=true},6000)}
+function checkChat(g){const ch=(g&&g.chat)||[];const last=ch[ch.length-1];
+  if(seenChat===null){seenChat=last?last.id:'';return}
+  const fresh=[];for(let i=ch.length-1;i>=0&&ch[i].id!==seenChat;i--)fresh.unshift(ch[i]);
+  if(!fresh.length)return;seenChat=last.id;
+  fresh.filter(m=>m.p!==me).slice(-1).forEach(m=>{bubble($('#themsay'),m.m);hearts($('#themsay'),m.p)})}
+function hearts(el,p){if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;const r=el.getBoundingClientRect();
+  for(let i=0;i<8;i++){const s=document.createElement('i');s.className='bit';s.textContent=p?'♠':'♥';s.style.color=p?'#fbf8f0':'#ff6b7a';s.style.fontSize=(12+Math.random()*10)+'px';s.style.left=(r.left+r.width*Math.random())+'px';s.style.top=(r.top+r.height/2)+'px';document.body.appendChild(s);
+    s.animate([{transform:'translate(-50%,-50%) scale(.4)',opacity:1},{transform:`translate(calc(-50% + ${(Math.random()-.5)*60}px),calc(-50% - ${50+Math.random()*50}px)) scale(1.1)`,opacity:0}],{duration:1100+Math.random()*500,easing:'ease-out'}).onfinish=()=>s.remove()}}
+async function sendMsg(txt){txt=String(txt||'').trim().slice(0,80);if(!txt||!G)return;$('#sdlg').hidden=true;
+  const msg={id:Date.now().toString(36)+Math.random().toString(36).slice(2,5),p:me,m:txt,t:Date.now()};
+  bubble($('#mesay'),txt);hearts($('#mesay'),me);
+  for(let k=0;k<3;k++){const g=clone(G);g.chat=(g.chat||[]).concat(msg).slice(-20);seenChat=msg.id;if(await save(g,true))return;await new Promise(r=>setTimeout(r,400))}
+  toast('Couldn’t send that, try again')}
+$('#lines').innerHTML=LINES.map(l=>`<button type="button" class="line">${l}</button>`).join('');
+$('#lines').addEventListener('click',e=>{const b=e.target.closest('.line');if(b)sendMsg(b.textContent)});
+$('#say').onclick=()=>{$('#sdlg').hidden=false};$('#sno').onclick=()=>{$('#sdlg').hidden=true};
+$('#sform').addEventListener('submit',e=>{e.preventDefault();sendMsg($('#sin').value);$('#sin').value=''});
+$('#sdlg').addEventListener('click',e=>{if(e.target===$('#sdlg'))$('#sdlg').hidden=true});
 // ---- events ----
 document.querySelectorAll('.seatbtn').forEach(b=>b.onclick=()=>{me=Number(b.dataset.me);ls.set('rm-me',me);render();load()});
 $('#seat').onclick=()=>{me=null;ls.set('rm-me',null);render()};
@@ -321,7 +366,7 @@ $('#hand').addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)re
   if(!drag.on){if(Math.hypot(dx,dy)<8)return;drag.on=true;try{drag.el.setPointerCapture(e.pointerId)}catch(_){}drag.el.classList.add('dragging');$('#hand').classList.add('is-dragging')}
   e.preventDefault();drag.el.style.transform=`translate(${dx}px,${Math.min(0,dy)-18}px) rotate(${Math.max(-8,Math.min(8,dx/12))}deg)`;
   let to=0;drag.centers.forEach((cx,i)=>{if(i!==drag.from&&e.clientX>cx)to++});drag.to=to;
-  drag.cards.forEach((x,i)=>{if(x===drag.el)return;let s=0;if(drag.from<to&&i>drag.from&&i<=to)s=-drag.step;if(drag.from>to&&i>=to&&i<drag.from)s=drag.step;x.style.transform=s?`translateX(${s}px)`:''})});
+  drag.cards.forEach((x,i)=>{if(x===drag.el)return;let s=0;if(drag.from<to&&i>drag.from&&i<=to)s=-drag.step;if(drag.from>to&&i>=to&&i<drag.from)s=drag.step;x.style.transform=s?`translateX(${s}px) rotate(var(--rot,0deg))`:''})});
 function endDrag(e){if(!drag||(e&&e.pointerId!==drag.id))return;const d=drag;drag=null;$('#hand').classList.remove('is-dragging');
   if(!d.on)return;justDragged=true;setTimeout(()=>justDragged=false,50);
   const o=myOrder(G.hands[me]||[]).filter(c=>c!==d.c);o.splice(d.to,0,d.c);ls.set(ordKey(),o);render()}
@@ -329,7 +374,7 @@ $('#hand').addEventListener('pointerup',endDrag);$('#hand').addEventListener('po
 $('#rclose').onclick=()=>{$('#rdlg').hidden=true};$('#ragain').onclick=()=>{$('#rdlg').hidden=true;deal()};
 $('#newgame').onclick=()=>{if(G&&G.status==='playing')$('#ndlg').hidden=false;else deal()};
 $('#nno').onclick=()=>{$('#ndlg').hidden=true};$('#nyes').onclick=()=>{$('#ndlg').hidden=true;deal()};
-document.addEventListener('keydown',e=>{if(e.key==='Escape')['#ndlg','#rdlg'].forEach(s=>$(s).hidden=true)});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')['#ndlg','#rdlg','#sdlg'].forEach(s=>$(s).hidden=true)});
 addEventListener('resize',()=>{if(G)render()});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)load()});
 setInterval(()=>{if(!document.hidden&&me!=null&&!busy)load()},2500);
