@@ -242,10 +242,6 @@ tr.fresh td{animation:dealrow .6s cubic-bezier(.3,1.4,.5,1) both}
 .playlink{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 16px;border-radius:999px;background:var(--brass);color:#2b1d05;font:700 15px Rubik,sans-serif;text-decoration:none;box-shadow:0 3px 0 rgb(0 0 0/.25);transition:transform .2s cubic-bezier(.3,1.6,.5,1);margin-right:auto}
 .playlink:hover{transform:translateY(-2px) rotate(-2deg)}
 .playlink b{font:700 16px Georgia,serif}
-
-.headrow{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.headrow .title{width:auto;margin:0}
-.headrow .playlink{margin:0;flex:none}
 </style>
 <script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script>
 </head>
@@ -254,8 +250,7 @@ tr.fresh td{animation:dealrow .6s cubic-bezier(.3,1.4,.5,1) both}
   <div class="wrap">
     <div class="row1" hidden><span><span id="status" class="status">Loading…</span> <button class="ghost" id="rename" style="margin-left:8px">Names &amp; rules</button></span></div>
     <form class="namef" id="nf" hidden><input id="n-a" aria-label="Player one name" maxlength="24"><input id="n-b" aria-label="Player two name" maxlength="24"><select id="n-r" aria-label="Who wins a hand" style="background:#fff;color:#16183a;border:0;border-radius:12px;min-height:44px;padding:0 10px"><option value="low">Lowest score wins</option><option value="high">Highest score wins</option></select><button>Save</button></form>
-    <div class="headrow"><h1 class="title">Rummy<span aria-hidden="true">♥♠</span></h1><a class="playlink" href="play.html">Play a game <b aria-hidden="true">♠</b></a></div>
-    <div class="controls" style="margin-top:14px">
+    <div class="controls" style="margin-top:0"><h1 class="title">Rummy<span aria-hidden="true">♥♠</span></h1><a class="playlink" href="play.html">Play a game <b aria-hidden="true">♠</b></a>
       <div class="tabs" role="tablist" aria-label="Time period">
         <button role="tab" data-v="week">Week</button><button role="tab" data-v="month">Month</button><button role="tab" data-v="year">Year</button><button role="tab" data-v="all">All</button>
       </div>
