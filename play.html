@@ -139,7 +139,7 @@ button{font:inherit;color:inherit;cursor:pointer}
   .top{flex-wrap:nowrap}.top a{min-height:36px;padding:4px 2px;font-size:15px}.seat{min-height:32px;font-size:13px;padding:0 10px}
   .opp{margin-top:6px}.backs{margin-top:6px;min-height:0;padding-bottom:6px}
   .centre{margin:10px 0 4px}.pile{padding:2px}.pile small{font-size:12px}
-  .prompt{font-size:15px;min-height:0;margin:0 0 6px}
+  .prompt{font-size:15px;min-height:0;margin:4px 0 0}
   .mine{padding-top:2px;padding-bottom:10px}.hand{padding:26px 0 34px;min-height:0}
   .info{font-size:13px;min-height:18px}.acts{margin-top:6px}.btn{min-height:46px;font-size:17px}.foot{margin-top:4px}
   .say{min-height:32px}.arr button{min-height:30px}
@@ -176,11 +176,11 @@ button{font:inherit;color:inherit;cursor:pointer}
   <section id="table" hidden style="display:flex;flex-direction:column;flex:1">
     <div class="opp"><div class="who" id="oppname"></div><div class="bubble them" id="themsay" hidden></div></div>
     <div class="backs" id="backs"></div>
+    <div class="prompt" id="prompt" aria-live="polite"></div>
     <div class="centre">
       <button class="pile" id="deck" aria-label="Draw from the deck"><span id="deckcard"></span><small id="deckn"></small></button>
       <button class="pile" id="disc" aria-label="Take the top card of the discard pile"><span id="disccard"></span><small>Discard pile</small></button>
     </div>
-    <div class="prompt" id="prompt" aria-live="polite"></div>
     <div class="mine">
       <div class="bubble me" id="mesay" hidden></div>
       <div class="mehead"><div class="who" id="myname" hidden></div><button class="say" id="say" aria-label="Send a message"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-7l-5 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z" fill="currentColor"/><path d="M12 13.2c-2.4-1.6-1.8-3.6 0-2.6 1.8-1 2.4 1 0 2.6z" fill="#cf1f33"/></svg><span>Tease</span></button><div class="arr" role="group" aria-label="Sort my hand"><button data-a="melds">Melds</button><button data-a="suit">Suit</button><button data-a="rank">Rank</button></div></div>
