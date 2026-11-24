@@ -33,7 +33,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .pill.go{background:var(--brass);color:#2b1d05}
 .backs{display:flex;justify-content:center;margin:10px 0 0;min-height:64px}
 .backs{padding-bottom:14px}.backs .card{margin-left:-30px;transform-origin:50% -110%;transform:rotate(var(--rot,0deg))}.backs .card:first-child{margin-left:0}
-.centre{display:flex;justify-content:center;align-items:flex-start;gap:clamp(20px,8vw,60px);margin:clamp(14px,4vh,34px) 0 8px}
+.centre{flex:1;display:flex;justify-content:center;align-items:center;gap:clamp(24px,10vw,70px);margin:8px 0 0}
 .pile{display:grid;justify-items:center;gap:6px;background:none;border:0;padding:6px;border-radius:14px;color:#fff}
 .pile small{font-size:13px;color:var(--mut)}
 .pile.can .card{box-shadow:0 0 0 3px var(--brass),0 0 26px rgb(217 178 90/.7),0 8px 18px rgb(0 0 0/.35);animation:breathe 1.6s ease-in-out infinite}
@@ -55,7 +55,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .card.back::before{content:'';position:absolute;inset:calc(var(--w)*.16);border-radius:calc(var(--w)*.05);border:1px solid rgb(232 194 106/.55)}
 .card.empty{background:rgb(0 0 0/.2);box-shadow:inset 0 0 0 2px rgb(255 255 255/.25)}
 /* my hand */
-.mine{margin-top:auto;padding-top:10px}
+.mine{padding-top:6px;padding-bottom:14px}
 .mehead{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .hint{font-size:12px;color:var(--mut);text-align:center;margin-top:2px}
 .mehead .arr{margin-left:auto}
@@ -136,12 +136,12 @@ button{font:inherit;color:inherit;cursor:pointer}
   .top{flex-wrap:nowrap}.top a{min-height:36px;padding:4px 2px;font-size:15px}.seat{min-height:32px;font-size:13px;padding:0 10px}
   .opp{margin-top:6px}.backs{margin-top:6px;min-height:0;padding-bottom:6px}
   .centre{margin:10px 0 4px}.pile{padding:2px}.pile small{font-size:12px}
-  .prompt{font-size:15px;min-height:0;margin:4px 0 2px}
-  .mine{padding-top:2px}.hand{padding:28px 0 6px;min-height:0}
+  .prompt{font-size:15px;min-height:0;margin:6px 0 14px}
+  .mine{padding-top:2px;padding-bottom:10px}.hand{padding:28px 0 14px;min-height:0}
   .info{font-size:13px;min-height:18px}.acts{margin-top:6px}.btn{min-height:46px;font-size:17px}.foot{margin-top:4px}
   .say{min-height:32px}.arr button{min-height:30px}
 }
-@media(max-height:620px){.centre{margin:6px 0 2px}.hand{padding:20px 0 12px}.btn{min-height:42px;font-size:16px}.hint{display:none}.prompt{font-size:14px}.opp{margin-top:2px}.mehead .who{font-size:15px}}
+@media(max-height:620px){.centre{margin:4px 0 0}.prompt{margin:2px 0 6px!important}.hand{padding:20px 0 12px}.btn{min-height:42px;font-size:16px}.hint{display:none}.prompt{font-size:14px}.opp{margin-top:2px}.mehead .who{font-size:15px}}
 @media(max-width:600px){.top h1{font-size:20px}.who{font-size:17px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -182,10 +182,9 @@ button{font:inherit;color:inherit;cursor:pointer}
       <div class="bubble me" id="mesay" hidden></div>
       <div class="mehead"><div class="who" id="myname"></div><button class="say" id="say" aria-label="Send a message"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-7l-5 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z" fill="currentColor"/><path d="M12 13.2c-2.4-1.6-1.8-3.6 0-2.6 1.8-1 2.4 1 0 2.6z" fill="#cf1f33"/></svg><span>Tease</span></button><div class="arr" role="group" aria-label="Sort my hand"><button data-a="melds">Melds</button><button data-a="suit">Suit</button><button data-a="rank">Rank</button></div></div>
       <div class="hand" id="hand"></div>
-      <div class="hint">Drag cards to rearrange · tap one to select it</div>
       <div class="info" id="info"></div>
       <div class="acts"><button class="btn rummy" id="rummy" disabled>Call Rummy!</button><button class="btn" id="discard" disabled>Discard</button></div>
-      <div class="foot"><span id="sync"></span> · <button id="newgame">New game</button> · <button id="switch">Switch player</button></div>
+      <div class="foot"><span id="sync"></span> · <button id="newgame">New game</button></div>
     </div>
   </section>
 </div>
@@ -281,7 +280,7 @@ function arranged(cards){
   const a=R.analyse(cards),order=[],groups={};
   a.melds.forEach((m,i)=>{R.sortCards(m.cards,m.type==='run'?'suit':'rank').forEach(c=>{order.push(c);groups[c]=i})});
   R.sortCards(a.deadwood,'suit').forEach(c=>order.push(c));return{order,groups,groups0:g0}}
-const PW=()=>innerHeight<620?46:innerHeight<760||innerWidth<600?56:70;
+const PW=()=>innerHeight<620?54:innerHeight<760||innerWidth<600?76:92;
 function render(){
   if(drag&&drag.on)return;
   $('#sn0').textContent=names[0];$('#sn1').textContent=names[1];
@@ -316,7 +315,7 @@ function render(){
   dealt=false;
   // info
   const a=R.analyse(hand.length===11&&sel?hand.filter(c=>c!==sel):hand);
-  $('#info').innerHTML=hand.length?(a.melds.length?`Melds: ${a.melds.map(m=>m.cards.length+(m.type==='run'?'-run':'-set')).join(', ')} · `:'')+`if caught now: <b>${a.points}</b> points${a.hasRun?'':' (no run of 4 yet)'}`:'';
+  $('#info').innerHTML=hand.length?`<b>${a.points}</b> points if caught`:'';
   const canDisc=myTurn()&&G.phase==='discard';
   $('#discard').disabled=!(canDisc&&sel);$('#discard').textContent=sel&&canDisc?`Discard ${lbl(sel)}`:'Discard';
   const ro=canDisc?R.rummyDiscards(hand):[];$('#rummy').disabled=!ro.length;
@@ -361,7 +360,7 @@ $('#sform').addEventListener('submit',e=>{e.preventDefault();sendMsg($('#sin').v
 $('#sdlg').addEventListener('click',e=>{if(e.target===$('#sdlg'))$('#sdlg').hidden=true});
 // ---- events ----
 document.querySelectorAll('.seatbtn').forEach(b=>b.onclick=()=>{me=Number(b.dataset.me);ls.set('rm-me',me);render();load()});
-$('#seat').onclick=$('#switch').onclick=()=>{me=null;ls.set('rm-me',null);render()};
+$('#seat').onclick=()=>{me=null;ls.set('rm-me',null);render()};
 $('#deal').onclick=deal;
 $('#deck').onclick=drawDeck;$('#disc').onclick=takeDisc;
 $('#hand').addEventListener('click',e=>{if(justDragged)return;const b=e.target.closest('[data-c]');if(!b)return;const c=b.dataset.c;
