@@ -56,7 +56,8 @@ button{font:inherit;color:inherit;cursor:pointer}
 /* my hand */
 .mine{margin-top:auto;padding-top:10px}
 .mehead{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.hint{font-size:13px;color:var(--mut);margin-left:auto}
+.hint{font-size:12px;color:var(--mut);text-align:center;margin-top:2px}
+.mehead .arr{margin-left:auto}
 .arr{display:flex;background:rgb(0 0 0/.22);border-radius:999px;padding:3px}
 .arr button{border:0;background:none;border-radius:999px;padding:0 12px;min-height:34px;font-size:13px}
 .arr button[aria-pressed=true]{background:var(--ivory);color:#14231b}
@@ -119,8 +120,8 @@ button{font:inherit;color:inherit;cursor:pointer}
 .say{display:inline-flex;align-items:center;gap:6px;border:0;border-radius:999px;background:var(--ivory);color:#14231b;min-height:36px;padding:0 12px 0 10px;font:700 13px Rubik,sans-serif;box-shadow:0 3px 0 rgb(0 0 0/.25);transition:transform .2s cubic-bezier(.3,1.6,.5,1)}
 .say:hover{transform:rotate(-4deg) scale(1.05)}
 .bubble{position:relative;max-width:min(320px,80%);background:var(--ivory);color:#14231b;border-radius:16px;padding:10px 14px;font:500 15px/1.35 Rubik,sans-serif;box-shadow:0 10px 24px rgb(0 0 0/.3);z-index:3}
-.bubble.them{margin:8px 0 0 6px}.bubble.them::before{content:'';position:absolute;top:-8px;left:18px;border:8px solid transparent;border-top:0;border-bottom-color:var(--ivory)}
-.bubble.me{margin:0 0 8px auto}.bubble.me::after{content:'';position:absolute;bottom:-8px;right:22px;border:8px solid transparent;border-bottom:0;border-top-color:var(--ivory)}
+.opp{position:relative}.bubble.them{position:absolute;left:0;top:calc(100% + 8px);z-index:4}.bubble.them::before{content:'';position:absolute;top:-8px;left:18px;border:8px solid transparent;border-top:0;border-bottom-color:var(--ivory)}
+.mine{position:relative}.bubble.me{position:absolute;right:0;bottom:calc(100% - 2px)}.bubble.me::after{content:'';position:absolute;bottom:-8px;right:22px;border:8px solid transparent;border-bottom:0;border-top-color:var(--ivory)}
 .bubble.pop{animation:bpop .45s cubic-bezier(.3,1.6,.5,1)}
 @keyframes bpop{0%{transform:scale(.6);opacity:0}100%{transform:none;opacity:1}}
 .sheet{align-items:end}.sheet .box{border-radius:20px 20px 14px 14px}
@@ -129,14 +130,25 @@ button{font:inherit;color:inherit;cursor:pointer}
 .line:hover{transform:translateY(-2px);border-color:var(--brass)}
 .own{display:flex;gap:8px;margin-bottom:12px}.own input{margin:0;flex:1}.own .btn{min-width:90px;font-size:16px;background:var(--felt);color:#fff}
 .mehead .who{margin-right:4px}
-@media(max-width:600px){.top h1{font-size:22px}.who{font-size:17px}}
+@media(max-height:900px),(max-width:600px){
+  .app{min-height:100dvh;padding-top:max(8px,env(safe-area-inset-top));padding-bottom:max(10px,env(safe-area-inset-bottom))}
+  .top{flex-wrap:nowrap}.top a{min-height:36px;padding:4px 2px;font-size:15px}.seat{min-height:32px;font-size:13px;padding:0 10px}
+  .opp{margin-top:6px}.backs{margin-top:6px;min-height:0;padding-bottom:6px}
+  .centre{margin:10px 0 4px}.pile{padding:2px}.pile small{font-size:12px}
+  .prompt{font-size:15px;min-height:0;margin:4px 0 2px}
+  .mine{padding-top:2px}.hand{padding:28px 0 6px;min-height:0}
+  .info{font-size:13px;min-height:18px}.acts{margin-top:6px}.btn{min-height:46px;font-size:17px}.foot{margin-top:4px}
+  .say{min-height:32px}.arr button{min-height:30px}
+}
+@media(max-height:620px){.centre{margin:6px 0 2px}.hand{padding:20px 0 12px}.btn{min-height:42px;font-size:16px}.hint{display:none}.prompt{font-size:14px}.opp{margin-top:2px}.mehead .who{font-size:15px}}
+@media(max-width:600px){.top h1{font-size:20px}.who{font-size:17px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
 <div class="app" id="app">
   <div class="top">
-    <a href="./">← Scoreboard</a>
+    <a href="./">← Scores</a>
     <h1>Rummy table</h1>
     <button class="seat" id="seat" hidden></button>
   </div>
@@ -158,7 +170,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 
   <!-- table -->
   <section id="table" hidden style="display:flex;flex-direction:column;flex:1">
-    <div class="opp"><div class="who" id="oppname"></div><span class="pill" id="opppill"></span></div><div class="bubble them" id="themsay" hidden></div>
+    <div class="opp"><div class="who" id="oppname"></div><span class="pill" id="opppill"></span><div class="bubble them" id="themsay" hidden></div></div>
     <div class="backs" id="backs"></div>
     <div class="centre">
       <button class="pile" id="deck" aria-label="Draw from the deck"><span id="deckcard"></span><small id="deckn"></small></button>
@@ -167,8 +179,9 @@ button{font:inherit;color:inherit;cursor:pointer}
     <div class="prompt" id="prompt" aria-live="polite"></div>
     <div class="mine">
       <div class="bubble me" id="mesay" hidden></div>
-      <div class="mehead"><div class="who" id="myname"></div><button class="say" id="say" aria-label="Send a message"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-7l-5 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z" fill="currentColor"/><path d="M12 13.2c-2.4-1.6-1.8-3.6 0-2.6 1.8-1 2.4 1 0 2.6z" fill="#cf1f33"/></svg><span>Tease</span></button><span class="hint">Drag cards to rearrange</span><div class="arr" role="group" aria-label="Sort my hand"><button data-a="melds">Melds</button><button data-a="suit">Suit</button><button data-a="rank">Rank</button></div></div>
+      <div class="mehead"><div class="who" id="myname"></div><button class="say" id="say" aria-label="Send a message"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-7l-5 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z" fill="currentColor"/><path d="M12 13.2c-2.4-1.6-1.8-3.6 0-2.6 1.8-1 2.4 1 0 2.6z" fill="#cf1f33"/></svg><span>Tease</span></button><div class="arr" role="group" aria-label="Sort my hand"><button data-a="melds">Melds</button><button data-a="suit">Suit</button><button data-a="rank">Rank</button></div></div>
       <div class="hand" id="hand"></div>
+      <div class="hint">Drag cards to rearrange · tap one to select it</div>
       <div class="info" id="info"></div>
       <div class="acts"><button class="btn rummy" id="rummy" disabled>Call Rummy!</button><button class="btn" id="discard" disabled>Discard</button></div>
       <div class="foot"><span id="sync"></span> · <button id="newgame">New game</button></div>
@@ -267,6 +280,7 @@ function arranged(cards){
   const a=R.analyse(cards),order=[],groups={};
   a.melds.forEach((m,i)=>{R.sortCards(m.cards,m.type==='run'?'suit':'rank').forEach(c=>{order.push(c);groups[c]=i})});
   R.sortCards(a.deadwood,'suit').forEach(c=>order.push(c));return{order,groups,groups0:g0}}
+const PW=()=>innerHeight<620?46:innerHeight<760||innerWidth<600?56:70;
 function render(){
   if(drag&&drag.on)return;
   $('#sn0').textContent=names[0];$('#sn1').textContent=names[1];
@@ -279,13 +293,13 @@ function render(){
   $('#oppname').innerHTML=`<i style="color:${o?'#fff':'#ff6b7a'}">${SUITCH[o]}</i>${names[o]}`;
   $('#myname').innerHTML=`<i style="color:${me?'#fff':'#ff6b7a'}">${SUITCH[me]}</i>You`;
   const pill=$('#opppill');pill.className='pill'+(G.status==='playing'&&G.turn===o?' go':'');pill.textContent=G.status!=='playing'?'Game over':G.turn===o?`${names[o]}'s turn`:'Waiting for you';
-  const bw=Math.max(30,Math.min(48,Math.floor((Math.min(innerWidth,900)-60)/ (opp.length*0.55+1))));
+  const bw=Math.max(26,Math.min(innerHeight<620?30:innerHeight<760?36:48,Math.floor((Math.min(innerWidth,900)-60)/ (opp.length*0.55+1))));
   {const m=opp.length,pa=Math.min(4,30/Math.max(m-1,1));$('#backs').innerHTML=opp.map((_,i)=>backHTML(o,bw).replace('style="',`style="--rot:${(-(i-(m-1)/2)*pa).toFixed(2)}deg;`)).join('')}
   const canDraw=myTurn()&&G.phase==='draw';
   $('#deck').classList.toggle('can',canDraw);$('#disc').classList.toggle('can',canDraw&&G.discard.length>0);
   $('#deck').disabled=!canDraw;$('#disc').disabled=!canDraw||!G.discard.length;
-  $('#deckcard').innerHTML=G.deck.length?backHTML(me?0:1,70):'<span class="card empty" style="--cw:70px"></span>';$('#deckn').textContent=`Deck · ${G.deck.length}`;
-  const top=G.discard[G.discard.length-1];$('#disccard').innerHTML=top?cardHTML(top,'',70):'<span class="card empty" style="--cw:70px"></span>';
+  $('#deckcard').innerHTML=G.deck.length?backHTML(me?0:1,PW()):`<span class="card empty" style="--cw:${PW()}px"></span>`;$('#deckn').textContent=`Deck · ${G.deck.length}`;
+  const top=G.discard[G.discard.length-1];$('#disccard').innerHTML=top?cardHTML(top,'',PW()):`<span class="card empty" style="--cw:${PW()}px"></span>`;
   $('#disc').setAttribute('aria-label',top?`Take ${lbl(top)} from the discard pile`:'Discard pile is empty');
   // prompt
   let p='';
@@ -296,10 +310,10 @@ function render(){
   $('#prompt').innerHTML=p;
   // hand
   const groups=arranged(hand).groups0;const order=myOrder(hand);const W=Math.min(innerWidth,900)-28,n=order.length||1;
-  const cw=Math.max(46,Math.min(78,Math.floor(W/5.2))),per=Math.min(4.2,34/Math.max(n-1,1)),maxA=per*(n-1)/2*Math.PI/180,rad=cw*1.42*1.6,
+  const cw=Math.max(44,Math.min(innerHeight<620?56:innerHeight<760?62:78,Math.floor(W/5.4))),per=Math.min(4.2,34/Math.max(n-1,1)),maxA=per*(n-1)/2*Math.PI/180,rad=cw*1.42*1.6,
     step=n>1?Math.max(14,Math.min(cw*.62,(W-cw*1.45-2*rad*Math.sin(maxA))/(n-1))):0,ml=step-cw;
-  $('#hand').innerHTML=order.map((c,i)=>{const g=groups[c];const cls=[g!=null?'meld':'',c===sel?'sel':'',c===newCard?'new':'',dealt?'deal':''].join(' ');
-    return cardHTML(c,cls,cw,`--rot:${((i-(n-1)/2)*per).toFixed(2)}deg;margin-left:${i?ml:0}px;${g!=null?`--mc:${MC[g%4]};`:''}${dealt?`animation-delay:${i*60}ms;`:''}`,'button')}).join('');
+  $('#hand').innerHTML=order.map((c,i)=>{const g=groups[c];const cls=[c===sel?'sel':'',c===newCard?'new':'',dealt?'deal':''].join(' ');
+    return cardHTML(c,cls,cw,`--rot:${((i-(n-1)/2)*per).toFixed(2)}deg;margin-left:${i?ml:0}px;${dealt?`animation-delay:${i*60}ms;`:''}`,'button')}).join('');
   dealt=false;
   // info
   const a=R.analyse(hand.length===11&&sel?hand.filter(c=>c!==sel):hand);
