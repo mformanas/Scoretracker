@@ -3,7 +3,8 @@
  *
  * Tabs (created automatically):
  *   Boards      one row per dashboard
- *               board_id | game | name | player_1 | player_2 | player_3 | low_wins | passcode_hash | created_at
+ *               board_id | game | name | player_1 | player_2 | player_3 | low_wins | passcode_hash | created_at | deleted_at
+ *               (a deleted dashboard only gets a deleted_at date; its hands stay in Scores. Clear the date to bring it back.)
  *   Scores      one row per hand, tagged with its dashboard
  *               board_id | hand_id | date | player_1_score | player_2_score | player_3_score | logged_at
  *   Live games  one row per dashboard with a phone game in progress
@@ -24,7 +25,7 @@ const MAX_PLAYERS = 3;
 const LEGACY_BOARD = 'leah-manas';
 
 const T = { BOARDS: 'Boards', SCORES: 'Scores', LIVE: 'Live games' };
-const BOARD_HEAD = ['board_id', 'game', 'name', 'player_1', 'player_2', 'player_3', 'low_wins', 'passcode_hash', 'created_at'];
+const BOARD_HEAD = ['board_id', 'game', 'name', 'player_1', 'player_2', 'player_3', 'low_wins', 'passcode_hash', 'created_at', 'deleted_at'];
 const SCORE_HEAD = ['board_id', 'hand_id', 'date', 'player_1_score', 'player_2_score', 'player_3_score', 'logged_at'];
 const LIVE_HEAD = ['board_id', 'state', 'version', 'updated_at'];
 
@@ -52,6 +53,7 @@ function doPost(e) {
 
   if (body.action === 'game_get') return json_({ ok: true, ...readLive_(board.id) });
   if (body.action === 'check') return json_({ ok: true, board: publicBoard_(board) });
+  if (body.action === 'board_delete') return deleteBoard_(board);
 
   const lock = LockService.getScriptLock();
   if (!lock.tryLock(20000)) return json_({ ok: false, error: 'busy' });
@@ -111,8 +113,8 @@ function createBoard_(body) {
   if (!lock.tryLock(20000)) return json_({ ok: false, error: 'busy' });
   try {
     let id = slug_(players.join('-')) || 'board';
-    if (getBoard_(id)) id += '-' + Math.random().toString(36).slice(2, 6);
-    const row = [id, game, name].concat(pad_(players, MAX_PLAYERS, '')).concat([g.lowWins, hash_(pass), new Date()]);
+    while (boardRow_(id, true) > 0) id = id.replace(/-[a-z0-9]{4}$/, '') + '-' + Math.random().toString(36).slice(2, 6);
+    const row = [id, game, name].concat(pad_(players, MAX_PLAYERS, '')).concat([g.lowWins, hash_(pass), new Date(), '']);
     sheet_(T.BOARDS).appendRow(row);
     SpreadsheetApp.flush();
     return json_({ ok: true, board: publicBoard_(getBoard_(id)) });
@@ -123,18 +125,47 @@ function createBoard_(body) {
 
 function listBoards_(game) {
   const v = sheet_(T.BOARDS).getDataRange().getValues().slice(1);
-  const counts = {};
-  colValues_(sheet_(T.SCORES), 1).forEach(id => { counts[id] = (counts[id] || 0) + 1; });
-  return v.filter(r => r[0] && (!game || r[1] === game)).map(r => {
+  const counts = {}, totals = {}, sh = sheet_(T.SCORES), n = sh.getLastRow() - 1;
+  if (n > 0) sh.getRange(2, 1, n, 3 + MAX_PLAYERS).getValues().forEach(r => {
+    const id = String(r[0]);
+    counts[id] = (counts[id] || 0) + 1;
+    const t = totals[id] || (totals[id] = Array(MAX_PLAYERS).fill(0));
+    for (let i = 0; i < MAX_PLAYERS; i++) t[i] += Number(r[3 + i]) || 0;
+  });
+  return v.filter(r => r[0] && !isDeleted_(r) && (!game || r[1] === game)).map(r => {
     const b = boardFromRow_(r);
-    return { ...publicBoard_(b), hands: counts[b.id] || 0 };
+    return { ...publicBoard_(b), hands: counts[b.id] || 0, totals: (totals[b.id] || []).slice(0, b.players.length) };
   });
 }
 
 function getBoard_(id) {
+  const r = boardRow_(id, false);
+  return r > 0 ? boardFromRow_(sheet_(T.BOARDS).getRange(r, 1, 1, BOARD_HEAD.length).getValues()[0]) : null;
+}
+
+// Row number of a dashboard in Boards, or -1. Deleted ones count only when asked.
+function boardRow_(id, withDeleted) {
   const v = sheet_(T.BOARDS).getDataRange().getValues();
-  for (let i = 1; i < v.length; i++) if (String(v[i][0]) === String(id)) return boardFromRow_(v[i]);
-  return null;
+  for (let i = 1; i < v.length; i++) if (String(v[i][0]) === String(id) && (withDeleted || !isDeleted_(v[i]))) return i + 1;
+  return -1;
+}
+
+function isDeleted_(r) { return r.length > BOARD_HEAD.length - 1 && r[BOARD_HEAD.length - 1] !== '' && r[BOARD_HEAD.length - 1] != null; }
+
+// Hides a dashboard. Nothing is erased: its hands stay in Scores and the row stays in Boards.
+function deleteBoard_(board) {
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(20000)) return json_({ ok: false, error: 'busy' });
+  try {
+    const sh = sheet_(T.BOARDS), r = boardRow_(board.id, false);
+    if (r < 0) return json_({ ok: false, error: 'no_board' });
+    if (String(sh.getRange(1, BOARD_HEAD.length).getValues()[0][0]) === '') sh.getRange(1, BOARD_HEAD.length).setValue('deleted_at').setFontWeight('bold');
+    sh.getRange(r, BOARD_HEAD.length).setValue(new Date());
+    SpreadsheetApp.flush();
+    return json_({ ok: true });
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 function boardFromRow_(r) {
