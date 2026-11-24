@@ -208,17 +208,20 @@ let drag=null,justDragged=false;
 const SUITCH=['♥','♠'],other=p=>1-p,lbl=R.label,isRed=c=>/[HD]$/.test(c);
 
 // ---- server ----
-async function post(body){const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({...body,key:ls.get('st-key','')})});return r.json()}
+async function post(body,ms=30000){const ac=new AbortController(),t=setTimeout(()=>ac.abort(),ms);try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({...body,key:ls.get('st-key','')}),signal:ac.signal});return await r.json()}finally{clearTimeout(t)}}
+let loading=false,loaded=false;
 function needKey(){if(!ls.get('st-key','')){$('#kdlg').hidden=false;setTimeout(()=>$('#kin').focus(),30);return true}return false}
 $('#kform').addEventListener('submit',e=>{e.preventDefault();const k=$('#kin').value.trim();if(!k)return;ls.set('st-key',k);$('#kdlg').hidden=true;load()});
 async function load(){
   if(!API){$('#sync').textContent='Not connected to the Google Sheet';render();return}
-  if(needKey()||busy)return;
-  try{const j=await post({action:'game_get'});
+  if(needKey()||busy||loading)return;loading=true;
+  try{const j=await post({action:'game_get'});if(busy)return;
     if(!j.ok){if(j.error==='bad_key'){ls.set('st-key','');needKey();toast('That passcode didn’t work')}return}
-    if(j.ver!==ver||!G){const prev=G;G=j.game;ver=j.ver;announce(prev,G);render()}
+    const first=!loaded;loaded=true;
+    if(first||j.ver!==ver){const prev=G;G=j.game;ver=j.ver;announce(prev,G);render()}
     $('#sync').textContent='Connected';
-  }catch(e){$('#sync').textContent='Offline, retrying…'}}
+  }catch(e){$('#sync').textContent='Slow connection, still trying…';if(!loaded)render()}
+  finally{loading=false}}
 async function save(next,quiet,retried){
   if(needKey())return false;busy=true;const prev=G;G=next;render();
   try{const j=await post({action:'game_put',game:next,ver});busy=false;
@@ -290,7 +293,8 @@ function render(){
   const show=id=>['pick','lobby','table'].forEach(x=>$('#'+x).hidden=x!==id);
   if(me==null){show('pick');$('#seat').hidden=true;return}
   $('#seat').hidden=true;
-  if(!G){show('lobby');$('#lobbynote').textContent=API?'':'Connect the Google Sheet first (see README).';return}
+  if(API&&!loaded){show('lobby');$('#lobby h2').textContent='Loading your game…';$('#lobby p').textContent='Getting the table from your Google Sheet. This can take a few seconds.';$('#deal').hidden=true;$('#lobbynote').textContent='';return}
+  if(!G){show('lobby');$('#lobby h2').textContent='Shuffle up and deal';$('#lobby p').textContent='10 cards each. Call Rummy with a run of 4 and two runs or sets of 3.';$('#deal').hidden=false;$('#lobbynote').textContent=API?'':'Connect the Google Sheet first (see README).';return}
   show('table');
   const o=other(me),hand=G.hands[me]||[],opp=G.hands[o]||[];
   $('#oppname').innerHTML=`<i style="color:${o?'#fff':'#ff6b7a'}">${SUITCH[o]}</i>${names[o]}`;
@@ -400,7 +404,7 @@ $('#nno').onclick=()=>{$('#ndlg').hidden=true};$('#nyes').onclick=()=>{$('#ndlg'
 document.addEventListener('keydown',e=>{if(e.key==='Escape')['#ndlg','#rdlg','#sdlg'].forEach(s=>$(s).hidden=true)});
 addEventListener('resize',()=>{if(G)render()});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)load()});
-setInterval(()=>{if(!document.hidden&&me!=null&&!busy)load()},2500);
+setInterval(()=>{if(!document.hidden&&me!=null&&!busy&&!loading)load()},3000);
 render();if(me!=null)load();
 }
 </script>

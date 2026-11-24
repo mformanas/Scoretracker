@@ -43,15 +43,15 @@ function doPost(e) {
   try { body = JSON.parse(e.postData.contents); } catch (err) { return json_({ ok: false, error: 'bad_json' }); }
   if (String(body.key || '') !== PASSCODE) return json_({ ok: false, error: 'bad_key' });
 
+  if (body.action === 'game_get') return json_({ ok: true, ...readGame_() });
+
   const lock = LockService.getScriptLock();
-  lock.waitLock(15000);
+  if (!lock.tryLock(20000)) return json_({ ok: false, error: 'busy' });
   try {
     const sh = sheet_();
     switch (body.action) {
       case 'check':
         break;
-      case 'game_get':
-        return json_({ ok: true, ...readGame_() });
       case 'game_put': {
         const cur = readGame_();
         if (Number(body.ver) !== cur.ver) return json_({ ok: false, error: 'conflict', ...cur });
