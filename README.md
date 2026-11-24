@@ -28,6 +28,7 @@ The script creates and manages three tabs:
 - `board_id` links the tabs together. Filter **Scores** by `board_id` to see one dashboard.
 - Passcodes are stored only as a scrambled hash, never as plain text.
 - The original **Hands** and **Game** tabs were copied into the `leah-manas` dashboard the first time the new script ran. They're left untouched as a backup; you can delete them once you're happy.
+- Deleting a dashboard (trash button on the Rummy page, needs its passcode) only fills in its `deleted_at` date in **Boards**. Its hands stay in **Scores**; clear the date to bring it back.
 - Avoid editing `board_id` and `hand_id` by hand. Renaming a player in **Boards** renames them everywhere.
 
 ## Passcodes

@@ -22,7 +22,7 @@ body{margin:0;color:var(--ink);font:17px/1.5 Nunito,system-ui,sans-serif;overflo
 :focus-visible{outline:4px solid var(--sky);outline-offset:3px}
 .wrap{max-width:1080px;margin:0 auto;padding:0 max(5vw,18px)}
 /* hero */
-.hero{position:relative;isolation:isolate;text-align:center;padding:clamp(44px,9vw,96px) 0 clamp(26px,5vw,48px)}
+.hero{position:relative;isolation:isolate;text-align:center;padding:clamp(84px,11vw,110px) 0 clamp(70px,9vw,90px)}
 .word{display:inline-flex;gap:clamp(4px,1.2vw,12px);margin:0;font:700 clamp(84px,19vw,176px)/1 Fredoka,system-ui,sans-serif;letter-spacing:-.01em}
 .word button{font:inherit;border:0;background:none;padding:0;cursor:pointer;color:var(--c);-webkit-text-stroke:clamp(3px,.7vw,6px) var(--line);paint-order:stroke fill;
   text-shadow:clamp(4px,.9vw,8px) clamp(4px,.9vw,8px) 0 var(--sh);display:inline-block;transform:rotate(var(--r));animation:bob 3.4s ease-in-out infinite;animation-delay:var(--d);transition:transform .3s cubic-bezier(.3,1.8,.5,1)}
@@ -33,8 +33,13 @@ body{margin:0;color:var(--ink);font:17px/1.5 Nunito,system-ui,sans-serif;overflo
 .tag{margin:18px auto 0;font:600 clamp(19px,2.8vw,26px)/1.3 Fredoka,sans-serif;max-width:24em}
 .tag mark{background:var(--lemon);color:#2b2240;padding:0 .3em;border-radius:.4em;box-decoration-break:clone;-webkit-box-decoration-break:clone;border:2px solid var(--line)}
 /* floating pieces */
-.float{position:absolute;inset:0;pointer-events:none;z-index:-1}
-.float svg{position:absolute;width:var(--s);height:var(--s);animation:drift var(--t,7s) ease-in-out infinite;animation-delay:var(--d,0s);filter:drop-shadow(3px 3px 0 var(--sh))}
+.float{position:absolute;inset:0;z-index:0;pointer-events:none}
+.word{position:relative;z-index:1}
+.pc{position:absolute;width:var(--s);height:var(--s);padding:0;border:0;background:none;cursor:pointer;pointer-events:auto;animation:drift var(--t,7s) ease-in-out infinite;animation-delay:var(--d,0s);-webkit-tap-highlight-color:transparent}
+.pc:focus-visible{outline-offset:6px;border-radius:12px}
+.pc svg{display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(3px 3px 0 var(--sh));transition:transform .25s cubic-bezier(.3,1.8,.5,1)}
+.pc:hover svg{transform:scale(1.15) rotate(-6deg)}
+.gi{border:3px solid var(--line);cursor:pointer;padding:0;font:inherit}
 @keyframes drift{0%,100%{transform:translate(0,0) rotate(var(--r0,0deg))}50%{transform:translate(var(--x,8px),var(--y,-14px)) rotate(var(--r1,12deg))}}
 /* sections */
 main.wrap{padding-bottom:56px}
@@ -69,57 +74,67 @@ a.tile:hover .fan i:nth-child(1){transform:rotate(-38deg) translateY(-4px)}a.til
 @keyframes peek{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-8px) rotate(5deg)}}
 .bit{position:fixed;pointer-events:none;z-index:9;font:700 22px/1 Fredoka,sans-serif}
 .foot{text-align:center;padding:0 16px 46px;font:600 18px Fredoka,sans-serif;color:var(--mut)}
-.foot span{display:inline-block;animation:bob 2.4s ease-in-out infinite}
-@media(max-width:600px){.tile h3{font-size:40px}.fan{transform:scale(.85);transform-origin:100% 100%}.float svg:nth-child(3),.float svg:nth-child(4),.float svg:nth-child(7),.float svg:nth-child(8){display:none}}
+.spark{display:inline-block;border:0;background:none;padding:4px;font:inherit;font-size:22px;color:var(--orange);cursor:pointer;animation:bob 2.4s ease-in-out infinite}
+@media(max-width:600px){.soon{min-height:0}.tile h3{font-size:40px}.fan{transform:scale(.85);transform-origin:100% 100%}.pc{width:calc(var(--s) * .72);height:calc(var(--s) * .72)}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
 <header class="hero wrap">
-  <div class="float" aria-hidden="true">
-    <svg style="--s:64px;left:4%;top:16%;--r0:-14deg;--r1:8deg;--t:7s" viewBox="0 0 64 64"><rect x="4" y="4" width="56" height="56" rx="14" fill="#ff5d8f" stroke="#2b2240" stroke-width="4"/><circle cx="20" cy="20" r="6" fill="#fff"/><circle cx="44" cy="44" r="6" fill="#fff"/><circle cx="32" cy="32" r="6" fill="#fff"/></svg>
-    <svg style="--s:56px;right:6%;top:12%;--r0:12deg;--r1:-6deg;--t:8s;--d:-2s" viewBox="0 0 48 64"><rect x="3" y="3" width="42" height="58" rx="7" fill="#fff" stroke="#2b2240" stroke-width="4"/><text x="24" y="42" text-anchor="middle" font-size="28" font-family="Georgia" fill="#e0244a">♥</text></svg>
-    <svg style="--s:50px;left:13%;bottom:4%;--r0:6deg;--r1:-10deg;--t:6s;--d:-1s" viewBox="0 0 50 50"><circle cx="25" cy="25" r="21" fill="#4cc9f0" stroke="#2b2240" stroke-width="4"/><circle cx="25" cy="25" r="9" fill="#fff" stroke="#2b2240" stroke-width="3"/></svg>
-    <svg style="--s:58px;right:13%;bottom:2%;--r0:-6deg;--r1:10deg;--t:7.5s;--d:-3s" viewBox="0 0 48 60"><path d="M24 4a10 10 0 0 1 6 18l4 14H14l4-14a10 10 0 0 1 6-18zM10 40h28l4 14H6z" fill="#3ddc97" stroke="#2b2240" stroke-width="4" stroke-linejoin="round"/></svg>
-    <svg style="--s:42px;left:28%;top:2%;--r0:0deg;--r1:30deg;--t:5.5s;--d:-2.5s" viewBox="0 0 50 50"><path d="M25 3l6 14 15 2-11 10 3 15-13-7-13 7 3-15L4 19l15-2z" fill="#ffd23f" stroke="#2b2240" stroke-width="4" stroke-linejoin="round"/></svg>
-    <svg style="--s:46px;right:28%;top:4%;--r0:-10deg;--r1:10deg;--t:6.5s;--d:-4s" viewBox="0 0 60 50"><path d="M6 40L10 12l12 12L30 6l8 18 12-12 4 28z" fill="#ff9f1c" stroke="#2b2240" stroke-width="4" stroke-linejoin="round"/></svg>
-    <svg style="--s:40px;left:2%;top:58%;--r0:20deg;--r1:-4deg;--t:6s;--d:-3.5s" viewBox="0 0 50 50"><rect x="5" y="5" width="40" height="40" rx="10" fill="#9b5de5" stroke="#2b2240" stroke-width="4"/><circle cx="25" cy="25" r="6" fill="#fff"/></svg>
-    <svg style="--s:44px;right:2%;top:54%;--r0:-8deg;--r1:14deg;--t:7s;--d:-1.5s" viewBox="0 0 48 64"><rect x="3" y="3" width="42" height="58" rx="7" fill="#fff" stroke="#2b2240" stroke-width="4"/><text x="24" y="42" text-anchor="middle" font-size="28" font-family="Georgia" fill="#2b2240">♠</text></svg>
+  <div class="float">
+    <button type="button" class="pc" data-k="die" aria-label="Roll the dice" style="--s:64px;left:4%;top:16%;--r0:-14deg;--r1:8deg;--t:7s"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="4" y="4" width="56" height="56" rx="14" fill="#ff5d8f" stroke="#2b2240" stroke-width="4"/><circle cx="20" cy="20" r="6" fill="#fff"/><circle cx="44" cy="44" r="6" fill="#fff"/><circle cx="32" cy="32" r="6" fill="#fff"/></svg></button>
+    <button type="button" class="pc" data-k="heart" aria-label="Flip the heart card" style="--s:56px;right:6%;top:12%;--r0:12deg;--r1:-6deg;--t:8s;--d:-2s"><svg viewBox="0 0 48 64" aria-hidden="true"><rect x="3" y="3" width="42" height="58" rx="7" fill="#fff" stroke="#2b2240" stroke-width="4"/><text x="24" y="42" text-anchor="middle" font-size="28" font-family="Georgia" fill="#e0244a">♥</text></svg></button>
+    <button type="button" class="pc" data-k="token" aria-label="Bounce the token" style="--s:50px;left:13%;bottom:4%;--r0:6deg;--r1:-10deg;--t:6s;--d:-1s"><svg viewBox="0 0 50 50" aria-hidden="true"><circle cx="25" cy="25" r="21" fill="#4cc9f0" stroke="#2b2240" stroke-width="4"/><circle cx="25" cy="25" r="9" fill="#fff" stroke="#2b2240" stroke-width="3"/></svg></button>
+    <button type="button" class="pc" data-k="pawn" aria-label="Make the pawn hop" style="--s:58px;right:13%;bottom:2%;--r0:-6deg;--r1:10deg;--t:7.5s;--d:-3s"><svg viewBox="0 0 48 60" aria-hidden="true"><path d="M24 4a10 10 0 0 1 6 18l4 14H14l4-14a10 10 0 0 1 6-18zM10 40h28l4 14H6z" fill="#3ddc97" stroke="#2b2240" stroke-width="4" stroke-linejoin="round"/></svg></button>
+    <button type="button" class="pc" data-k="star" aria-label="Spin the star" style="--s:42px;left:28%;top:2%;--r0:0deg;--r1:30deg;--t:5.5s;--d:-2.5s"><svg viewBox="0 0 50 50" aria-hidden="true"><path d="M25 3l6 14 15 2-11 10 3 15-13-7-13 7 3-15L4 19l15-2z" fill="#ffd23f" stroke="#2b2240" stroke-width="4" stroke-linejoin="round"/></svg></button>
+    <button type="button" class="pc" data-k="crown" aria-label="Toss the crown" style="--s:46px;right:28%;top:4%;--r0:-10deg;--r1:10deg;--t:6.5s;--d:-4s"><svg viewBox="0 0 60 50" aria-hidden="true"><path d="M6 40L10 12l12 12L30 6l8 18 12-12 4 28z" fill="#ff9f1c" stroke="#2b2240" stroke-width="4" stroke-linejoin="round"/></svg></button>
+    <button type="button" class="pc" data-k="cube" aria-label="Shake the little die" style="--s:40px;left:2%;top:58%;--r0:20deg;--r1:-4deg;--t:6s;--d:-3.5s"><svg viewBox="0 0 50 50" aria-hidden="true"><rect x="5" y="5" width="40" height="40" rx="10" fill="#9b5de5" stroke="#2b2240" stroke-width="4"/><circle cx="25" cy="25" r="6" fill="#fff"/></svg></button>
+    <button type="button" class="pc" data-k="spade" aria-label="Shuffle the spade card" style="--s:44px;right:2%;top:54%;--r0:-8deg;--r1:14deg;--t:7s;--d:-1.5s"><svg viewBox="0 0 48 64" aria-hidden="true"><rect x="3" y="3" width="42" height="58" rx="7" fill="#fff" stroke="#2b2240" stroke-width="4"/><text x="24" y="42" text-anchor="middle" font-size="28" font-family="Georgia" fill="#2b2240">♠</text></svg></button>
   </div>
   <h1 class="word" aria-label="Adda"><button type="button" tabindex="-1" aria-hidden="true" style="--c:var(--pink);--r:-6deg;--d:0s">A</button><button type="button" tabindex="-1" aria-hidden="true" style="--c:var(--lemon);--r:4deg;--d:-.4s">d</button><button type="button" tabindex="-1" aria-hidden="true" style="--c:var(--mint);--r:-3deg;--d:-.8s">d</button><button type="button" tabindex="-1" aria-hidden="true" style="--c:var(--sky);--r:6deg;--d:-1.2s">a</button></h1>
-  <p class="tag">Game night lives here. <mark>Pick a game</mark>, grab your people, keep the score.</p>
 </header>
 <main class="wrap">
-  <section id="recentsec" hidden>
-    <h2><i style="--bg-i:var(--lemon)">★</i>Jump back in</h2>
-    <div class="chips" id="recent"></div>
-  </section>
   <section>
-    <h2><i style="--bg-i:var(--mint)">⚄</i>Games</h2>
+    <h2><button type="button" class="gi" id="gdie" aria-label="Roll the die" style="--bg-i:var(--mint);display:inline-grid;place-items:center;width:1.3em;height:1.3em;border-radius:.4em;background:var(--bg-i);font-size:.75em;box-shadow:3px 3px 0 var(--sh);transform:rotate(-8deg);color:#2b2240">⚄</button>Games</h2>
     <div class="games">
       <a class="tile" href="rummy/" style="--c:var(--pink)"><h3>Rummy</h3><p>Keep score for 2 or 3 players, or deal a game on your phones.</p><span class="pill">Let’s play <span aria-hidden="true">→</span></span><span class="fan" aria-hidden="true"><i>♥</i><i>♠</i><i>♦</i><i>♣</i></span></a>
       <div class="tile soon"><h3>More games</h3><p>New tables are being set up. Bring snacks.</p><div class="mystery" aria-hidden="true"><span style="--c:var(--sky);--d:0s">?</span><span style="--c:var(--orange);--d:-.6s">?</span><span style="--c:var(--grape);--d:-1.2s">?</span></div></div>
     </div>
   </section>
 </main>
-<footer class="foot">Made for long evenings and loud tables <span aria-hidden="true">✦</span></footer>
+<footer class="foot">Made for long evenings and loud tables <button type="button" class="spark" id="spark" aria-label="Make a wish">✦</button></footer>
 <script>
 {
 const $=s=>document.querySelector(s);
-const ls={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}}};
-const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const COLS=['#ff5d8f','#ffd23f','#3ddc97','#4cc9f0','#ff9f1c','#9b5de5'];
-let r=ls.get('adda-recent',[]);if(!Array.isArray(r))r=[];
-// phones that used the original Leah vs Manas scoreboard get it here too
-if(!r.some(x=>x&&x.id==='leah-manas')&&(localStorage.getItem('st-key')||localStorage.getItem('st-cache')))r.push({id:'leah-manas',game:'rummy',name:'Leah vs Manas'});
-r=r.filter(x=>x&&x.id).slice(0,6);
-if(r.length){$('#recentsec').hidden=false;
-  $('#recent').innerHTML=r.map((x,i)=>`<a href="rummy/board.html?b=${encodeURIComponent(x.id)}" style="--c:${COLS[i%COLS.length]}"><b aria-hidden="true" style="color:${['#e0244a','#2b2240','#2a6fdb'][i%3]}">${['♥','♠','♦'][i%3]}</b>${esc(x.name||x.id)}<small>Rummy</small></a>`).join('')}
 const reduce=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
 function pop(x,y,n){if(reduce())return;for(let k=0;k<n;k++){const s=document.createElement('i');s.className='bit';s.textContent=['♥','♠','♦','♣','★','●','✦'][k%7];s.style.color=COLS[k%COLS.length];s.style.left=x+'px';s.style.top=y+'px';s.style.fontSize=(16+Math.random()*16)+'px';document.body.appendChild(s);
   const a=Math.random()*Math.PI*2,v=70+Math.random()*140;s.animate([{transform:'translate(-50%,-50%) scale(.2)',opacity:1},{transform:`translate(calc(-50% + ${Math.cos(a)*v}px),calc(-50% + ${Math.sin(a)*v+90}px)) rotate(${Math.random()*540-270}deg) scale(1.1)`,opacity:0}],{duration:1000+Math.random()*600,easing:'cubic-bezier(.2,.7,.3,1)'}).onfinish=()=>s.remove()}}
 // tap a letter: it boings and throws confetti
 document.querySelectorAll('.word button').forEach(b=>b.addEventListener('click',()=>{b.classList.remove('boing');void b.offsetWidth;b.classList.add('boing');const q=b.getBoundingClientRect();pop(q.left+q.width/2,q.top+q.height/2,16)}));
+// ---- every little piece does its own trick ----
+const PIPS={1:[[1,1]],2:[[0,0],[2,2]],3:[[0,0],[1,1],[2,2]],4:[[0,0],[2,0],[0,2],[2,2]],5:[[0,0],[2,0],[1,1],[0,2],[2,2]],6:[[0,0],[2,0],[0,1],[2,1],[0,2],[2,2]]};
+function pips(svg,n,a,step,r){svg.querySelectorAll('circle').forEach(c=>c.remove());PIPS[n].forEach(([x,y])=>{const c=document.createElementNS('http://www.w3.org/2000/svg','circle');c.setAttribute('cx',a+x*step);c.setAttribute('cy',a+y*step);c.setAttribute('r',r);c.setAttribute('fill','#fff');svg.appendChild(c)})}
+function spray(el,syms,cols,n,up){if(reduce())return;const q=el.getBoundingClientRect(),x=q.left+q.width/2,y=q.top+q.height/2;
+  for(let k=0;k<n;k++){const s=document.createElement('i');s.className='bit';s.textContent=syms[k%syms.length];s.style.color=cols[k%cols.length];s.style.left=x+'px';s.style.top=y+'px';s.style.fontSize=(14+Math.random()*14)+'px';document.body.appendChild(s);
+    const a=up?-Math.PI/2+(Math.random()-.5)*1.4:Math.random()*Math.PI*2,v=50+Math.random()*90;
+    s.animate([{transform:'translate(-50%,-50%) scale(.3)',opacity:1},{transform:`translate(calc(-50% + ${Math.cos(a)*v}px),calc(-50% + ${Math.sin(a)*v+(up?-20:40)}px)) rotate(${Math.random()*360-180}deg) scale(1)`,opacity:0}],{duration:900+Math.random()*500,easing:'cubic-bezier(.2,.7,.3,1)'}).onfinish=()=>s.remove()}}
+const play=(el,frames,o)=>reduce()?null:el.animate(frames,{easing:'cubic-bezier(.3,1.3,.5,1)',...o});
+const TRICKS={
+  die(b,svg){const n=1+Math.floor(Math.random()*6);play(svg,[{transform:'none'},{transform:'translateY(-50px) rotate(360deg) scale(1.1)'},{transform:'translateY(0) rotate(720deg) scale(.9,1.1)'},{transform:'rotate(720deg)'}],{duration:900});setTimeout(()=>pips(svg,n,20,12,6),450)},
+  heart(b,svg){play(svg,[{transform:'perspective(300px) rotateY(0)'},{transform:'perspective(300px) rotateY(180deg) scale(1.2)'},{transform:'perspective(300px) rotateY(360deg)'}],{duration:800});spray(b,['♥'],['#ff5d8f','#e0244a','#ffb3c8'],12,true)},
+  token(b,svg){play(svg,[{transform:'none'},{transform:'translateY(-70px) scale(.9,1.1)',offset:.3},{transform:'translateY(0) scale(1.35,.6)',offset:.55},{transform:'translateY(-26px) scale(.95,1.05)',offset:.72},{transform:'translateY(0) scale(1.15,.85)',offset:.86},{transform:'none'}],{duration:1100,easing:'ease-in-out'})},
+  pawn(b,svg){play(svg,[{transform:'none'},{transform:'translate(-18px,-36px) rotate(-12deg)',offset:.17},{transform:'translate(-36px,0)',offset:.33},{transform:'translate(-18px,-36px) rotate(12deg)',offset:.5},{transform:'translate(0,0)',offset:.66},{transform:'translate(0,-46px) rotate(360deg)',offset:.85},{transform:'none'}],{duration:1500,easing:'ease-in-out'})},
+  star(b,svg){play(svg,[{transform:'none'},{transform:'rotate(540deg) scale(1.7)',offset:.6},{transform:'rotate(720deg)'}],{duration:1100});spray(b,['✦','★','✧'],['#ffd23f','#ff9f1c','#fff'],14)},
+  crown(b,svg){play(svg,[{transform:'none'},{transform:'translateY(-90px) rotate(200deg)',offset:.45},{transform:'translateY(0) rotate(360deg)',offset:.8},{transform:'rotate(352deg) scale(1.1,.9)',offset:.9},{transform:'rotate(360deg)'}],{duration:1200,easing:'ease-in-out'});setTimeout(()=>spray(b,['✦'],['#ffd23f','#fff'],8,true),900)},
+  cube(b,svg){play(svg,[0,1,2,3,4,5,6,7].map(i=>({transform:`translateX(${i%2?7:-7}px) rotate(${i%2?10:-10}deg)`})).concat([{transform:'none'}]),{duration:700,easing:'linear'});setTimeout(()=>pips(svg,1+Math.floor(Math.random()*6),16,9,4.5),600)},
+  spade(b,svg){play(svg,[{transform:'none'},{transform:'scale(1.3,.7)',offset:.2},{transform:'scale(.8,1.3) translateY(-20px)',offset:.45},{transform:'scale(1.1,.9)',offset:.7},{transform:'none'}],{duration:900});spray(b,['♠','♣'],['#2b2240','#9b5de5','#4cc9f0'],12,true)}};
+document.querySelectorAll('.pc').forEach(b=>b.addEventListener('click',()=>{const svg=b.querySelector('svg');svg.getAnimations().forEach(a=>a.cancel());TRICKS[b.dataset.k](b,svg)}));
+// the Games die rolls through its faces
+$('#gdie').addEventListener('click',e=>{const b=e.currentTarget,f='⚀⚁⚂⚃⚄⚅';let i=0;const t=setInterval(()=>{b.textContent=f[Math.floor(Math.random()*6)];if(++i>8)clearInterval(t)},70);
+  play(b,[{transform:'rotate(-8deg)'},{transform:'rotate(352deg) scale(1.3)'},{transform:'rotate(712deg)'}],{duration:700})});
+// the footer sparkle makes a wish
+$('#spark').addEventListener('click',e=>{const b=e.currentTarget;play(b,[{transform:'scale(1)'},{transform:'scale(2.4) rotate(180deg)'},{transform:'scale(1) rotate(360deg)'}],{duration:800});spray(b,['✦','★','●','♥'],COLS,22)});
 // the mystery tile shuffles its question marks
 $('.soon').addEventListener('click',e=>{const q=e.currentTarget.getBoundingClientRect();pop(e.clientX||q.left+q.width/2,e.clientY||q.top+q.height/2,10);
   e.currentTarget.querySelectorAll('.mystery span').forEach((s,i)=>{s.textContent=['?','⚄','♛','●','★','?'][Math.floor(Math.random()*6)];setTimeout(()=>s.textContent='?',1400+i*150)})});
