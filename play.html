@@ -38,7 +38,10 @@ button{font:inherit;color:inherit;cursor:pointer}
 .pile small{font-size:13px;color:var(--mut)}
 .pile.can .card{box-shadow:0 0 0 3px var(--brass),0 0 26px rgb(217 178 90/.7),0 8px 18px rgb(0 0 0/.35);animation:breathe 1.6s ease-in-out infinite}
 @keyframes breathe{50%{transform:translateY(-4px)}}
-.pile:disabled{cursor:default}
+.pile[aria-disabled=true]{cursor:not-allowed}
+.nopeb{position:fixed;transform:translate(-50%,-100%);background:var(--ivory);color:#14231b;border-radius:14px;padding:8px 14px;font:700 15px/1.25 Rubik,sans-serif;box-shadow:0 10px 24px rgb(0 0 0/.35);z-index:12;white-space:nowrap;pointer-events:none;display:flex;gap:6px;align-items:center}
+.nopeb::after{content:'';position:absolute;left:50%;bottom:-7px;margin-left:-7px;border:7px solid transparent;border-bottom:0;border-top-color:var(--ivory)}
+.nb-x{color:#cf1f33;font-weight:800}
 .prompt{text-align:center;font:500 17px/1.35 Rubik,sans-serif;min-height:48px;margin:6px 0 4px;text-wrap:balance}
 .prompt b{color:var(--brass);font:900 22px/1.2 'Playfair Display',Georgia,serif}.prompt .tw{font:700 18px Georgia,serif;margin-right:6px;opacity:.85}
 .prompt.mine-turn b{animation:yt 1.8s ease-in-out infinite;display:inline-block}@keyframes yt{50%{transform:scale(1.08)}}
@@ -242,10 +245,26 @@ function deal(){
   save({id:Date.now().toString(36),status:'playing',deck,discard,hands,turn:starter,phase:'draw',starter,last:{p:null,act:'deal'},tally,names,moves:0})}
 const clone=o=>JSON.parse(JSON.stringify(o));
 function myTurn(){return G&&G.status==='playing'&&G.turn===me}
-function drawDeck(){if(!myTurn()||G.phase!=='draw')return;const g=clone(G);
+// cheeky "not so fast" when you tap the piles out of turn
+const NOPE={turn:o=>[`Patience, card shark`,`Nice try. It’s ${o}’s turn`,`Hands off, it’s ${o}’s turn`,`Eyes on your own cards!`,`Wait your turn, sneaky`,`No cheating at this table`,`${o} is thinking… shh`,`Nope. ${o} goes first`],
+  greedy:()=>[`One card per turn, greedy`,`Whoa there, one’s enough`,`Easy, card hoarder`,`Throw one away first`,`That’s not how Rummy works`,`Nice try. Discard first`]};
+let nopeAt=0;
+function nope(sel,kind){const now=Date.now();if(now-nopeAt<500)return;nopeAt=now;
+  const pile=$(sel),card=pile.querySelector('.card'),r=pile.getBoundingClientRect(),opts=NOPE[kind](names[other(me)]),txt=opts[Math.floor(Math.random()*opts.length)];
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!reduce){pile.animate([{transform:'translateX(0)'},{transform:'translateX(-9px) rotate(-4deg)'},{transform:'translateX(8px) rotate(3deg)'},{transform:'translateX(-6px) rotate(-2deg)'},{transform:'translateX(4px)'},{transform:'none'}],{duration:520,easing:'ease-out'});
+    if(card)card.animate([{transform:'none'},{transform:'translateY(-16px) rotate(6deg)'},{transform:'translateY(3px)'},{transform:'none'}],{duration:480,easing:'cubic-bezier(.3,1.6,.5,1)'})}
+  try{navigator.vibrate&&navigator.vibrate([30,40,30])}catch(e){}
+  document.querySelectorAll('.nopeb').forEach(x=>x.remove());
+  const b=document.createElement('div');b.className='nopeb';b.setAttribute('role','status');b.innerHTML=`<b class="nb-x">${kind==='turn'?'Hey!':'Psst!'}</b>${esc(txt)}`;
+  b.style.left=Math.min(Math.max(r.left+r.width/2,110),innerWidth-110)+'px';b.style.top=(r.top-8)+'px';document.body.appendChild(b);
+  if(reduce){setTimeout(()=>b.remove(),1800);return}
+  b.animate([{transform:'translate(-50%,-80%) scale(.5) rotate(-6deg)',opacity:0},{transform:'translate(-50%,-100%) scale(1.08) rotate(2deg)',opacity:1,offset:.15},{transform:'translate(-50%,-100%) scale(1) rotate(0)',opacity:1,offset:.25},{transform:'translate(-50%,-100%)',opacity:1,offset:.8},{transform:'translate(-50%,-130%)',opacity:0}],{duration:2000,easing:'ease-out'}).onfinish=()=>b.remove()}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function drawDeck(){if(!G||G.status!=='playing')return;if(!myTurn())return nope('#deck','turn');if(G.phase!=='draw')return nope('#deck','greedy');const g=clone(G);
   if(!g.deck.length){const top=g.discard.pop();g.deck=R.shuffle(g.discard);g.discard=[top];toast('Deck ran out, the discard pile was shuffled in')}
   const c=g.deck.pop();g.hands[me].push(c);g.phase='discard';g.last={p:me,act:'draw'};g.moves++;newCard=c;sel=null;save(g)}
-function takeDisc(){if(!myTurn()||G.phase!=='draw'||!G.discard.length)return;const g=clone(G);
+function takeDisc(){if(!G||G.status!=='playing'||!G.discard.length)return;if(!myTurn())return nope('#disc','turn');if(G.phase!=='draw')return nope('#disc','greedy');const g=clone(G);
   const c=g.discard.pop();g.hands[me].push(c);g.phase='discard';g.last={p:me,act:'take',card:c};g.moves++;newCard=c;sel=null;save(g)}
 function discard(){if(!myTurn()||G.phase!=='discard'||!sel)return;const g=clone(G);
   g.hands[me]=g.hands[me].filter(c=>c!==sel);g.discard.push(sel);g.last={...g.last,p:me,act:g.last&&g.last.p===me?g.last.act:'draw',threw:sel};
@@ -303,7 +322,7 @@ function render(){
   {const m=opp.length,pa=Math.min(4,30/Math.max(m-1,1));$('#backs').innerHTML=opp.map((_,i)=>backHTML(o,bw).replace('style="',`style="--rot:${(-(i-(m-1)/2)*pa).toFixed(2)}deg;`)).join('')}
   const canDraw=myTurn()&&G.phase==='draw';
   $('#deck').classList.toggle('can',canDraw);$('#disc').classList.toggle('can',canDraw&&G.discard.length>0);
-  $('#deck').disabled=!canDraw;$('#disc').disabled=!canDraw||!G.discard.length;
+  $('#deck').setAttribute('aria-disabled',String(!canDraw));$('#disc').setAttribute('aria-disabled',String(!canDraw||!G.discard.length));
   $('#deckcard').innerHTML=G.deck.length?`<span class="card back k deck" style="--s:'✦';--cw:${PW()}px"></span>`:`<span class="card empty" style="--cw:${PW()}px"></span>`;$('#deckn').textContent=`Deck · ${G.deck.length}`;
   const top=G.discard[G.discard.length-1];$('#disccard').innerHTML=top?cardHTML(top,'',PW()):`<span class="card empty" style="--cw:${PW()}px"></span>`;
   $('#disc').setAttribute('aria-label',top?`Take ${lbl(top)} from the discard pile`:'Discard pile is empty');
