@@ -1,50 +1,48 @@
-// Cute chess pieces: chubby little characters with big shiny eyes and rosy cheeks.
-// Each one wears its own hat: the rook a castle top, the bishop a pointy cap, the queen a tiara, the king a crown.
-// ChessArt.svg(type, colour) returns markup.
+// Puffy 3D toy chess pieces: rounded, squishy-looking shapes with soft clay shading and a glossy highlight.
+// One side is mint, the other lilac. ChessArt.svg(type, colour) returns markup.
 (function (root) {
-  const INK = '#3d3a4f';
-  const BLOB = 'M24 86 C20 60 32 46 50 46 C68 46 80 60 76 86 Z';            // chubby body for most pieces
-  function eyes(x, y, s = 1) {
-    const e = (cx) => `<ellipse cx="${cx}" cy="${y}" rx="${3.8 * s}" ry="${4.8 * s}" fill="${INK}"/><circle cx="${cx - 1.3 * s}" cy="${y - 1.8 * s}" r="${1.5 * s}" fill="#fff"/>`;
-    return e(x - 8 * s) + e(x + 8 * s);
+  const TONES = {
+    w: { light: '#d6fbed', base: '#8fe3c7', dark: '#4fb592', edge: '#3f9c7c' },   // mint
+    b: { light: '#ece3ff', base: '#b99ff2', dark: '#7f63cc', edge: '#6a50b4' },   // lilac
+  };
+  const SHAPES = {
+    p: '<path d="M28 82 C26 64 36 52 50 52 C64 52 74 64 72 82 Z"/><circle cx="50" cy="38" r="18"/>',
+    r: '<path d="M30 44 H70 C72 60 72 72 72 82 H28 C28 72 28 60 30 44 Z"/><path d="M24 30 C24 22 30 20 34 20 C38 20 39 25 43 25 C46 25 46 18 50 18 C54 18 54 25 57 25 C61 25 62 20 66 20 C70 20 76 22 76 30 L74 42 C74 46 71 48 68 48 L32 48 C29 48 26 46 26 42 Z"/>',
+    n: '<path d="M30 82 C28 66 34 58 42 53 C34 55 26 52 25 46 C24 38 31 30 40 27 C43 19 50 14 56 14 C58 10 62 9 64 13 C76 20 80 44 72 82 Z"/>',
+    b: '<path d="M34 82 C30 70 34 62 40 58 H60 C66 62 70 70 66 82 Z"/><path d="M50 20 C68 28 74 46 64 60 H36 C26 46 32 28 50 20 Z"/><circle cx="50" cy="15" r="7"/>',
+    q: '<path d="M30 82 C26 66 32 54 38 50 H62 C68 54 74 66 70 82 Z"/><path d="M24 30 L34 52 H66 L76 30 L62 40 L58 24 L50 38 L42 24 L38 40 Z"/><circle cx="24" cy="28" r="6"/><circle cx="42" cy="21" r="6"/><circle cx="58" cy="21" r="6"/><circle cx="76" cy="28" r="6"/>',
+    k: '<path d="M30 82 C26 66 32 56 38 52 H62 C68 56 74 66 70 82 Z"/><path d="M26 42 C26 30 74 30 74 42 C74 50 68 54 62 54 H38 C32 54 26 50 26 42 Z"/><path d="M45 6 C45 4 55 4 55 6 V13 H61 C63 13 63 21 61 21 H55 V31 H45 V21 H39 C37 21 37 13 39 13 H45 Z"/>',
+  };
+  // glossy highlights so the pieces look round and soft
+  const HIGHLIGHT = {
+    p: '<ellipse cx="43" cy="31" rx="6" ry="4" transform="rotate(-30 43 31)"/><ellipse cx="38" cy="68" rx="3" ry="6"/>',
+    r: '<ellipse cx="36" cy="33" rx="5" ry="3"/><ellipse cx="37" cy="64" rx="3" ry="10"/>',
+    n: '<ellipse cx="44" cy="28" rx="5" ry="3" transform="rotate(-35 44 28)"/><ellipse cx="38" cy="66" rx="2.5" ry="7"/>',
+    b: '<circle cx="47.5" cy="12.5" r="2.2"/><ellipse cx="41" cy="38" rx="4" ry="7" transform="rotate(20 41 38)"/><ellipse cx="40" cy="70" rx="2.5" ry="5"/>',
+    q: '<ellipse cx="37" cy="66" rx="3" ry="8"/><circle cx="40" cy="19" r="2"/><circle cx="56" cy="19" r="2"/><circle cx="22" cy="26" r="2"/>',
+    k: '<ellipse cx="38" cy="38" rx="6" ry="3"/><ellipse cx="37" cy="67" rx="3" ry="8"/><rect x="47" y="7" width="3" height="9" rx="1.5"/>',
+  };
+  // The shading gradients live once in a tiny always-rendered <svg> on the page. Gradients defined inside
+  // hidden elements (like a screen that isn't showing) stop working in some browsers, so pieces just point here.
+  function ensureDefs() {
+    if (typeof document === 'undefined' || document.getElementById('toy-defs') || !document.body) return;
+    const g = (col) => { const c = TONES[col], id = 'toy' + col;
+      return `<radialGradient id="${id}" cx="35%" cy="28%" r="80%"><stop offset="0" stop-color="${c.light}"/><stop offset=".45" stop-color="${c.base}"/><stop offset="1" stop-color="${c.dark}"/></radialGradient>` +
+        `<linearGradient id="${id}base" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c.base}"/><stop offset="1" stop-color="${c.dark}"/></linearGradient>`; };
+    const d = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    d.id = 'toy-defs'; d.setAttribute('aria-hidden', 'true'); d.setAttribute('style', 'position:absolute;width:0;height:0;overflow:hidden');
+    d.innerHTML = `<defs>${g('w')}${g('b')}</defs>`; document.body.prepend(d);
   }
-  const cheeks = (x, y, c) => `<ellipse cx="${x - 15}" cy="${y + 6}" rx="5" ry="3" fill="${c}" opacity=".75"/><ellipse cx="${x + 15}" cy="${y + 6}" rx="5" ry="3" fill="${c}" opacity=".75"/>`;
-  const smile = (x, y) => `<path d="M${x - 4} ${y + 6} Q${x - 2} ${y + 9} ${x} ${y + 6} Q${x + 2} ${y + 9} ${x + 4} ${y + 6}" stroke="${INK}" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+  if (typeof document !== 'undefined') { if (document.body) ensureDefs(); else document.addEventListener('DOMContentLoaded', ensureDefs); }
   function svg(t, col) {
-    const white = col === 'w';
-    const body = white ? '#fffaf2' : '#5f72b8', shine = white ? '#ffffff' : '#93a6e0', belly = white ? '#f6e6d8' : '#5266a8';
-    const gold = '#f2c45a', cheek = white ? '#f7a8bb' : '#f7b6c8';
-    const line = `stroke="${INK}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"`;
-    const base = `<ellipse cx="50" cy="91" rx="28" ry="4.5" fill="rgb(61 58 79/.15)"/>`;
-    const blob = (d = BLOB) => `<path d="${d}" fill="${body}" ${line}/><path d="M30 84 C30 76 40 72 50 72 C60 72 70 76 70 84 Z" fill="${belly}" opacity=".6"/><ellipse cx="36" cy="58" rx="6" ry="4" fill="${shine}" opacity=".7" transform="rotate(-30 36 58)"/>`;
-    let art = '';
-    if (t === 'p') {
-      art = `<path d="M26 86 C22 60 32 44 50 44 C68 44 78 60 74 86 Z" fill="${body}" ${line}/><path d="M32 84 C32 77 41 73 50 73 C59 73 68 77 68 84 Z" fill="${belly}" opacity=".6"/><ellipse cx="37" cy="56" rx="5.5" ry="3.8" fill="${shine}" opacity=".7" transform="rotate(-30 37 56)"/>` +
-        `<path d="M50 44 C48 37 53 33 57 36" stroke="${INK}" stroke-width="3" fill="none" stroke-linecap="round"/>` + eyes(50, 63) + cheeks(50, 63, cheek) + smile(50, 63);
-    } else if (t === 'r') {
-      art = `<path d="M26 86 V44 H74 V86 Z" fill="${body}" ${line}/>` +
-        `<path d="M24 46 V30 H34 V36 H44 V30 H56 V36 H66 V30 H76 V46 Z" fill="${body}" ${line}/>` +
-        `<ellipse cx="34" cy="54" rx="5" ry="3.5" fill="${shine}" opacity=".7"/>` + eyes(50, 62) + cheeks(50, 62, cheek) + smile(50, 62);
-    } else if (t === 'b') {
-      art = blob() + `<path d="M32 52 C34 30 44 18 50 12 C56 18 66 30 68 52 C58 48 42 48 32 52 Z" fill="${white ? '#f9c7d4' : '#b7a3e6'}" ${line}/>` +
-        `<path d="M54 24 L46 36" ${line}/><circle cx="50" cy="10" r="4.5" fill="${gold}" ${line}/>` + eyes(50, 66) + cheeks(50, 66, cheek) + smile(50, 66);
-    } else if (t === 'q') {
-      art = blob() + `<path d="M30 50 L30 34 L40 42 L50 28 L60 42 L70 34 L70 50 C62 46 38 46 30 50 Z" fill="${gold}" ${line}/>` +
-        `<circle cx="30" cy="31" r="3.6" fill="#f7a8bb" ${line}/><circle cx="50" cy="25" r="3.6" fill="#f7a8bb" ${line}/><circle cx="70" cy="31" r="3.6" fill="#f7a8bb" ${line}/>` +
-        eyes(50, 66) + cheeks(50, 66, cheek) + smile(50, 66);
-    } else if (t === 'k') {
-      art = blob() + `<path d="M31 50 L31 32 L41 40 L50 30 L59 40 L69 32 L69 50 C60 46 40 46 31 50 Z" fill="${gold}" ${line}/>` +
-        `<path d="M50 30 V14 M43 20 H57" stroke="${INK}" stroke-width="8" stroke-linecap="round"/><path d="M50 30 V14 M43 20 H57" stroke="${gold}" stroke-width="3.5" stroke-linecap="round"/>` +
-        eyes(50, 66) + cheeks(50, 66, cheek) + smile(50, 66);
-    } else if (t === 'n') {
-      art = `<path d="M30 86 C28 70 32 60 40 54 C32 56 24 54 22 47 C20 39 28 31 38 27 C42 19 48 14 54 13 L58 6 L63 15 C76 22 80 46 74 86 Z" fill="${body}" ${line}/>` +
-        `<path d="M58 15 C66 18 72 26 74 36 C72 30 68 27 64 26 C70 32 72 40 73 48" fill="none" stroke="${gold}" stroke-width="5" stroke-linecap="round"/>` +
-        `<ellipse cx="38" cy="38" rx="5" ry="3.5" fill="${shine}" opacity=".7" transform="rotate(-30 38 38)"/>` +
-        `<ellipse cx="48" cy="33" rx="4.2" ry="5.2" fill="${INK}"/><circle cx="46.6" cy="31" r="1.6" fill="#fff"/>` +
-        `<circle cx="27" cy="45" r="1.8" fill="${INK}"/><ellipse cx="44" cy="45" rx="5" ry="3" fill="${cheek}" opacity=".75"/>` +
-        `<path d="M27 51 Q31 54 35 51" stroke="${INK}" stroke-width="2.2" fill="none" stroke-linecap="round"/>`;
-    }
-    return `<svg viewBox="0 0 100 100" aria-hidden="true">${base}<g class="face">${art}</g></svg>`;
+    ensureDefs();
+    const c = TONES[col], id = 'toy' + col;
+    return `<svg viewBox="0 0 100 100" aria-hidden="true">` +
+      `<ellipse cx="50" cy="92" rx="30" ry="5" fill="rgb(90 60 120/.22)"/>` +
+      `<rect x="24" y="78" width="52" height="13" rx="6.5" fill="url(#${id}base)" stroke="${c.edge}" stroke-width="1.5"/>` +
+      `<g fill="url(#${id})" stroke="${c.edge}" stroke-width="1.5" stroke-linejoin="round">${SHAPES[t]}</g>` +
+      `<g class="face" fill="#fff" opacity=".75">${HIGHLIGHT[t]}</g>` +
+      `<rect x="30" y="80" width="22" height="3.5" rx="1.75" fill="#fff" opacity=".55"/></svg>`;
   }
   root.ChessArt = { svg, NAMES: { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' } };
 })(this);

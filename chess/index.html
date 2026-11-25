@@ -6,24 +6,24 @@
 <title>Chess · Adda</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%2361c9a8'/%3E%3Ccircle cx='50' cy='34' r='16' fill='%23fffaf0' stroke='%232b2240' stroke-width='6'/%3E%3Cpath d='M36 84 Q38 60 44 50 L56 50 Q62 60 64 84 Z' fill='%23fffaf0' stroke='%232b2240' stroke-width='6'/%3E%3C/svg%3E">
 <script>document.write('<script src="../config.js?v='+Date.now()+'"><\/script>')</script>
-<script src="pieces.js?v=6"></script>
+<script src="pieces.js?v=8"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Mulish:wght@500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Varela+Round&display=swap">
 <style>
 /* VOICE: a toy shelf of chess sets, "which board are we playing on?"
    IDEA: every dashboard is a little chunky chessboard sticker with its two players' pieces peeking over the edge
-   COLOUR and TYPE: the quiet "Watercolour" theme in watercolor.css (cream paper, soft washes, charcoal lines, brush-stroke interactions); Caveat and Mulish
+   COLOUR and TYPE: the "Toy box" theme in toy.css (peach-to-lilac backdrop, puffy pastel tiles, glossy mint and lilac toy pieces, squash and stretch); Fredoka One and Varela Round
    LAYOUT: a shelf of boards, one empty dashed board to start a new one */
 :root{color-scheme:light dark;--bg:light-dark(#fff6e8,#1c1532);--dot:light-dark(#ffe0cb,#2c2350);--ink:light-dark(#2b2240,#fdf6ff);--mut:light-dark(#6b5f80,#c3b8db);--line:#2b2240;--sh:light-dark(#2b2240,#8c6ff0);
   --pink:#ff5d8f;--sky:#4cc9f0;--mint:#3ddc97;--lemon:#ffd23f;--card:light-dark(#ffffff,#2a2148);--soft:light-dark(#fff3dc,#241c40)}
 *{box-sizing:border-box;min-width:0}[hidden]{display:none!important}
-body{margin:0;color:var(--ink);font:16px/1.5 Mulish,system-ui,sans-serif;background:radial-gradient(var(--dot) 2px,transparent 2.4px) 0 0/24px 24px,var(--bg);overflow-x:clip}
+body{margin:0;color:var(--ink);font:16px/1.5 'Varela Round',system-ui,sans-serif;background:radial-gradient(var(--dot) 2px,transparent 2.4px) 0 0/24px 24px,var(--bg);overflow-x:clip}
 button,input{font:inherit;color:inherit}button{cursor:pointer}
 :focus-visible{outline:3px solid var(--sky);outline-offset:3px}
 .wrap{max-width:1080px;margin:0 auto;padding:0 max(4vw,16px)}
 .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 0 0}
-.pill{display:inline-flex;align-items:center;min-height:40px;padding:0 16px;border-radius:999px;border:3px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font:600 15px Mulish,sans-serif;box-shadow:3px 3px 0 var(--sh)}
-.word{padding-right:6px;font:700 34px/1 Mulish,sans-serif;color:var(--mint);-webkit-text-stroke:3px var(--line);paint-order:stroke fill;text-shadow:4px 4px 0 var(--sh)}
+.pill{display:inline-flex;align-items:center;min-height:40px;padding:0 16px;border-radius:999px;border:3px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font:600 15px 'Varela Round',sans-serif;box-shadow:3px 3px 0 var(--sh)}
+.word{padding-right:6px;font:700 34px/1 'Varela Round',sans-serif;color:var(--mint);-webkit-text-stroke:3px var(--line);paint-order:stroke fill;text-shadow:4px 4px 0 var(--sh)}
 main{padding:34px 0 60px}
 .shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:44px 28px}
 .set{display:grid;gap:14px;animation:arrive .6s cubic-bezier(.3,1.4,.5,1) both;animation-delay:calc(var(--i,0) * 80ms)}
@@ -34,46 +34,45 @@ main{padding:34px 0 60px}
   background:repeating-conic-gradient(#7fcdb4 0 25%,#fff3dc 0 50%) 0 0/25% 25%;transition:transform .35s cubic-bezier(.3,1.6,.5,1)}
 .bd:hover{transform:translate(-3px,-5px) rotate(-1.5deg)}
 .bd:active{transform:translate(3px,3px)}
-.bd .nm{position:absolute;left:50%;top:-18px;translate:-50% 0;max-width:86%;padding:4px 16px;border-radius:999px;border:3px solid var(--line);background:var(--lemon);font:700 17px/1.3 Mulish,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:3px 3px 0 var(--line);z-index:2}
+.bd .nm{position:absolute;left:50%;top:-18px;translate:-50% 0;max-width:86%;padding:4px 16px;border-radius:999px;border:3px solid var(--line);background:var(--lemon);font:700 17px/1.3 'Varela Round',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:3px 3px 0 var(--line);z-index:2}
 .side{position:absolute;bottom:14px;display:grid;justify-items:center;gap:0;width:44%;padding:8px 6px 8px;border-radius:18px;border:3px solid var(--line);background:var(--c);box-shadow:3px 3px 0 var(--line);text-align:center}
 .side.l{left:4%}.side.r{right:4%}
 .side svg.pc{width:52px;height:52px;margin-top:-34px;transition:transform .35s cubic-bezier(.3,1.8,.5,1)}
 .bd:hover .side.l svg.pc{transform:translateY(-8px) rotate(-10deg)}.bd:hover .side.r svg.pc{transform:translateY(-8px) rotate(10deg)}
-.side b{font:700 16px/1.2 Mulish,sans-serif;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.side .p{font:700 30px/1 Mulish,sans-serif;color:#fff;-webkit-text-stroke:2.5px var(--line);paint-order:stroke fill;text-shadow:3px 3px 0 var(--line)}
+.side b{font:700 16px/1.2 'Varela Round',sans-serif;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.side .p{font:700 30px/1 'Varela Round',sans-serif;color:#fff;-webkit-text-stroke:2.5px var(--line);paint-order:stroke fill;text-shadow:3px 3px 0 var(--line)}
 .crown{position:absolute;top:-30px;right:-8px;width:32px;height:26px;rotate:18deg;filter:drop-shadow(2px 2px 0 var(--line));animation:wob 2.6s ease-in-out infinite}
 @keyframes wob{50%{transform:translateY(-3px) rotate(-10deg)}}
-.games{position:absolute;left:50%;top:30%;translate:-50% -50%;padding:3px 12px;border-radius:999px;border:3px solid var(--line);background:var(--card);color:var(--ink);font:600 14px Mulish,sans-serif;white-space:nowrap}
+.games{position:absolute;left:50%;top:30%;translate:-50% -50%;padding:3px 12px;border-radius:999px;border:3px solid var(--line);background:var(--card);color:var(--ink);font:600 14px 'Varela Round',sans-serif;white-space:nowrap}
 .under{display:flex;justify-content:center;gap:10px}
-.under a,.under button{display:inline-flex;align-items:center;gap:6px;min-height:42px;padding:0 16px;border-radius:999px;border:3px solid var(--line);background:var(--c,var(--card));color:var(--ink);font:600 15px Mulish,sans-serif;text-decoration:none;box-shadow:3px 3px 0 var(--sh);transition:transform .2s cubic-bezier(.3,1.7,.5,1)}
+.under a,.under button{display:inline-flex;align-items:center;gap:6px;min-height:42px;padding:0 16px;border-radius:999px;border:3px solid var(--line);background:var(--c,var(--card));color:var(--ink);font:600 15px 'Varela Round',sans-serif;text-decoration:none;box-shadow:3px 3px 0 var(--sh);transition:transform .2s cubic-bezier(.3,1.7,.5,1)}
 .under .c{color:#2b2240}
 .under a:hover,.under button:hover{transform:translate(-1px,-2px)}
 .under svg{width:16px;height:16px}
-.new{aspect-ratio:1.25/1;border-radius:26px;border:4px dashed var(--line);background:var(--card);display:grid;place-items:center;align-content:center;gap:6px;font:700 22px Mulish,sans-serif;text-align:center;transition:transform .35s cubic-bezier(.3,1.6,.5,1);animation:arrive .6s cubic-bezier(.3,1.4,.5,1) both;animation-delay:calc(var(--i,0) * 80ms)}
+.new{aspect-ratio:1.25/1;border-radius:26px;border:4px dashed var(--line);background:var(--card);display:grid;place-items:center;align-content:center;gap:6px;font:700 22px 'Varela Round',sans-serif;text-align:center;transition:transform .35s cubic-bezier(.3,1.6,.5,1);animation:arrive .6s cubic-bezier(.3,1.4,.5,1) both;animation-delay:calc(var(--i,0) * 80ms)}
 .new:hover{transform:translateY(-5px) rotate(1deg)}
-.new .plus{display:grid;place-items:center;width:62px;height:62px;border-radius:18px;border:3px solid var(--line);background:var(--mint);color:#2b2240;font:700 36px/1 Mulish,sans-serif;box-shadow:3px 3px 0 var(--line);transition:transform .4s cubic-bezier(.3,1.7,.5,1)}
+.new .plus{display:grid;place-items:center;width:62px;height:62px;border-radius:18px;border:3px solid var(--line);background:var(--mint);color:#2b2240;font:700 36px/1 'Varela Round',sans-serif;box-shadow:3px 3px 0 var(--line);transition:transform .4s cubic-bezier(.3,1.7,.5,1)}
 .new:hover .plus{transform:rotate(90deg) scale(1.08)}
-.new small{font:700 14px Mulish,sans-serif;color:var(--mut)}
+.new small{font:700 14px 'Varela Round',sans-serif;color:var(--mut)}
 .msg{text-align:center;color:var(--mut);font-weight:700}
 .modal{position:fixed;inset:0;z-index:40;background:rgb(28 21 50/.55);display:grid;place-items:center;padding:16px;animation:fade .15s;overflow:auto}
 @keyframes fade{from{opacity:0}}
 .box{width:min(440px,100%);background:var(--card);border:4px solid var(--line);border-radius:24px;padding:22px;box-shadow:7px 7px 0 var(--sh);animation:boxin .45s cubic-bezier(.3,1.6,.5,1)}
 @keyframes boxin{from{transform:translateY(30px) scale(.85) rotate(-4deg);opacity:0}}
-.box h3{margin:0 0 6px;font:700 24px/1.2 Mulish,sans-serif}.box p{margin:0 0 14px;color:var(--mut);font-weight:700}
+.box h3{margin:0 0 6px;font:700 24px/1.2 'Varela Round',sans-serif}.box p{margin:0 0 14px;color:var(--mut);font-weight:700}
 form{display:grid;gap:12px}
 label{display:grid;gap:4px;font-size:14px;font-weight:800;color:var(--mut)}
 .box input{width:100%;min-height:48px;border:3px solid var(--line);border-radius:14px;padding:8px 12px;background:var(--soft);color:var(--ink)}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .err{color:#e0244a;font-weight:800;font-size:14px;min-height:1.2em;margin:0}
 .row{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
-.btn{min-height:46px;padding:0 18px;border-radius:999px;border:3px solid var(--line);background:var(--c,var(--card));font:600 16px Mulish,sans-serif;box-shadow:3px 3px 0 var(--sh)}
+.btn{min-height:46px;padding:0 18px;border-radius:999px;border:3px solid var(--line);background:var(--c,var(--card));font:600 16px 'Varela Round',sans-serif;box-shadow:3px 3px 0 var(--sh)}
 .btn.c{color:#2b2240}.btn:disabled{opacity:.6}
-.bit{position:fixed;pointer-events:none;z-index:50;font:700 22px/1 Mulish,sans-serif}
+.bit{position:fixed;pointer-events:none;z-index:50;font:700 22px/1 'Varela Round',sans-serif}
 @media(max-width:420px){.two{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
-<link rel="stylesheet" href="watercolor.css?v=6">
-<script src="watercolor.js?v=6"></script>
+<link rel="stylesheet" href="toy.css?v=8">
 </head>
 <body>
 <div class="wrap bar"><a class="pill" href="../">‹ Adda</a><span class="word">Chess</span></div>
