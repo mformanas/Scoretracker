@@ -1,6 +1,6 @@
 // Cute chess pieces drawn as SVG, each with a little face. Chess.svg(type, colour) returns markup.
 (function (root) {
-  const INK = '#2b2240';
+  
   const BODY = {
     p: 'M36 84 Q38 60 44 50 L56 50 Q62 60 64 84 Z',
     r: 'M30 18 h10 v8 h6 v-8 h8 v8 h6 v-8 h10 v22 l-4 4 v40 H34 V44 l-4 -4 Z',
@@ -11,14 +11,15 @@
   };
   const FACE = { p: [50, 32], r: [50, 56], n: [50, 40], b: [50, 46], q: [50, 62], k: [50, 54] };
   function svg(t, col) {
-    const white = col === 'w', fill = white ? '#fffaf0' : '#3b2d63', eye = white ? INK : '#fffaf0', cheek = white ? '#ffb3c8' : '#ff7aa8';
+    const white = col === 'w', fill = white ? '#fdfaff' : '#33266e', eye = white ? '#4a3b8c' : '#fff6dc', cheek = white ? '#ffc2dd' : '#ff8fc7';
+    const INK = white ? '#7a68c8' : '#ffd98a'; // pearly moon pieces with lavender edges, midnight pieces with gold edges
     const [fx, fy] = FACE[t];
     let extra = '';
     if (t === 'p') extra = `<circle cx="50" cy="32" r="16" fill="${fill}" stroke="${INK}" stroke-width="5"/>`;
     if (t === 'b') extra = `<circle cx="50" cy="11" r="5" fill="${fill}" stroke="${INK}" stroke-width="4"/><path d="M58 24 L49 34" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>`;
     if (t === 'q') extra = ['24 34', '42 22', '58 22', '76 34'].map(p => { const [x, y] = p.split(' '); return `<circle cx="${x}" cy="${+y - 4}" r="5.5" fill="#ffd23f" stroke="${INK}" stroke-width="4"/>`; }).join('');
     if (t === 'k') extra = `<path d="M50 8 V30 M41 17 H59" stroke="${INK}" stroke-width="10" stroke-linecap="round"/><path d="M50 8 V30 M41 17 H59" stroke="#ffd23f" stroke-width="4.5" stroke-linecap="round"/>`;
-    if (t === 'n') extra = `<path d="M52 16 C58 22 62 30 64 40" stroke="${white ? '#ffd9a8' : '#6b4bc4'}" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="34" cy="44" r="2.4" fill="${eye}"/>`;
+    if (t === 'n') extra = `<path d="M52 16 C58 22 62 30 64 40" stroke="${white ? '#d9ccff' : '#6b4bc4'}" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="34" cy="44" r="2.4" fill="${eye}"/>`;
     const eyes = t === 'n'
       ? `<circle cx="47" cy="34" r="3.6" fill="${eye}"/><ellipse cx="44" cy="43" rx="4" ry="2.6" fill="${cheek}" opacity=".8"/>`
       : `<circle cx="${fx - 7}" cy="${fy}" r="3.4" fill="${eye}"/><circle cx="${fx + 7}" cy="${fy}" r="3.4" fill="${eye}"/>` +
