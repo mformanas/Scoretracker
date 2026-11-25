@@ -1,10 +1,10 @@
 /* Chess theme: "Watercolour". Soft cream paper, a few loose washes of colour, thin charcoal lines,
-   handwritten headings. Interactions feel like painting: brush strokes, dabs and splashes (watercolor.js).
+   handwritten headings. watercolor.js only supplies the soft painted-edge filter.
    Kept deliberately quiet. Loaded after each chess page's own styles so it wins. */
 :root{color-scheme:light;
   --bg:#fbf8f2;--dot:transparent;--ink:#3d3a4f;--mut:#7d7890;--line:#3d3a4f;--sh:transparent;
   --pink:#f5c9d4;--sky:#c8dcf1;--mint:#cfe3c6;--lemon:#f6e3aa;--orange:#f4c4a8;--grape:#d8cdec;
-  --card:#fffdf9;--soft:#f6f1e7;--light:#fbf6ec;--dark:#b7cfe6;
+  --card:#fffdf9;--soft:#f6f1e7;--light:#fbf6ec;--dark:#c9dfc2;
   --rose:#e07a96;--blue:#6c9bd2;--sage:#8fb88a;--ochre:#e3b04b;
   --hand:255px 18px 225px 18px/18px 225px 18px 255px}
 html{background:#fbf8f2}
@@ -39,7 +39,7 @@ h2{font-size:32px!important}.box h3{font-size:30px!important}.who b{font-size:24
 .bwrap::before{content:'';position:absolute;inset:-14px;border-radius:30px;background:radial-gradient(ellipse at 30% 20%,rgb(232 160 180/.35),transparent 60%),radial-gradient(ellipse at 80% 90%,rgb(108 155 210/.3),transparent 60%);filter:url(#wc-edge) blur(2px);z-index:-1}
 .bwrap{isolation:isolate}
 .sq.d{background:var(--dark)}
-.sq.d:nth-child(3n){background:#adc8e2}.sq.d:nth-child(5n){background:#c0d6ea}
+.sq.d:nth-child(3n){background:#c2dabb}.sq.d:nth-child(5n){background:#d0e4ca}
 .sq .co{color:rgb(61 58 79/.45);font-family:Caveat,cursive;font-size:13px}
 .sq.last::after{background:rgb(246 227 170/.75)}
 .sq.selsq::after{background:rgb(245 201 212/.9)}
@@ -49,7 +49,7 @@ h2{font-size:32px!important}.box h3{font-size:30px!important}.who b{font-size:24
 @keyframes dab{from{transform:scale(0) rotate(-40deg);opacity:0}}
 .mv.cap{width:88%;height:88%;background:none;border:4px solid rgb(224 122 150/.75)!important;border-radius:46% 54% 50% 50%/52% 48% 52% 48%;animation:dab .45s ease-out both}
 .bd{border:0!important;border-radius:12px!important;box-shadow:none!important;background:none!important;isolation:isolate}
-.bd::before{content:'';position:absolute;inset:0;border-radius:12px;background:repeating-conic-gradient(#b7cfe6 0 25%,#fbf6ec 0 50%) 0 0/25% 25%;filter:url(#wc-edge);z-index:-1}
+.bd::before{content:'';position:absolute;inset:0;border-radius:12px;background:repeating-conic-gradient(#c9dfc2 0 25%,#fbf6ec 0 50%) 0 0/25% 25%;filter:url(#wc-edge);z-index:-1}
 .set{isolation:isolate}
 .bd .nm{background:var(--card)!important;border:1.5px solid var(--ink)!important;border-radius:var(--hand)!important;box-shadow:none!important;font-family:Caveat,cursive!important;font-size:22px!important}
 .games{background:var(--card)!important;border:1px solid rgb(61 58 79/.5)!important;box-shadow:none!important}
@@ -68,8 +68,8 @@ h2{font-size:32px!important}.box h3{font-size:30px!important}.who b{font-size:24
 .opts input,.opts select,.box input{border:1.5px solid rgb(61 58 79/.55)!important;border-radius:12px!important;background:#fff!important}
 .legend i{border:0!important;border-radius:50%!important}
 .foot,.sync,.empty,.msg{color:var(--mut)}
-/* paint layer (watercolor.js) */
-.paint{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:5;mix-blend-mode:multiply}
+/* filter holder (watercolor.js) */
+.paint{position:absolute;width:0;height:0;overflow:hidden}
 .app,.wrap,main{position:relative;z-index:1}
 .modal,.toast{z-index:80}.bit{z-index:75}
 main.wrap{padding-top:44px}
