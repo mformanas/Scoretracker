@@ -1,7 +1,6 @@
-// Cute chess pieces drawn as SVG, kokeshi-doll style with Indian jewel details: a little face, a gold bindi,
-// a painted flower and a gold obi band. ChessArt.svg(type, colour) returns markup.
+// Cute chess pieces in a watercolour style: a loose wash of colour that bleeds a little past
+// thin charcoal lines, and a tiny face. ChessArt.svg(type, colour) returns markup.
 (function (root) {
-  
   const BODY = {
     p: 'M36 84 Q38 60 44 50 L56 50 Q62 60 64 84 Z',
     r: 'M30 18 h10 v8 h6 v-8 h8 v8 h6 v-8 h10 v22 l-4 4 v40 H34 V44 l-4 -4 Z',
@@ -11,32 +10,30 @@
     k: 'M30 46 C30 32 70 32 70 46 L64 64 L66 84 H34 L36 64 Z',
   };
   const FACE = { p: [50, 32], r: [50, 56], n: [50, 40], b: [50, 46], q: [50, 62], k: [50, 54] };
+  const INK = '#3d3a4f';
   function svg(t, col) {
-    // cream side and vermilion side, both outlined in indigo
-    const white = col === 'w', fill = white ? '#fff6e6' : '#e8442e', eye = '#23317a', cheek = white ? '#ff9fbf' : '#ffc2a8';
-    const INK = '#23317a', GOLD = '#ffc22e', FLOWER = white ? '#e6177a' : '#ffe08a';
+    const white = col === 'w';
+    const paper = white ? '#fffdf8' : '#8aa6d6';        // the piece itself
+    const wash = white ? '#f2b8a2' : '#4f6fb0';         // the colour that bleeds past the line
+    const cheek = white ? '#f0a0b4' : '#f5b8c8', eye = INK, accent = '#e3b04b';
     const [fx, fy] = FACE[t];
-    let extra = '';
-    if (t === 'p') extra = `<circle cx="50" cy="32" r="16" fill="${fill}" stroke="${INK}" stroke-width="5"/>`;
-    if (t === 'b') extra = `<circle cx="50" cy="11" r="5" fill="${fill}" stroke="${INK}" stroke-width="4"/><path d="M58 24 L49 34" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>`;
-    if (t === 'q') extra = ['24 34', '42 22', '58 22', '76 34'].map(p => { const [x, y] = p.split(' '); return `<circle cx="${x}" cy="${+y - 4}" r="5.5" fill="${GOLD}" stroke="${INK}" stroke-width="4"/>`; }).join('');
-    if (t === 'k') extra = `<path d="M50 8 V30 M41 17 H59" stroke="${INK}" stroke-width="10" stroke-linecap="round"/><path d="M50 8 V30 M41 17 H59" stroke="${GOLD}" stroke-width="4.5" stroke-linecap="round"/>`;
-    if (t === 'n') extra = `<path d="M52 16 C58 22 62 30 64 40" stroke="${white ? '#e6177a' : '#ffc22e'}" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="34" cy="44" r="2.4" fill="${eye}"/>`;
-    const eyes = t === 'n'
-      ? `<circle cx="47" cy="34" r="3.6" fill="${eye}"/><ellipse cx="44" cy="43" rx="4" ry="2.6" fill="${cheek}" opacity=".8"/>`
-      : `<circle cx="${fx - 7}" cy="${fy}" r="3.4" fill="${eye}"/><circle cx="${fx + 7}" cy="${fy}" r="3.4" fill="${eye}"/>` +
-        `<ellipse cx="${fx - 13}" cy="${fy + 6}" rx="4" ry="2.6" fill="${cheek}" opacity=".85"/><ellipse cx="${fx + 13}" cy="${fy + 6}" rx="4" ry="2.6" fill="${cheek}" opacity=".85"/>` +
-        `<path d="M${fx - 4} ${fy + 6} Q${fx} ${fy + 10} ${fx + 4} ${fy + 6}" stroke="${eye}" stroke-width="2.6" fill="none" stroke-linecap="round"/>`;
-    return `<svg viewBox="0 0 100 100" aria-hidden="true"><ellipse cx="50" cy="90" rx="26" ry="5" fill="rgb(0 0 0 / .14)"/>` +
-      `<path d="${BODY[t]}" fill="${fill}" stroke="${INK}" stroke-width="5" stroke-linejoin="round"/>` +
-      `<rect x="26" y="80" width="48" height="11" rx="5.5" fill="${GOLD}" stroke="${INK}" stroke-width="5"/>${extra}` +
-      (t === 'p' ? '' : flower(50, t === 'k' || t === 'q' ? 74 : t === 'r' ? 72 : 73, FLOWER)) +
-      `<g class="face">${eyes}${t === 'n' ? '' : `<circle cx="${fx}" cy="${fy - 9}" r="2.6" fill="#e6177a" stroke="${GOLD}" stroke-width="1.4"/>`}</g></svg>`;
-  }
-  function flower(x, y, c) {
-    let p = '';
-    for (let i = 0; i < 5; i++) { const a = i * 72 * Math.PI / 180; p += `<circle cx="${(x + Math.sin(a) * 3.6).toFixed(1)}" cy="${(y - Math.cos(a) * 3.6).toFixed(1)}" r="2.8" fill="${c}"/>`; }
-    return p + `<circle cx="${x}" cy="${y}" r="1.8" fill="#ffc22e"/>`;
+    const shape = (fill, extra = '') => `<path d="${BODY[t]}" fill="${fill}" ${extra}/>` + `<rect x="26" y="80" width="48" height="11" rx="5.5" fill="${fill}" ${extra}/>` +
+      (t === 'p' ? `<circle cx="50" cy="32" r="16" fill="${fill}" ${extra}/>` : '');
+    let deco = '';
+    if (t === 'b') deco = `<circle cx="50" cy="11" r="5" fill="${paper}" stroke="${INK}" stroke-width="3"/><path d="M58 24 L49 34" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>`;
+    if (t === 'q') deco = ['24 34', '42 22', '58 22', '76 34'].map(p => { const [x, y] = p.split(' '); return `<circle cx="${x}" cy="${+y - 4}" r="5" fill="${accent}" fill-opacity=".85" stroke="${INK}" stroke-width="3"/>`; }).join('');
+    if (t === 'k') deco = `<path d="M50 8 V30 M41 17 H59" stroke="${accent}" stroke-width="7" stroke-linecap="round" opacity=".8"/><path d="M50 8 V30 M41 17 H59" stroke="${INK}" stroke-width="2.5" stroke-linecap="round" fill="none"/>`;
+    if (t === 'n') deco = `<path d="M52 16 C58 22 62 30 64 40" stroke="${wash}" stroke-width="5" fill="none" stroke-linecap="round" opacity=".7"/><circle cx="34" cy="44" r="2" fill="${eye}"/>`;
+    const face = t === 'n'
+      ? `<circle cx="47" cy="34" r="3" fill="${eye}"/><ellipse cx="44" cy="43" rx="4" ry="2.4" fill="${cheek}" opacity=".85"/>`
+      : `<circle cx="${fx - 7}" cy="${fy}" r="2.8" fill="${eye}"/><circle cx="${fx + 7}" cy="${fy}" r="2.8" fill="${eye}"/>` +
+        `<ellipse cx="${fx - 13}" cy="${fy + 6}" rx="4" ry="2.4" fill="${cheek}" opacity=".85"/><ellipse cx="${fx + 13}" cy="${fy + 6}" rx="4" ry="2.4" fill="${cheek}" opacity=".85"/>` +
+        `<path d="M${fx - 3.5} ${fy + 5} Q${fx} ${fy + 8.5} ${fx + 3.5} ${fy + 5}" stroke="${eye}" stroke-width="2.2" fill="none" stroke-linecap="round"/>`;
+    return `<svg viewBox="0 0 100 100" aria-hidden="true">` +
+      `<g transform="translate(-3 3)" opacity="${white ? .55 : .5}">${shape(wash)}</g>` +   // wash bleeding past the line
+      shape(paper, `opacity="${white ? 1 : .95}"`) +
+      `<g fill="none" stroke="${INK}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">${shape('none')}</g>` +
+      deco + `<g class="face">${face}</g></svg>`;
   }
   root.ChessArt = { svg, NAMES: { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' } };
 })(this);
