@@ -9,23 +9,23 @@
 <script src="chess.js"></script>
 <script src="pieces.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Quicksand:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Yatra+One&family=Kosugi+Maru&display=swap">
 <style>
 /* VOICE: a playful board game night, teasing but kind
    IDEA: a toy chess set: chunky board with a hard shadow, round little pieces with faces that hop, chomp and wobble
-   COLOUR and TYPE: the "Starlight" night-sky theme in night.css (indigo sky, lavender board, gold stars); Baloo 2 and Quicksand
+   COLOUR and TYPE: the "Chai & Sakura" Indo-Japanese theme in fusion.css (washi paper, toran, lanterns, indigo and marigold board); Yatra One and Kosugi Maru
    LAYOUT: one phone screen: opponent on top, board, you below, a few actions */
 :root{color-scheme:light dark;--bg:light-dark(#fff6e8,#1c1532);--dot:light-dark(#ffe0cb,#2c2350);--ink:light-dark(#2b2240,#fdf6ff);--mut:light-dark(#6b5f80,#c3b8db);--line:#2b2240;--sh:light-dark(#2b2240,#8c6ff0);
   --light:#fff3dc;--dark:#7fcdb4;--lemon:#ffd23f;--pink:#ff5d8f;--mint:#3ddc97;--sky:#4cc9f0;--grape:#9b5de5;--orange:#ff9f1c;--card:light-dark(#ffffff,#2a2148)}
 *{box-sizing:border-box;min-width:0;-webkit-tap-highlight-color:transparent}[hidden]{display:none!important}
 html,body{height:100%}
-body{margin:0;color:var(--ink);font:16px/1.4 Quicksand,system-ui,sans-serif;background:radial-gradient(var(--dot) 2px,transparent 2.4px) 0 0/24px 24px,var(--bg);overflow-x:clip}
+body{margin:0;color:var(--ink);font:16px/1.4 'Kosugi Maru',system-ui,sans-serif;background:radial-gradient(var(--dot) 2px,transparent 2.4px) 0 0/24px 24px,var(--bg);overflow-x:clip}
 button{font:inherit;color:inherit;cursor:pointer}
 :focus-visible{outline:3px solid var(--sky);outline-offset:2px}
 .app{max-width:560px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:10px 12px calc(14px + env(safe-area-inset-bottom))}
 .top{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.top a{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border-radius:999px;border:3px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font:600 15px 'Baloo 2',sans-serif;box-shadow:3px 3px 0 var(--sh)}
-.top h1{margin:0;font:700 28px/1 'Baloo 2',sans-serif;color:var(--mint);-webkit-text-stroke:2.5px var(--line);paint-order:stroke fill;text-shadow:3px 3px 0 var(--sh)}
+.top a{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border-radius:999px;border:3px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font:600 15px 'Kosugi Maru',sans-serif;box-shadow:3px 3px 0 var(--sh)}
+.top h1{margin:0;font:700 28px/1 'Kosugi Maru',sans-serif;color:var(--mint);-webkit-text-stroke:2.5px var(--line);paint-order:stroke fill;text-shadow:3px 3px 0 var(--sh)}
 .sync{font-size:12px;color:var(--mut);min-width:70px;text-align:right}
 /* player strips */
 .strip{display:flex;align-items:center;gap:10px;margin:10px 0;min-height:48px}
@@ -34,21 +34,21 @@ button{font:inherit;color:inherit;cursor:pointer}
 .strip.turn .av{animation:turnbob 1.2s ease-in-out infinite}
 @keyframes turnbob{50%{transform:translateY(-4px) rotate(-6deg)}}
 .who{display:grid;gap:1px;flex:1}
-.who b{font:700 18px/1.1 'Baloo 2',sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.who b{font:700 18px/1.1 'Kosugi Maru',sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .who small{font-size:13px;color:var(--mut);display:flex;align-items:center;gap:6px;min-height:18px}
 .think i{display:inline-block;width:5px;height:5px;border-radius:50%;background:currentColor;margin-left:2px;animation:thk 1s infinite}.think i:nth-child(2){animation-delay:.15s}.think i:nth-child(3){animation-delay:.3s}
 @keyframes thk{50%{transform:translateY(-4px);opacity:.4}}
 .yourmove{color:light-dark(#0f8a5f,#3ddc97);font-weight:800}
 .taken{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;max-width:46%}
 .taken svg{width:22px;height:22px;margin-left:-8px;animation:inpop .5s cubic-bezier(.3,1.8,.5,1) both}
-.taken em{font:700 14px 'Baloo 2',sans-serif;font-style:normal;margin-left:4px;color:var(--mut)}
+.taken em{font:700 14px 'Kosugi Maru',sans-serif;font-style:normal;margin-left:4px;color:var(--mut)}
 @keyframes inpop{from{transform:scale(0) rotate(-90deg)}}
 /* board */
 .bwrap{position:relative;width:min(100%,calc(100dvh - 290px));min-width:min(100%,300px);margin:0 auto;aspect-ratio:1}
 .board{position:absolute;inset:0;border:4px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:7px 7px 0 var(--sh);display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);background:var(--light);touch-action:manipulation}
 .sq{position:relative;background:var(--light);display:grid;place-items:center}
 .sq.d{background:var(--dark)}
-.sq .co{position:absolute;font:700 10px/1 'Baloo 2',sans-serif;color:rgb(43 34 64/.45);pointer-events:none}
+.sq .co{position:absolute;font:700 10px/1 'Kosugi Maru',sans-serif;color:rgb(43 34 64/.45);pointer-events:none}
 .sq .co.f{right:3px;bottom:2px}.sq .co.r{left:3px;top:3px}
 .sq.last::after{content:'';position:absolute;inset:0;background:rgb(255 210 63/.55)}
 .sq.selsq::after{content:'';position:absolute;inset:0;background:rgb(255 210 63/.85)}
@@ -66,26 +66,26 @@ button{font:inherit;color:inherit;cursor:pointer}
 .pc.fallen svg{transform:rotate(85deg) translateY(10%)}
 .pc .face{transition:transform .3s}
 /* bubbles and banners */
-.bub{position:fixed;z-index:30;padding:8px 14px;border-radius:16px;border:3px solid var(--line);background:#fff;color:#2b2240;font:600 16px/1.2 'Baloo 2',sans-serif;box-shadow:3px 3px 0 var(--line);pointer-events:none;white-space:nowrap;translate:-50% -100%}
+.bub{position:fixed;z-index:30;padding:8px 14px;border-radius:16px;border:3px solid var(--line);background:#fff;color:#2b2240;font:600 16px/1.2 'Kosugi Maru',sans-serif;box-shadow:3px 3px 0 var(--line);pointer-events:none;white-space:nowrap;translate:-50% -100%}
 .bub::after{content:'';position:absolute;left:50%;top:100%;margin-left:-8px;border:8px solid transparent;border-top-color:var(--line)}
-.big{position:absolute;left:50%;top:50%;z-index:5;translate:-50% -50%;padding:10px 22px;border-radius:20px;border:4px solid var(--line);background:var(--c,var(--lemon));color:#2b2240;font:700 34px/1 'Baloo 2',sans-serif;box-shadow:5px 5px 0 var(--line);pointer-events:none;white-space:nowrap}
+.big{position:absolute;left:50%;top:50%;z-index:5;translate:-50% -50%;padding:10px 22px;border-radius:20px;border:4px solid var(--line);background:var(--c,var(--lemon));color:#2b2240;font:700 34px/1 'Kosugi Maru',sans-serif;box-shadow:5px 5px 0 var(--line);pointer-events:none;white-space:nowrap}
 .offer{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:10px;padding:10px 12px;border:3px solid var(--line);border-radius:16px;background:var(--lemon);color:#2b2240;font-weight:800;box-shadow:3px 3px 0 var(--sh);animation:inpop .4s cubic-bezier(.3,1.6,.5,1)}
 .offer div{display:flex;gap:8px}
 .acts{display:flex;justify-content:center;gap:10px;padding-top:14px;flex-wrap:wrap}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:46px;padding:0 18px;border-radius:999px;border:3px solid var(--line);background:var(--card);color:#2b2240;font:600 16px 'Baloo 2',sans-serif;box-shadow:3px 3px 0 var(--sh);transition:transform .2s cubic-bezier(.3,1.7,.5,1)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:46px;padding:0 18px;border-radius:999px;border:3px solid var(--line);background:var(--card);color:#2b2240;font:600 16px 'Kosugi Maru',sans-serif;box-shadow:3px 3px 0 var(--sh);transition:transform .2s cubic-bezier(.3,1.7,.5,1)}
 .btn:not(.c){color:var(--ink)}.btn.c{background:var(--c)}
 .btn:hover{transform:translate(-1px,-2px)}.btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--sh)}
 .btn:disabled{opacity:.5;transform:none}
 .btn.sm{min-height:38px;padding:0 14px;font-size:15px;box-shadow:2px 2px 0 var(--line)}
-.moves{display:flex;gap:6px;overflow-x:auto;padding:8px 2px 2px;scrollbar-width:none;font:600 14px 'Baloo 2',sans-serif;color:var(--mut);min-height:34px}
+.moves{display:flex;gap:6px;overflow-x:auto;padding:8px 2px 2px;scrollbar-width:none;font:600 14px 'Kosugi Maru',sans-serif;color:var(--mut);min-height:34px}
 .moves::-webkit-scrollbar{display:none}
 .moves span{flex:none}.moves b{color:var(--ink);font-weight:600}.moves .now{background:var(--lemon);color:#2b2240;border-radius:6px;padding:0 5px}
 /* screens */
 .screen{flex:1;display:grid;place-items:center;text-align:center;padding:24px 8px}
-.screen h2{margin:0 0 8px;font:700 30px/1.15 'Baloo 2',sans-serif}
+.screen h2{margin:0 0 8px;font:700 30px/1.15 'Kosugi Maru',sans-serif}
 .screen p{margin:0 0 18px;color:var(--mut);font-weight:700}
 .seats{display:grid;gap:12px;width:min(340px,100%);margin:0 auto}
-.seat{display:flex;align-items:center;gap:12px;min-height:64px;padding:0 18px 0 10px;border-radius:20px;border:3px solid var(--line);background:var(--c);color:#2b2240;font:700 20px 'Baloo 2',sans-serif;box-shadow:4px 4px 0 var(--sh);transition:transform .25s cubic-bezier(.3,1.7,.5,1)}
+.seat{display:flex;align-items:center;gap:12px;min-height:64px;padding:0 18px 0 10px;border-radius:20px;border:3px solid var(--line);background:var(--c);color:#2b2240;font:700 20px 'Kosugi Maru',sans-serif;box-shadow:4px 4px 0 var(--sh);transition:transform .25s cubic-bezier(.3,1.7,.5,1)}
 .seat:hover{transform:translate(-2px,-3px) rotate(-1deg)}
 .seat svg{width:44px;height:44px}
 .parade{display:flex;justify-content:center;margin-bottom:14px}
@@ -96,7 +96,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 @keyframes fade{from{opacity:0}}
 .box{position:relative;width:min(400px,100%);background:var(--card);color:var(--ink);border:4px solid var(--line);border-radius:24px;padding:22px;box-shadow:7px 7px 0 var(--sh);text-align:center;animation:boxin .45s cubic-bezier(.3,1.6,.5,1)}
 @keyframes boxin{from{transform:translateY(30px) scale(.85) rotate(-4deg);opacity:0}}
-.box h3{margin:0 0 6px;font:700 26px/1.15 'Baloo 2',sans-serif}
+.box h3{margin:0 0 6px;font:700 26px/1.15 'Kosugi Maru',sans-serif}
 .box p{margin:0 0 16px;color:var(--mut);font-weight:700}
 .row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .promo{display:flex;justify-content:center;gap:8px;margin-bottom:6px}
@@ -105,13 +105,13 @@ button{font:inherit;color:inherit;cursor:pointer}
 .trophy{width:84px;height:84px;margin:-62px auto 6px;border-radius:24px;border:4px solid var(--line);background:var(--c,var(--lemon));box-shadow:4px 4px 0 var(--line);display:grid;place-items:center;animation:parade 1.6s ease-in-out infinite}
 .trophy svg{width:66px;height:66px}
 .box input{width:100%;min-height:48px;border:3px solid var(--line);border-radius:14px;padding:8px 12px;font:inherit;background:light-dark(#fff,#1c1532);color:var(--ink);margin-bottom:12px}
-.bit{position:fixed;pointer-events:none;z-index:35;font:700 20px/1 'Baloo 2',sans-serif}
+.bit{position:fixed;pointer-events:none;z-index:35;font:700 20px/1 'Kosugi Maru',sans-serif}
 .toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));z-index:45;translate:-50% 0;padding:10px 16px;border-radius:16px;border:3px solid var(--line);background:var(--card);color:var(--ink);font-weight:800;box-shadow:3px 3px 0 var(--sh);transition:transform .3s cubic-bezier(.3,1.6,.5,1),opacity .2s;max-width:calc(100vw - 32px)}
 .toast:not(.on){transform:translateY(160%);opacity:0;pointer-events:none}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
-<link rel="stylesheet" href="night.css">
-<script src="night.js" defer></script>
+<link rel="stylesheet" href="fusion.css">
+<script src="fusion.js" defer></script>
 </head>
 <body>
 <div class="app">
@@ -194,7 +194,7 @@ const nm=col=>names[playerOf(col)]||(col==='w'?'White':'Black');
 
 // ---- lines ----
 const L={
-  capture:['Off to the stars!','Bye bye, little star','Om nom nom!','Gotcha!','Snack time!','Bye bye, {p}!','Yoink!','Chomp!','Off you pop, {p}','Into the box you go'],
+  capture:['Poof, petals!','Om nom nom!','Sayonara, {p}!','Bye bye, {p}!','Gotcha!','Snack time!','Bye bye, {p}!','Yoink!','Chomp!','Off you pop, {p}','Into the box you go'],
   check:['Check!','Eek, check!','Run, little king!','Check! Sweaty crown'],
   castle:['Castle swap!','Tucked in cozy','King’s hiding now'],
   promo:['Glow up!','Pawn to {p}!','Look who grew up'],
@@ -283,7 +283,7 @@ function playMove(st,m,done){
   const a=el.animate(frames,{duration:dur,easing:knight?'ease-in-out':'cubic-bezier(.3,1.25,.5,1)',fill:'forwards'});
   if(m.castle){const rf=m.castle==='k'?m.f+3:m.f-4,rt=m.castle==='k'?m.f+1:m.f-1,rk=pcEl(rf);
     if(rk)rk.animate([{transform:tr(rf)},{transform:`${tr(rt)} translateY(-35%)`,offset:.5},{transform:tr(rt)}],{duration:dur+120,delay:120,easing:'ease-in-out',fill:'forwards'})}
-  if(cap)setTimeout(()=>{sparkle(cap,['✦','★','✧'],['#ffd98a','#ff9ccf','#c3a9ff','#fff'],14);cap.animate([{transform:tr(capSq)+' scale(1)',opacity:1},{transform:tr(capSq)+' translateY(-30%) scale(1.15) rotate(-12deg)',offset:.25},{transform:tr(capSq)+' translateY(-260%) scale(.45) rotate(25deg)',opacity:0}],{duration:900,easing:'cubic-bezier(.3,.6,.4,1)',fill:'forwards'})},dur*.6);
+  if(cap)setTimeout(()=>{sparkle(cap,['✿','❀','●','✦'],['#ff8fb1','#ff9a1f','#e6177a','#ffc22e','#0f9e9a'],14);cap.animate([{transform:tr(capSq)+' scale(1)',opacity:1},{transform:tr(capSq)+' translateY(-30%) scale(1.15) rotate(-12deg)',offset:.25},{transform:tr(capSq)+' translateY(-260%) scale(.45) rotate(25deg)',opacity:0}],{duration:900,easing:'cubic-bezier(.3,.6,.4,1)',fill:'forwards'})},dur*.6);
   a.onfinish=()=>{animating=false;done()}}
 function react(before,m,after){
   const st=C.status(after,G.keys);
