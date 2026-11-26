@@ -1,9 +1,10 @@
-// Wooden chess pieces: classic carved shapes in light maple and dark walnut, with wood grain and a soft polish.
+// Wooden chess pieces: classic carved shapes in light maple and dark walnut, with soft grain, a gentle polish
+// and a tiny painted face.
 // ChessArt.svg(type, colour) returns markup.
 (function (root) {
   const WOOD = {
-    w: { hi: '#fbe6c2', mid: '#e7c08a', lo: '#c08e55', edge: '#8a5a2e', grain: '#b07a42' },   // maple
-    b: { hi: '#9a6640', mid: '#6e4226', lo: '#40230f', edge: '#2a160a', grain: '#2e1a0c' },   // walnut
+    w: { hi: '#fff1d8', mid: '#f0d3a4', lo: '#d4a874', edge: '#9a6a3f', grain: '#c4955f', eye: '#5a3519', blush: '#f2a08a' },   // maple
+    b: { hi: '#a97650', mid: '#7f5032', lo: '#55321b', edge: '#3a2112', grain: '#3e2514', eye: '#fff1d8', blush: '#e48a72' },   // walnut
   };
   const BASE = '<rect x="22" y="80" width="56" height="10" rx="3"/><rect x="28" y="73" width="44" height="9" rx="3"/>';
   const SHAPES = {
@@ -22,7 +23,7 @@
   function defsMarkup() {
     const g = col => { const c = WOOD[col];
       return `<linearGradient id="wood${col}" x1="0" y1="0" x2="1" y2=".25"><stop offset="0" stop-color="${c.hi}"/><stop offset=".45" stop-color="${c.mid}"/><stop offset="1" stop-color="${c.lo}"/></linearGradient>` +
-        `<pattern id="grain${col}" width="24" height="60" patternUnits="userSpaceOnUse" patternTransform="rotate(8)"><path d="M3 0 C6 15 0 30 4 45 S5 60 3 60 M11 0 C13 20 9 35 12 60 M19 0 C16 18 22 40 18 60" fill="none" stroke="${c.grain}" stroke-width="1.1" opacity=".55"/></pattern>`; };
+        `<pattern id="grain${col}" width="24" height="60" patternUnits="userSpaceOnUse" patternTransform="rotate(8)"><path d="M3 0 C6 15 0 30 4 45 S5 60 3 60 M11 0 C13 20 9 35 12 60 M19 0 C16 18 22 40 18 60" fill="none" stroke="${c.grain}" stroke-width="1.1" opacity=".35"/></pattern>`; };
     return `<defs>${g('w')}${g('b')}</defs>`;
   }
   // The gradients and grain live once in a tiny always-rendered <svg>; pieces just point at them.
@@ -34,6 +35,14 @@
     d.innerHTML = defsMarkup(); document.body.prepend(d);
   }
   if (typeof document !== 'undefined') { if (document.body) ensureDefs(); else document.addEventListener('DOMContentLoaded', ensureDefs); }
+  const FACE = { p: [50, 34], r: [50, 60], b: [50, 42], q: [50, 64], k: [50, 64] };
+  function face(t, c) {
+    if (t === 'n') return `<g class="face"><ellipse cx="44" cy="40" rx="4" ry="2.5" fill="${c.blush}" opacity=".8"/></g>`;
+    const [x, y] = FACE[t];
+    return `<g class="face"><circle cx="${x - 5.5}" cy="${y}" r="1.9" fill="${c.eye}"/><circle cx="${x + 5.5}" cy="${y}" r="1.9" fill="${c.eye}"/>` +
+      `<ellipse cx="${x - 10}" cy="${y + 4}" rx="3.2" ry="2" fill="${c.blush}" opacity=".8"/><ellipse cx="${x + 10}" cy="${y + 4}" rx="3.2" ry="2" fill="${c.blush}" opacity=".8"/>` +
+      `<path d="M${x - 2.2} ${y + 3.2} Q${x} ${y + 5.4} ${x + 2.2} ${y + 3.2}" stroke="${c.eye}" stroke-width="1.5" fill="none" stroke-linecap="round"/></g>`;
+  }
   function svg(t, col) {
     ensureDefs();
     const c = WOOD[col], shapes = BASE + SHAPES[t];
@@ -42,7 +51,8 @@
       `<g fill="url(#wood${col})" stroke="${c.edge}" stroke-width="1.8" stroke-linejoin="round">${shapes}</g>` +
       `<g fill="url(#grain${col})" stroke="none">${shapes}</g>` +
       `<g fill="none" stroke="${c.edge}" stroke-width="1.6" stroke-linecap="round" opacity=".7">${DETAIL[t]}</g>` +
-      `<g class="face" fill="#fff" opacity="${col === 'w' ? .55 : .22}"><ellipse cx="41" cy="${t === 'p' ? 28 : t === 'n' ? 30 : 36}" rx="3" ry="5" transform="rotate(20 41 36)"/><rect x="26" y="82" width="14" height="2.5" rx="1.2"/></g></svg>`;
+      face(t, c) +
+      `<g fill="#fff" opacity="${col === 'w' ? .55 : .22}"><ellipse cx="41" cy="${t === 'p' ? 28 : t === 'n' ? 30 : 36}" rx="3" ry="5" transform="rotate(20 41 36)"/><rect x="26" y="82" width="14" height="2.5" rx="1.2"/></g></svg>`;
   }
   root.ChessArt = { svg, defsMarkup, NAMES: { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' } };
 })(this);
