@@ -112,3 +112,30 @@ h1,.top h1,.word{color:var(--ink)!important}
 .moves{padding-top:4px!important;min-height:26px}
 .acts{padding-top:8px!important}
 @media(max-height:700px){.top h1{font-size:18px!important}.top a{min-height:34px}.av{width:36px!important;height:36px!important}.av svg{width:30px!important;height:30px!important}.strip{min-height:38px;margin:4px 0!important}.btn{min-height:40px!important}.acts{padding-top:4px!important}.who b{font-size:15px!important}}
+/* play the computer: setup screen */
+.cpuset{display:grid;gap:16px;width:min(420px,100%);margin:0 auto;text-align:left}
+.cpuset h2{text-align:center;margin:0 0 4px!important}
+.grp{display:grid;gap:8px}
+.lab{font-size:13px;color:var(--mut);letter-spacing:.04em;text-transform:uppercase}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{flex:1 1 0;min-width:0;min-height:44px;padding:8px 12px;border:1px solid var(--line);border-radius:14px;background:#fff;color:var(--ink);font:500 15px Inter,sans-serif;display:grid;gap:2px;place-items:center;text-align:center;transition:border-color .15s,background .15s}
+.chip small{font-size:11px;color:var(--mut);font-weight:500}
+.chips.lv .chip{flex-basis:calc(50% - 4px)}
+.chip:hover{border-color:var(--coral)}
+.chip.on{background:#ffe1dc;border-color:var(--coral)}
+.chip.on small{color:#c25b4c}
+.skill{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:6px 10px;font-size:14px;color:var(--mut)}
+.skill b{color:var(--ink);justify-self:end}
+.skill input{grid-column:1/-1;width:100%;accent-color:var(--coral)}
+.cpuset .go{min-height:50px!important;font-size:17px!important;margin-top:4px}
+@media(max-height:700px){.cpuset{gap:10px}.chip{min-height:38px;padding:6px 10px}.chip small{display:none}}
+/* scoreboard: play the computer button and record */
+.playrow{gap:10px;flex-wrap:wrap}
+.cpubtn{min-height:58px!important;padding:0 20px!important;font-size:17px!important}
+.cpurec{display:grid;gap:10px;margin-bottom:12px}
+.cr{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:14px;background:var(--c)}
+.cr .badge{width:42px;height:42px;border-radius:12px;background:#fff;display:grid;place-items:center}.cr .badge svg{width:34px;height:34px}
+.cr b{font-size:16px}
+.lvls{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14px;margin-top:2px}
+.lvls i{font-style:normal;color:var(--mut);margin-right:2px}
+.cpukey{font-size:12px;margin:0 0 4px}

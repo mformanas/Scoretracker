@@ -6,7 +6,7 @@
 <title>Chess · Adda</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%2361c9a8'/%3E%3Ccircle cx='50' cy='34' r='16' fill='%23fffaf0' stroke='%232b2240' stroke-width='6'/%3E%3Cpath d='M36 84 Q38 60 44 50 L56 50 Q62 60 64 84 Z' fill='%23fffaf0' stroke='%232b2240' stroke-width='6'/%3E%3C/svg%3E">
 <script>document.write('<script src="../config.js?v='+Date.now()+'"><\/script>')</script>
-<script src="pieces.js?v=24"></script>
+<script src="pieces.js?v=26"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600">
 <style>
@@ -107,7 +107,7 @@ label{display:grid;gap:4px;font-size:14px;font-weight:800;color:var(--mut)}
 @media(max-width:600px){.face{gap:8px}.vs{font-size:20px;padding:2px}.pl{padding:18px 8px 14px;border-radius:22px;box-shadow:5px 5px 0 var(--sh)}.ava{width:60px;height:60px}.pname{font-size:18px}.pts{-webkit-text-stroke:3px var(--line);text-shadow:4px 4px 0 var(--line)}.rec{font-size:13px;gap:5px}.crown{width:38px;height:30px;top:-28px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
-<link rel="stylesheet" href="minimal.css?v=25">
+<link rel="stylesheet" href="minimal.css?v=26">
 </head>
 <body>
 <div class="wrap" id="page">
@@ -115,9 +115,10 @@ label{display:grid;gap:4px;font-size:14px;font-weight:800;color:var(--mut)}
   <h1 id="title">Chess</h1>
   <div class="tabs" id="tabs" role="group" aria-label="Time period"><button data-v="all" aria-pressed="true">All time</button><button data-v="year" aria-pressed="false">This year</button><button data-v="month" aria-pressed="false">This month</button><button data-v="week" aria-pressed="false">This week</button></div>
   <div class="face" id="face"></div>
-  <div class="playrow"><a class="play" id="playlink" href="play.html"><span id="playart"></span>Play a game</a></div>
+  <div class="playrow"><a class="play" id="playlink" href="play.html"><span id="playart"></span>Play a game</a><a class="pill cpubtn" id="cpulink" href="play.html">Play the computer</a></div>
   <div class="stats" id="stats"></div>
   <div class="grid">
+    <section class="card wide cpu" id="cpucard" hidden><h2>Vs the computer</h2><div class="cpurec" id="cpurec"></div><div class="hist" id="cpuhist"></div></section>
     <section class="card"><h2>Log a game</h2><div class="who" id="who"></div>
       <div class="opts"><label>Date<input type="date" id="din"></label><label>How it ended<select id="how"><option>Checkmate</option><option>Resigned</option><option>Out of time</option><option>Draw agreed</option><option>Stalemate</option><option>Other</option></select></label></div></section>
     <section class="card"><h2>The race</h2><div class="legend" id="legend"></div><div class="race" id="race"></div></section>
@@ -147,7 +148,10 @@ const fmt=n=>n%1?(Math.floor(n)?Math.floor(n):'')+'½':String(n);
 const N=()=>board?board.players:['',''];
 $('#din').value=key(new Date());
 function since(v){const t=new Date();if(v==='week'){const s=new Date(t.getFullYear(),t.getMonth(),t.getDate()-((t.getDay()+6)%7));return key(s)}if(v==='month')return key(new Date(t.getFullYear(),t.getMonth(),1));if(v==='year')return t.getFullYear()+'-01-01';return ''}
-const inView=()=>entries.filter(e=>!since(view)||e.d>=since(view));
+// games against the computer have ids starting with "ai" and their own record; they never count head-to-head
+const isCpu=e=>String(e.id).startsWith('ai');
+const inView=()=>entries.filter(e=>!isCpu(e)&&(!since(view)||e.d>=since(view)));
+const cpuView=()=>entries.filter(e=>isCpu(e)&&(!since(view)||e.d>=since(view)));
 const sorted=l=>[...l].sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:(a.t||0)-(b.t||0));
 const winner=e=>e.s[0]>e.s[1]?0:e.s[1]>e.s[0]?1:-1;
 
@@ -165,7 +169,8 @@ function render(){
     <button class="pts" data-p="${i}" aria-label="${fmt(pts[i])} points">${[...fmt(pts[i])].map(c=>`<span>${c}</span>`).join('')}</button>
     <span class="rec"><span><b>${w[i]}</b> won</span><span><b>${d}</b> drawn</span><span><b>${w[1-i]}</b> lost</span></span></div>`;
   $('#face').innerHTML=card(0)+`<button class="vs" id="vs" aria-label="Spin">vs</button>`+card(1);
-  stats(list,names);race(list,names);who(names);hist(names);
+  stats(list,names);race(list,names);who(names);hist(names);cpu(names);
+  $('#cpulink').href='play.html?cpu=1&b='+encodeURIComponent(BID);
 }
 function streaks(list){let cur={p:-1,n:0},best={p:-1,n:0};list.forEach(e=>{const x=winner(e);if(x<0){cur={p:-1,n:0};return}cur=cur.p===x?{p:x,n:cur.n+1}:{p:x,n:1};if(cur.n>best.n)best={...cur}});return{cur,best}}
 function stats(list,names){
@@ -193,6 +198,17 @@ function race(list,names){
   el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Running points: ${esc(names[0])} ${fmt(cum[0][n])}, ${esc(names[1])} ${fmt(cum[1][n])}"><style>@keyframes draw{to{stroke-dashoffset:0}}</style>${o}</svg>`}
 new ResizeObserver(()=>{if(board)race(sorted(inView()),N())}).observe($('#race'));
 function who(names){$('#who').innerHTML=names.map((n,i)=>`<button class="res" data-r="${i}" style="--c:${COL[i]}">${ART.svg(PIECE[i],i?'b':'w')}<span>${esc(n)} won</span></button>`).join('')+`<button class="res" data-r="d" style="--c:var(--lemon)">${ART.svg('k','w')}<span>A draw</span></button>`}
+function cpu(names){
+  const list=sorted(cpuView()).reverse(),card=$('#cpucard');card.hidden=!list.length;if(!list.length)return;
+  const LV=['Easy','Medium','Hard','Master'];
+  // per player and level: won / drawn / lost, from the note "Computer · <level> · ..."
+  const rec=names.map((n,i)=>{const mine=list.filter(e=>e.s[i]>=0),by={};
+    mine.forEach(e=>{const lv=((e.note||'').split(' · ')[1]||'').split(' ')[0]||'Medium',r=by[lv]||(by[lv]={w:0,d:0,l:0});e.s[i]===1?r.w++:e.s[i]===0?r.l++:r.d++});
+    return{n,i,total:mine.length,by}}).filter(r=>r.total);
+  $('#cpurec').innerHTML=rec.map(r=>`<div class="cr" style="--c:${COL[r.i]}"><span class="badge">${ART.svg(PIECE[r.i],r.i?'b':'w')}</span><div><b>${esc(r.n)}</b>
+    <div class="lvls">${LV.filter(l=>r.by[l]).map(l=>`<span><i>${l}</i> ${r.by[l].w}–${r.by[l].d}–${r.by[l].l}</span>`).join('')}</div></div></div>`).join('')+'<p class="mut cpukey">won – drawn – lost</p>';
+  $('#cpuhist').innerHTML=list.slice(0,5).map(e=>{const i=e.s[0]>=0?0:1,r=e.s[i],dt=parse(e.d).toLocaleDateString(undefined,{month:'short',day:'numeric'});
+    return`<div class="g"><span class="badge" style="--c:${COL[i]}">${ART.svg(PIECE[i],i?'b':'w')}</span><span><b>${esc(names[i])} ${r===1?'beat the computer':r===0?'lost to the computer':'drew with the computer'}</b><small>${dt}${e.note?' · '+esc(e.note.replace(/^Computer · /,'')):''}</small></span><button data-del="${esc(e.id)}" aria-label="Delete game">✕</button></div>`}).join('')}
 function hist(names){
   const list=sorted(inView()).reverse(),shown=all?list:list.slice(0,15);
   $('#hist').innerHTML=shown.length?shown.map(e=>{const x=winner(e),dt=parse(e.d).toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
@@ -238,10 +254,11 @@ $('#who').addEventListener('click',e=>{const b=e.target.closest('[data-r]');if(!
   if(r==='d'){toast('A draw! Half a point each');burst(b,['½','★','✦'],['#ffd23f','#ff5d8f','#4cc9f0'],20)}
   else{const i=+r;toast(`${names[i]} wins! ${['Brilliant!','What a game!','Checkmate royalty','Bow to the champion'][Math.floor(Math.random()*4)]}`);
     const c=$('#pl'+i);if(c){c.classList.remove('happy');void c.offsetWidth;c.classList.add('happy');burst(c,['♛','★','✦','♥'],[HEX[i],'#ffd23f','#fff'],26)}}});
-$('#hist').addEventListener('click',e=>{const b=e.target.closest('[data-del]');if(!b)return;const g=entries.find(x=>x.id===b.dataset.del);if(!g)return;const x=winner(g),names=N();
-  $('#dbox').innerHTML=`<h3>Delete this game?</h3><p>${esc(parse(g.d).toLocaleDateString(undefined,{month:'short',day:'numeric'}))}: ${x<0?'a draw':esc(names[x])+' won'}</p><div class="row"><button class="btn" id="dno">Keep it</button><button class="btn c" style="--c:var(--pink)" id="dyes">Delete</button></div>`;
+const onDel=e=>{const b=e.target.closest('[data-del]');if(!b)return;const g=entries.find(x=>x.id===b.dataset.del);if(!g)return;const x=isCpu(g)?(g.s[0]>=0?0:1):winner(g),names=N();
+  $('#dbox').innerHTML=`<h3>Delete this game?</h3><p>${esc(parse(g.d).toLocaleDateString(undefined,{month:'short',day:'numeric'}))}: ${isCpu(g)?esc(names[x])+' vs the computer':x<0?'a draw':esc(names[x])+' won'}</p><div class="row"><button class="btn" id="dno">Keep it</button><button class="btn c" style="--c:var(--pink)" id="dyes">Delete</button></div>`;
   $('#dlg').hidden=false;$('#dno').onclick=()=>{$('#dlg').hidden=true};
-  $('#dyes').onclick=()=>{$('#dlg').hidden=true;entries=entries.filter(y=>y.id!==g.id);enqueue({action:'delete',id:g.id});toast('Game deleted','Undo',()=>{entries.push(g);enqueue({action:'add',entry:g})})}});
+  $('#dyes').onclick=()=>{$('#dlg').hidden=true;entries=entries.filter(y=>y.id!==g.id);enqueue({action:'delete',id:g.id});toast('Game deleted','Undo',()=>{entries.push(g);enqueue({action:'add',entry:g})})}};
+$('#hist').addEventListener('click',onDel);$('#cpuhist').addEventListener('click',onDel);
 $('#dlg').addEventListener('click',e=>{if(e.target===$('#dlg'))$('#dlg').hidden=true});
 $('#tabs').addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(!b)return;view=b.dataset.v;all=false;render()});
 $('#more').onclick=()=>{all=true;render()};

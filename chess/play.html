@@ -6,8 +6,8 @@
 <title>Chess · Adda</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%2361c9a8'/%3E%3Ccircle cx='50' cy='34' r='16' fill='%23fffaf0' stroke='%232b2240' stroke-width='6'/%3E%3Cpath d='M36 84 Q38 60 44 50 L56 50 Q62 60 64 84 Z' fill='%23fffaf0' stroke='%232b2240' stroke-width='6'/%3E%3C/svg%3E">
 <script>document.write('<script src="../config.js?v='+Date.now()+'"><\/script>')</script>
-<script src="chess.js?v=24"></script>
-<script src="pieces.js?v=24"></script>
+<script src="chess.js?v=26"></script>
+<script src="pieces.js?v=26"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600">
 <style>
@@ -110,7 +110,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .toast:not(.on){transform:translateY(160%);opacity:0;pointer-events:none}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
-<link rel="stylesheet" href="minimal.css?v=25">
+<link rel="stylesheet" href="minimal.css?v=26">
 </head>
 <body>
 <div class="app">
@@ -150,6 +150,10 @@ const BID=new URLSearchParams(location.search).get('b')||'';
 if(!BID)location.replace('./');
 $('#back').href='board.html?b='+encodeURIComponent(BID);
 const SEATK='ch-me-'+BID,KEYK='st-key-'+BID;
+// ?cpu=1 = play the computer. The game lives on this phone; only the result is saved to the sheet, in its own record.
+const CPU=new URLSearchParams(location.search).get('cpu')==='1',CPUK='ch-cpu-game-'+BID,CPUSET='ch-cpu-set-'+BID;
+const LEVELS={easy:'Easy',medium:'Medium',hard:'Hard',master:'Master'};
+let thinking=false,thinkId=0,aiW=null,sfW=null,sfReady=null,setup=ls.get(CPUSET,{me:0,level:'medium',color:'w',skill:10});
 let board=ls.get('adda-board-'+BID,null),names=board?board.players:[],seat=ls.get(SEATK,null);
 let G=null,ver=0,busy=false,loading=false,loaded=false,noFallback=false,cur=null,sel=null,shownEnd=null,animating=false;
 const PN=ART.NAMES;
@@ -165,6 +169,7 @@ async function loadBoard(){if(!API)return;
     if(j.ok&&j.board){board=j.board;names=board.players;ls.set('adda-board-'+BID,board);render()}
     else if(j.error==='no_board'){show('lobby');$('#lt').textContent='This board isn’t set up';$('#lp').innerHTML='<a href="./" style="color:inherit">See all chess dashboards</a>'}}catch(e){}}
 async function load(){
+  if(CPU){if(!loaded){loaded=true;const g=ls.get(CPUK,null);G=g&&g.fen?g:null;if(G&&G.status!=='playing')shownEnd=G.id;cur=null;render()}return}
   if(!API){$('#sync').textContent='Not connected';render();return}
   if(seat==null||needKey()||busy||loading||animating)return;loading=true;
   try{const j=await post({action:'game_get'});if(busy||animating)return;
@@ -174,6 +179,7 @@ async function load(){
   }catch(e){$('#sync').textContent='Reconnecting…';if(!loaded)render()}
   finally{loading=false}}
 async function save(next,quiet){
+  if(CPU){G=next;ls.set(CPUK,next);return true}
   if(needKey())return false;busy=true;const prev=G;G=next;
   try{const j=await post({action:'game_put',game:next,ver});busy=false;
     if(j.ok){ver=j.ver;G=j.game;return true}
@@ -183,13 +189,15 @@ async function save(next,quiet){
   }catch(e){busy=false;G=prev;cur=null;render();toast('No connection, try that again');return false}}
 
 // ---- who is who ----
-const colorOf=p=>G?(G.white===p?'w':'b'):'w';
-const playerOf=col=>G?(col==='w'?G.white:1-G.white):0;
-const both=()=>seat==='both';
-const myColor=()=>both()?(cur?cur.t:'w'):colorOf(seat);
-const canMove=()=>G&&G.status==='playing'&&cur&&(both()||cur.t===colorOf(seat));
-const flipped=()=>!both()&&G&&colorOf(seat)==='b';
-const nm=col=>names[playerOf(col)]||(col==='w'?'White':'Black');
+const opp=c=>c==='w'?'b':'w';
+const colorOf=p=>CPU?(G?(p===G.me||p===seat?G.mine:opp(G.mine)):'w'):G?(G.white===p?'w':'b'):'w';
+const playerOf=col=>CPU?(G&&col===G.mine?G.me:-1):G?(col==='w'?G.white:1-G.white):0;
+const both=()=>!CPU&&seat==='both';
+const myColor=()=>CPU?(G?G.mine:'w'):both()?(cur?cur.t:'w'):colorOf(seat);
+const canMove=()=>G&&G.status==='playing'&&cur&&(CPU?cur.t===G.mine&&!thinking:both()||cur.t===colorOf(seat));
+const flipped=()=>CPU?!!G&&G.mine==='b':!both()&&G&&colorOf(seat)==='b';
+const cpuName=()=>G&&G.cpu?`Computer · ${LEVELS[G.cpu.level]}${G.cpu.level==='master'?' '+G.cpu.skill:''}`:'Computer';
+const nm=col=>CPU&&G&&col!==G.mine?cpuName():names[playerOf(col)]||(col==='w'?'White':'Black');
 
 // ---- lines ----
 const L={
@@ -211,22 +219,27 @@ parade($('#parade'));parade($('#parade2'));
 const disp=s=>{const r=s>>3,c=s&7;return flipped()?[7-r,7-c]:[r,c]};
 function render(){
   if(!board){show('lobby');$('#startbtn').hidden=true;return}
-  if(seat==null){show('pick');
+  if(CPU&&(!G||setupOpen)){show('pick');drawSetup();return}
+  if(!CPU&&seat==null){show('pick');
     $('#seats').innerHTML=names.map((n,i)=>`<button class="seat" data-s="${i}" style="--c:${i?'var(--sky)':'var(--pink)'}">${ART.svg(i?'n':'q',i?'b':'w')}${esc(n)}</button>`).join('')+`<button class="seat" data-s="both" style="--c:var(--lemon)">${ART.svg('k','w')}Both of us, one phone</button>`;return}
-  if(API&&!loaded){show('lobby');$('#lt').textContent='Setting up the board…';$('#lp').textContent=pick(['Polishing the pawns.','Waking up the knights.','Straightening the crowns.','Counting the squares. 64, yep.']);$('#startbtn').hidden=true;return}
+  if(!CPU&&API&&!loaded){show('lobby');$('#lt').textContent='Setting up the board…';$('#lp').textContent=pick(['Polishing the pawns.','Waking up the knights.','Straightening the crowns.','Counting the squares. 64, yep.']);$('#startbtn').hidden=true;return}
   if(!G){show('lobby');$('#lt').textContent='Ready when you are';$('#lp').textContent=`${names[0]||'Player 1'} plays white first. Colours swap every game.`;$('#startbtn').hidden=false;return}
   show('game');
   if(!cur)cur=C.fromFen(G.fen);
   drawSquares();drawPieces();drawStrips();drawMoves();drawOffer();drawActs();
   if(G.status!=='playing'&&shownEnd!==G.id){shownEnd=G.id;setTimeout(()=>endDialog(true),animating?0:350)}
   fitBoard();
+  if(CPU)maybeThink();
 }
 // size the board to whatever height is left, so the whole game fits on one screen without scrolling
-function fitBoard(){const bw=$('#bwrap'),app=$('.app');if(!bw||$('#game').hidden)return;
-  const maxW=app.clientWidth-parseFloat(getComputedStyle(app).paddingLeft)-parseFloat(getComputedStyle(app).paddingRight)-12;
-  const cur0=bw.getBoundingClientRect().height,mt=parseFloat(getComputedStyle(bw).marginTop)+parseFloat(getComputedStyle(bw).marginBottom);
-  const other=document.documentElement.scrollHeight-cur0-mt,avail=innerHeight-other-mt-2;
-  const size=Math.max(180,Math.min(maxW,avail,640));
+function fitBoard(){const bw=$('#bwrap'),app=$('.app'),game=$('#game');if(!bw||game.hidden)return;
+  const cs=getComputedStyle(app),oh=el=>{if(el.hidden||getComputedStyle(el).position==='fixed')return 0;const c=getComputedStyle(el);return el.getBoundingClientRect().height+parseFloat(c.marginTop)+parseFloat(c.marginBottom)};
+  // height of everything except the board (real content, not the empty space a tall screen leaves)
+  let other=parseFloat(cs.paddingTop)+parseFloat(cs.paddingBottom);
+  for(const k of app.children)other+=k===game?[...game.children].filter(c=>c!==bw).reduce((a,c)=>a+oh(c),0):oh(k);
+  const bc=getComputedStyle(bw),mt=parseFloat(bc.marginTop)+parseFloat(bc.marginBottom);
+  const maxW=app.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight)-12;
+  const size=Math.floor(Math.max(180,Math.min(maxW,innerHeight-other-mt-4,640)));
   bw.style.setProperty('width',size+'px','important');bw.style.setProperty('min-width','0','important')}
 function drawSquares(){
   const last=G.last||{},chk=C.inCheck(cur)?cur.b.indexOf(cur.t==='w'?'K':'k'):-1,mv=sel!=null?C.movesFrom(cur,sel):[];
@@ -246,7 +259,7 @@ function drawPieces(){
     h+=`<div class="pc${s===sel?' sel':''}${over?' fallen':''}" data-s="${s}" style="transform:translate(${c*100}%,${r*100}%)">${ART.svg(C.typeOf(p),C.colorOf(p))}</div>`});
   $('#pcs').innerHTML=h}
 function stripHTML(col){
-  const p=playerOf(col),mat=C.material(cur.b)[col],turn=G.status==='playing'&&cur.t===col,me=!both()&&p===seat;
+  const p=playerOf(col),mat=C.material(cur.b)[col],turn=G.status==='playing'&&cur.t===col,me=CPU?col===G.mine:!both()&&p===seat;
   const state=G.status!=='playing'?(G.winner===col?'Winner!':G.winner?'':'Draw'):turn?(me||both()?'<span class="yourmove">Your move</span>':'<span class="think">thinking<i></i><i></i><i></i></span>'):'';
   return`<span class="av" style="--c:${col==='w'?'var(--pink)':'var(--sky)'}">${ART.svg(G.status!=='playing'&&G.winner===col?'q':'k',col)}</span>
     <span class="who"><b>${esc(nm(col))}</b><small>${col==='w'?'White':'Black'}${state?' · '+state:''}</small></span>
@@ -256,11 +269,11 @@ function drawStrips(){const bottom=flipped()?'b':'w',top=bottom==='w'?'b':'w';
   $('#topstrip').classList.toggle('turn',G.status==='playing'&&cur.t===top);$('#botstrip').classList.toggle('turn',G.status==='playing'&&cur.t===bottom)}
 function drawMoves(){const ms=G.san||[];$('#moves').innerHTML=ms.map((m,i)=>`${i%2?'':`<span>${i/2+1}.</span>`}<span class="${i===ms.length-1?'now':''}"><b>${esc(m)}</b></span>`).join('');$('#moves').scrollLeft=1e6}
 function drawOffer(){const o=$('#offer');const off=G.status==='playing'&&G.drawOffer;
-  if(!off||both()){o.hidden=true;return}
+  if(!off||both()||CPU){o.hidden=true;return}
   if(off===colorOf(seat)){o.hidden=false;o.innerHTML=`<span>You offered a draw. Waiting…</span><div><button class="btn sm" id="ocancel">Take it back</button></div>`}
   else{o.hidden=false;o.innerHTML=`<span>${esc(nm(off))} offers a draw</span><div><button class="btn sm c" style="--c:var(--mint)" id="oyes">Accept</button><button class="btn sm" id="ono">No thanks</button></div>`}}
 function drawActs(){const a=$('#acts');
-  if(G.status!=='playing'){a.innerHTML=`<button class="btn c" style="--c:var(--mint)" id="rematch">Rematch ♻</button><a class="btn" href="board.html?b=${encodeURIComponent(BID)}" style="text-decoration:none">Scores</a>`;return}
+  if(G.status!=='playing'){a.innerHTML=`<button class="btn c" style="--c:var(--mint)" id="rematch">Rematch ♻</button>${CPU?'<button class="btn" id="setupbtn">Change level</button>':''}<a class="btn" href="board.html?b=${encodeURIComponent(BID)}" style="text-decoration:none">Scores</a>`;return}
   a.innerHTML=`<button class="btn" id="draw">${both()?'Call it a draw':'Offer draw'}</button><button class="btn" id="resign">Resign</button><button class="btn" id="newg" aria-label="Start over">↺</button>`}
 
 // ---- arriving states (from server) ----
@@ -345,6 +358,7 @@ async function go(m){
 const REASON={checkmate:'Checkmate',stalemate:'Stalemate',insufficient:'Not enough pieces left',fifty:'50 quiet moves',repetition:'Same position three times',resign:'Resigned',agreed:'Draw agreed'};
 async function finish(patch){const g={...JSON.parse(JSON.stringify(G)),status:'over',drawOffer:null,...patch};G=g;render();if(await save(g))logResult()}
 async function logResult(){if(!G||G.status!=='over'||G.logged)return;
+  if(CPU)return logCpu();
   const s=[0,0];if(G.winner){s[playerOf(G.winner)]=1}else{s[0]=.5;s[1]=.5}
   const d=new Date(),day=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
   const note=`${REASON[G.reason]||G.reason} · ${Math.ceil((G.uci||[]).length/2)} moves · ${nm('w')} white`;
@@ -352,26 +366,37 @@ async function logResult(){if(!G||G.status!=='over'||G.logged)return;
     for(let k=0;k<3;k++){const g={...JSON.parse(JSON.stringify(G)),logged:true};if(await save(g,true))break}
     const n=$('#lognote');if(n)n.textContent='Saved to the scoreboard ✓'}
   catch(e){const n=$('#lognote');if(n)n.textContent='Couldn’t save to the scoreboard yet'}}
+// computer games: the player's slot holds 1 / ½ / 0, the other slot -1 (nobody), and the id starts with "ai"
+async function logCpu(){
+  const s=[-1,-1];s[G.me]=G.winner?(G.winner===G.mine?1:0):.5;
+  const d=new Date(),day=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  const note=`Computer · ${LEVELS[G.cpu.level]}${G.cpu.level==='master'?' '+G.cpu.skill:''} · ${REASON[G.reason]||G.reason} · ${Math.ceil((G.uci||[]).length/2)} moves · ${G.mine==='w'?'white':'black'}`;
+  if(needKey())return;
+  try{const j=await post({action:'add',entry:{id:'ai'+G.id,d:day,s,t:Date.now(),note}});if(!j.ok)throw 0;
+    G={...G,logged:true};ls.set(CPUK,G);const n=$('#lognote');if(n)n.textContent='Saved to your vs-computer record ✓'}
+  catch(e){const n=$('#lognote');if(n)n.textContent='Couldn’t save the result yet'}}
 function endDialog(celebrate){if(!G||G.status!=='over')return;
-  const w=G.winner,title=w?(G.reason==='resign'?`${nm(w==='w'?'b':'w')} resigned`:'Checkmate!'):'It’s a draw',sub=w?`${nm(w)} wins with ${w==='w'?'white':'black'}`:REASON[G.reason]||'Draw';
+  const w=G.winner,title=CPU&&w?(w===G.mine?(G.reason==='resign'?'The computer resigned':'You beat the computer!'):(G.reason==='resign'?'You resigned':'The computer wins')):w?(G.reason==='resign'?`${nm(w==='w'?'b':'w')} resigned`:'Checkmate!'):'It’s a draw',sub=w?`${nm(w)} wins with ${w==='w'?'white':'black'}`:REASON[G.reason]||'Draw';
   const box=$('#mbox');box.style.setProperty('--c',w?'var(--lemon)':'var(--sky)');
-  box.innerHTML=`<div class="trophy">${ART.svg(w?'q':'k',w||'w')}</div><h3>${esc(title)}</h3><p>${esc(sub)}${w&&G.reason!=='checkmate'&&G.reason!=='resign'?'':''}</p><p id="lognote" style="font-size:14px;margin-top:-8px">${G.logged?'Saved to the scoreboard ✓':'Saving to the scoreboard…'}</p>
+  box.innerHTML=`<div class="trophy">${ART.svg(w?'q':'k',w||'w')}</div><h3>${esc(title)}</h3><p>${esc(sub)}${w&&G.reason!=='checkmate'&&G.reason!=='resign'?'':''}</p><p id="lognote" style="font-size:14px;margin-top:-8px">${G.logged?(CPU?'Saved to your vs-computer record ✓':'Saved to the scoreboard ✓'):'Saving…'}</p>
     <div class="row"><button class="btn c" style="--c:var(--mint)" id="rematch2">Rematch ♻</button><button class="btn" id="mclose">Look at the board</button></div>`;
   $('#mdlg').hidden=false;$('#rematch2').onclick=()=>{$('#mdlg').hidden=true;newGame()};$('#mclose').onclick=()=>{$('#mdlg').hidden=true};
 
-  if(celebrate&&w&&(both()||colorOf(seat)===w))confetti();
+  if(celebrate&&w&&(CPU?w===G.mine:both()||colorOf(seat)===w))confetti();
   if(!G.logged)setTimeout(()=>{const n=$('#lognote');if(n&&G.logged)n.textContent='Saved to the scoreboard ✓'},4000)}
-function newGame(){const white=G&&G.white!=null?1-G.white:0;sel=null;cur=null;
+function newGame(){if(CPU)return cpuGame(true);const white=G&&G.white!=null?1-G.white:0;sel=null;cur=null;
   const st=C.start();const g={id:Date.now().toString(36),fen:C.toFen(st),white,uci:[],san:[],keys:[C.key(st)],last:null,status:'playing',winner:null,reason:null,drawOffer:null};
   G=g;render();save(g).then(ok=>{if(ok)toast(`${nm('w')} plays white. Good luck!`)})}
 function confirmBox(title,text,yes,fn,col='var(--pink)'){const box=$('#mbox');box.style.removeProperty('--c');box.innerHTML=`<h3>${esc(title)}</h3><p>${esc(text)}</p><div class="row"><button class="btn" id="cno">Never mind</button><button class="btn c" style="--c:${col}" id="cyes">${esc(yes)}</button></div>`;
   $('#mdlg').hidden=false;$('#cno').onclick=()=>{$('#mdlg').hidden=true};$('#cyes').onclick=()=>{$('#mdlg').hidden=true;fn()}}
 $('#acts').addEventListener('click',e=>{const id=e.target.closest('button')?.id;if(!id||!G)return;
   if(id==='rematch')newGame();
-  if(id==='resign'){const col=both()?cur.t:colorOf(seat);confirmBox('Resign?',`${nm(col)} tips over the king and ${nm(col==='w'?'b':'w')} wins.`,'Resign',()=>finish({winner:col==='w'?'b':'w',reason:'resign'}))}
+  if(id==='setupbtn'){setupOpen=true;render();return}
+  if(id==='resign'){const col=CPU?G.mine:both()?cur.t:colorOf(seat);confirmBox('Resign?',`${nm(col)} tips over the king and ${nm(col==='w'?'b':'w')} wins.`,'Resign',()=>finish({winner:col==='w'?'b':'w',reason:'resign'}))}
+  if(id==='draw'&&CPU){cpuDraw();return}
   if(id==='draw'){if(both())confirmBox('Call it a draw?','Both of you get half a point.','Draw',()=>finish({winner:null,reason:'agreed'}),'var(--sky)');
     else{const g={...JSON.parse(JSON.stringify(G)),drawOffer:colorOf(seat)};G=g;render();save(g).then(ok=>{if(ok)toast('Draw offered')})}}
-  if(id==='newg')confirmBox('Start over?','This game is thrown away and won’t count.','Start over',newGame)});
+  if(id==='newg')confirmBox('Start over?','This game is thrown away and won’t count.','Start over',CPU?()=>{setupOpen=true;G=null;ls.set(CPUK,null);render()}:newGame)});
 $('#offer').addEventListener('click',e=>{const id=e.target.closest('button')?.id;if(!id)return;
   if(id==='oyes')finish({winner:null,reason:'agreed'});
   if(id==='ono'||id==='ocancel'){const g={...JSON.parse(JSON.stringify(G)),drawOffer:null};G=g;render();save(g)}});
@@ -381,9 +406,46 @@ $('#mdlg').addEventListener('click',e=>{if(e.target===$('#mdlg'))$('#mdlg').hidd
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){$('#mdlg').hidden=true}});
 addEventListener('resize',()=>{if(G&&cur&&!animating)render()});
 if(window.visualViewport)visualViewport.addEventListener('resize',()=>fitBoard());
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)load()});
-setInterval(()=>{if(!document.hidden&&seat!=null&&!busy&&!loading&&!animating)load()},2500);
-render();loadBoard();if(seat!=null)load();
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!CPU)load()});
+setInterval(()=>{if(!CPU&&!document.hidden&&seat!=null&&!busy&&!loading&&!animating)load()},2500);
+// ---- the computer ----
+let setupOpen=false;
+function drawSetup(){const st=setup,ch=(k,v,label,sub)=>`<button class="chip${st[k]===v?' on':''}" data-k="${k}" data-v="${v}" aria-pressed="${st[k]===v}">${label}${sub?`<small>${sub}</small>`:''}</button>`;
+  $('#pick').innerHTML=`<div class="cpuset"><h2>Play the computer</h2>
+    <div class="grp"><span class="lab">Who’s playing</span><div class="chips">${names.map((n,i)=>ch('me',i,esc(n))).join('')}</div></div>
+    <div class="grp"><span class="lab">Level</span><div class="chips lv">${ch('level','easy','Easy','Makes mistakes')}${ch('level','medium','Medium','Casual player')}${ch('level','hard','Hard','Thinks ahead')}${ch('level','master','Master','Stockfish')}</div>
+      <label class="skill" ${st.level==='master'?'':'hidden'}>Master strength <b id="skv">${st.skill}</b><input type="range" min="1" max="20" value="${st.skill}" id="skill" aria-label="Master strength, 1 to 20"></label></div>
+    <div class="grp"><span class="lab">You play</span><div class="chips">${ch('color','w','White')}${ch('color','b','Black')}${ch('color','r','Random')}</div></div>
+    <button class="btn c go" id="cpustart">Start</button></div>`;}
+$('#pick').addEventListener('click',e=>{const c=e.target.closest('.chip');if(c){const k=c.dataset.k;setup[k]=k==='me'?+c.dataset.v:c.dataset.v;ls.set(CPUSET,setup);drawSetup();return}
+  if(e.target.closest('#cpustart'))cpuGame(false)});
+$('#pick').addEventListener('input',e=>{if(e.target.id==='skill'){setup.skill=+e.target.value;$('#skv').textContent=setup.skill;ls.set(CPUSET,setup)}});
+function cpuGame(rematch){
+  const prev=G;setupOpen=false;sel=null;cur=null;shownEnd=null;
+  let mine=setup.color==='r'?(Math.random()<.5?'w':'b'):setup.color;
+  if(rematch&&prev&&prev.cpu)mine=opp(prev.mine);
+  const st=C.start();
+  G={id:Date.now().toString(36),fen:C.toFen(st),me:rematch&&prev?prev.me:setup.me,mine,cpu:rematch&&prev?prev.cpu:{level:setup.level,skill:setup.skill},uci:[],san:[],keys:[C.key(st)],last:null,status:'playing',winner:null,reason:null};
+  ls.set(CPUK,G);render();toast(mine==='w'?'You play white. Your move!':'You play black. The computer opens.')}
+function maybeThink(){if(!G||G.status!=='playing'||!cur||cur.t===G.mine||thinking||animating||setupOpen)return;
+  thinking=true;const id=++thinkId,fen=C.toFen(cur),lv=G.cpu.level;drawStrips();
+  const done=uci=>{if(id!==thinkId||!G||C.toFen(cur)!==fen)return;thinking=false;const m=C.moves(cur).find(x=>C.name(x.f)+C.name(x.t)+(x.promo||'')===uci);
+    if(m)go(m);else{toast('The computer got confused, your move');render()}};
+  if(lv==='master')stockfish(fen,G.cpu.skill).then(done).catch(()=>{thinking=false;toast('Couldn’t load Master, try another level')});
+  else{if(!aiW){aiW=new Worker('ai.js?v=26');}aiW.onmessage=e=>{if(e.data.id===id)done(e.data.move)};aiW.postMessage({fen,level:lv,id})}}
+function stockfish(fen,skill){
+  if(!sfW){sfW=new Worker('engine/stockfish-18-lite-single.js');sfReady=new Promise((res,rej)=>{const t=setTimeout(()=>rej('timeout'),25000);
+    sfW.onmessage=e=>{if(String(e.data).includes('uciok')){clearTimeout(t);res()}};sfW.postMessage('uci')})}
+  return sfReady.then(()=>new Promise(res=>{const t0=Date.now();
+    sfW.onmessage=e=>{const m=/^bestmove (\S+)/.exec(String(e.data));if(m)setTimeout(()=>res(m[1]),Math.max(0,600-(Date.now()-t0)))};
+    sfW.postMessage('setoption name Skill Level value '+Math.max(0,Math.min(20,skill)));sfW.postMessage('position fen '+fen);
+    sfW.postMessage('go movetime '+(300+skill*40))}))}
+// the computer accepts a draw only when it is behind
+function cpuDraw(){const cc=opp(G.mine),sc=C.material(cur.b)[cc].score;
+  if(sc<0)confirmBox('The computer accepts','Call it a draw? Half a point each.','Draw',()=>finish({winner:null,reason:'agreed'}),'var(--sky)');
+  else toast(pick(['The computer says no thanks','Nope, the computer wants to play on','Draw declined. Beep boop.']))}
+if(CPU){$('#back').href='board.html?b='+encodeURIComponent(BID);document.title='Play the computer · Chess · Adda'}
+render();loadBoard();if(CPU||seat!=null)load();
 }
 </script>
 </body>

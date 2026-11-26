@@ -8,6 +8,8 @@
  *   Scores      one row per hand, tagged with its dashboard
  *               board_id | hand_id | date | player_1_score | player_2_score | player_3_score | logged_at | note
  *               (note says how a game ended, e.g. "checkmate · 34 moves · Leah white")
+ *               hand_id starting with "ai" = a game against the computer: the player's score is 1 / 0.5 / 0,
+ *               the other player's is -1 (not playing). These are left out of dashboard totals.
  *   Live games  one row per dashboard with a phone game in progress
  *               board_id | state (JSON) | version | updated_at
  *
@@ -133,6 +135,7 @@ function listBoards_(game) {
   const counts = {}, totals = {}, sh = sheet_(T.SCORES), n = sh.getLastRow() - 1;
   if (n > 0) sh.getRange(2, 1, n, 3 + MAX_PLAYERS).getValues().forEach(r => {
     const id = String(r[0]);
+    if (String(r[1]).startsWith('ai')) return;   // games against the computer have their own record
     counts[id] = (counts[id] || 0) + 1;
     const t = totals[id] || (totals[id] = Array(MAX_PLAYERS).fill(0));
     for (let i = 0; i < MAX_PLAYERS; i++) t[i] += Number(r[3 + i]) || 0;
