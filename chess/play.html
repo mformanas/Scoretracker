@@ -6,8 +6,8 @@
 <title>Chess · Adda</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%2361c9a8'/%3E%3Ccircle cx='50' cy='34' r='16' fill='%23fffaf0' stroke='%232b2240' stroke-width='6'/%3E%3Cpath d='M36 84 Q38 60 44 50 L56 50 Q62 60 64 84 Z' fill='%23fffaf0' stroke='%232b2240' stroke-width='6'/%3E%3C/svg%3E">
 <script>document.write('<script src="../config.js?v='+Date.now()+'"><\/script>')</script>
-<script src="chess.js?v=22"></script>
-<script src="pieces.js?v=22"></script>
+<script src="chess.js?v=24"></script>
+<script src="pieces.js?v=24"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600">
 <style>
@@ -110,7 +110,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .toast:not(.on){transform:translateY(160%);opacity:0;pointer-events:none}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
-<link rel="stylesheet" href="minimal.css?v=23">
+<link rel="stylesheet" href="minimal.css?v=24">
 </head>
 <body>
 <div class="app">
@@ -193,7 +193,7 @@ const nm=col=>names[playerOf(col)]||(col==='w'?'White':'Black');
 
 // ---- lines ----
 const L={
-  capture:['Captured','{p} taken','Gotcha!','Snack time!','Bye bye, {p}!','Yoink!','Chomp!','Off you pop, {p}','Into the box you go'],
+  capture:['Gotcha!','Bye bye, {p}','Captured!','Gotcha!','Snack time!','Bye bye, {p}!','Yoink!','Chomp!','Off you pop, {p}','Into the box you go'],
   check:['Check!','Eek, check!','Run, little king!','Check! Sweaty crown'],
   castle:['Castle swap!','Tucked in cozy','King’s hiding now'],
   promo:['Glow up!','Pawn to {p}!','Look who grew up'],
@@ -282,7 +282,7 @@ function playMove(st,m,done){
   const a=el.animate(frames,{duration:dur,easing:knight?'ease-in-out':'cubic-bezier(.3,1.25,.5,1)',fill:'forwards'});
   if(m.castle){const rf=m.castle==='k'?m.f+3:m.f-4,rt=m.castle==='k'?m.f+1:m.f-1,rk=pcEl(rf);
     if(rk)rk.animate([{transform:tr(rf)},{transform:`${tr(rt)} translateY(-35%)`,offset:.5},{transform:tr(rt)}],{duration:dur+120,delay:120,easing:'ease-in-out',fill:'forwards'})}
-  if(cap)setTimeout(()=>{cap.querySelector('svg').animate([{opacity:1},{opacity:0,transform:'scale(.85)'}],{duration:300,easing:'ease-out',fill:'forwards'})},dur*.6);
+  if(cap)setTimeout(()=>{cap.querySelector('svg').animate([{opacity:1},{transform:'translateY(-18%) scale(1.05)',opacity:1,offset:.3},{opacity:0,transform:'translateY(-30%) scale(.6)'}],{duration:420,easing:'ease-out',fill:'forwards'});sparkle(cap,['♥','●','✦'],['#ff8a7a','#f59bb0','#8fb8e8','#ffe7a3'],8)},dur*.6);
   a.onfinish=()=>{animating=false;done();const p=pcEl(m.t);if(p&&!reduce())p.querySelector('svg').animate([{transform:'translateY(-5%)'},{transform:'translateY(0)'},{transform:'translateY(-1.5%)'},{transform:'none'}],{duration:320,easing:'ease-out'})}}
 function react(before,m,after){
   const st=C.status(after,G.keys);
@@ -301,7 +301,7 @@ function big(txt,col){if(reduce())return;const b=document.createElement('div');b
 function sparkle(el,syms,cols,n){if(!el||reduce())return;const q=el.getBoundingClientRect(),x=q.left+q.width/2,y=q.top+q.height/2;
   for(let k=0;k<n;k++){const s=document.createElement('i');s.className='bit';s.textContent=syms[k%syms.length];s.style.color=cols[k%cols.length];s.style.left=x+'px';s.style.top=y+'px';s.style.fontSize=(12+Math.random()*14)+'px';document.body.appendChild(s);
     const a=Math.random()*Math.PI*2,v=30+Math.random()*60;s.animate([{transform:'translate(-50%,-50%) scale(.3)',opacity:1},{transform:`translate(calc(-50% + ${Math.cos(a)*v}px),calc(-50% + ${Math.sin(a)*v}px)) rotate(${Math.random()*360}deg)`,opacity:0}],{duration:700+Math.random()*400,easing:'cubic-bezier(.2,.7,.3,1)'}).onfinish=()=>s.remove()}}
-function confetti(){if(reduce())return;for(let k=0;k<70;k++){const s=document.createElement('i');s.className='bit';s.textContent=['✿','★','●','♥','✦','●'][k%6];s.style.color=['#ff7b6b','#ffd166','#7b6cf6','#7fd6b5','#ff9f43','#3b2a4a'][k%6];s.style.left=(Math.random()*innerWidth)+'px';s.style.top='-20px';s.style.fontSize=(14+Math.random()*16)+'px';document.body.appendChild(s);
+function confetti(){if(reduce())return;for(let k=0;k<70;k++){const s=document.createElement('i');s.className='bit';s.textContent=['●','♥','✦','●','★','●'][k%6];s.style.color=['#ff8a7a','#f59bb0','#8fb8e8','#ffe7a3','#b9e3c6','#c9b6f2'][k%6];s.style.left=(Math.random()*innerWidth)+'px';s.style.top='-20px';s.style.fontSize=(14+Math.random()*16)+'px';document.body.appendChild(s);
   s.animate([{transform:'translateY(0) rotate(0)'},{transform:`translate(${(Math.random()-.5)*120}px,${innerHeight+60}px) rotate(${Math.random()*720}deg)`}],{duration:1800+Math.random()*1400,delay:Math.random()*500,easing:'cubic-bezier(.3,.6,.5,1)'}).onfinish=()=>s.remove()}}
 let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),3200)}
 
@@ -351,6 +351,7 @@ function endDialog(celebrate){if(!G||G.status!=='over')return;
     <div class="row"><button class="btn c" style="--c:var(--mint)" id="rematch2">Rematch ♻</button><button class="btn" id="mclose">Look at the board</button></div>`;
   $('#mdlg').hidden=false;$('#rematch2').onclick=()=>{$('#mdlg').hidden=true;newGame()};$('#mclose').onclick=()=>{$('#mdlg').hidden=true};
 
+  if(celebrate&&w&&(both()||colorOf(seat)===w))confetti();
   if(!G.logged)setTimeout(()=>{const n=$('#lognote');if(n&&G.logged)n.textContent='Saved to the scoreboard ✓'},4000)}
 function newGame(){const white=G&&G.white!=null?1-G.white:0;sel=null;cur=null;
   const st=C.start();const g={id:Date.now().toString(36),fen:C.toFen(st),white,uci:[],san:[],keys:[C.key(st)],last:null,status:'playing',winner:null,reason:null,drawOffer:null};

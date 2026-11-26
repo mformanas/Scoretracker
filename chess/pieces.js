@@ -1,4 +1,5 @@
-// Minimal chess pieces: simple flat silhouettes. White pieces are white with a thin dark line, black pieces solid.
+// Minimal-cute chess pieces: simple flat silhouettes with tiny dot eyes. White pieces are cream with a plum line,
+// black pieces solid plum.
 // ChessArt.svg(type, colour) returns markup.
 (function (root) {
   const BASE = 'M28 86 H72 V80 C72 77 70 76 67 76 H33 C30 76 28 77 28 80 Z';
@@ -12,10 +13,13 @@
   };
   const DOTS = { q: [[30, 28], [44, 22], [56, 22], [70, 28]] };   // the queen's crown points
   function svg(t, col) {
-    const white = col === 'w', fill = white ? '#ffffff' : '#1f1f22', line = '#1f1f22';
+    const white = col === 'w', fill = white ? '#fffaf5' : '#5b4a6b', line = '#5b4a6b', eye = white ? '#5b4a6b' : '#fffaf5';
     const dots = (DOTS[t] || []).map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3.5"/>`).join('');
-    const cut = t === 'n' ? `<circle cx="47" cy="31" r="2.2" fill="${white ? line : '#fff'}" stroke="none"/>` : '';
-    return `<svg viewBox="0 0 100 100" aria-hidden="true"><g class="face" fill="${fill}" stroke="${line}" stroke-width="2.4" stroke-linejoin="round">` +
+    const E = { p: [50, 46], r: [50, 58], b: [50, 40], q: [50, 64], k: [50, 64] };
+    const cut = t === 'n' ? `<circle cx="47" cy="31" r="2.4" fill="${eye}"/><ellipse cx="44" cy="39" rx="3" ry="1.8" fill="#f59bb0" opacity=".85"/>`
+      : `<circle cx="${E[t][0] - 5}" cy="${E[t][1]}" r="2" fill="${eye}"/><circle cx="${E[t][0] + 5}" cy="${E[t][1]}" r="2" fill="${eye}"/>` +
+        `<ellipse cx="${E[t][0] - 9}" cy="${E[t][1] + 3.5}" rx="2.6" ry="1.6" fill="#f59bb0" opacity=".85"/><ellipse cx="${E[t][0] + 9}" cy="${E[t][1] + 3.5}" rx="2.6" ry="1.6" fill="#f59bb0" opacity=".85"/>`;
+    return `<svg viewBox="0 0 100 100" aria-hidden="true"><g class="face" fill="${fill}" stroke="${line}" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round">` +
       `<path d="${BASE}"/><path d="${BODY[t]}"/>${dots}</g>${cut}</svg>`;
   }
   root.ChessArt = { svg, NAMES: { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' } };
