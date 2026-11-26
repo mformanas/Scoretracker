@@ -18,8 +18,9 @@ Adda is a home for your game scoreboards. Each game has its own page (Rummy is t
 | `chess/play.html?b=<id>` | Play chess on two phones (or both on one), with legal moves highlighted |
 | `chess/chess.js`, `chess/pieces.js` | Chess rules and the flat piece silhouettes |
 | `chess/minimal.css` | The chess look: warm cream, peach board, coral accents |
-| `chess/ai.js` | Adda's own chess engine for Easy, Medium and Hard (runs on the phone) |
-| `chess/engine/` | Stockfish 18 lite (single-threaded WASM, GPL-3.0, see stockfish-COPYING.txt) for the Master level |
+| `chess/levels.js` | The 1–10 difficulty scale for computer boards |
+| `chess/ai.js` | Adda's own chess engine for levels 1–3 (runs on the phone) |
+| `chess/engine/` | Stockfish 18 lite (single-threaded WASM, GPL-3.0, see stockfish-COPYING.txt) for levels 4–10 |
 | `play.html` | Old link, now forwards to the Leah vs Manas table |
 
 ## How the Google Sheet is organised
@@ -35,7 +36,8 @@ The script creates and manages three tabs:
 - `board_id` links the tabs together. Filter **Scores** by `board_id` to see one dashboard.
 - Passcodes are stored only as a scrambled hash, never as plain text.
 - The original **Hands** and **Game** tabs were copied into the `leah-manas` dashboard the first time the new script ran. They're left untouched as a backup; you can delete them once you're happy.
-- Games against the computer are saved in **Scores** with a `hand_id` starting with `ai`: the player's score is 1, ½ or 0 and the other player's is -1. They show in their own "Vs the computer" card and never count head-to-head.
+- A chess board can be made against the computer: player 2 is "Computer" and **Boards** column `cpu_level` holds its difficulty (1–10, fixed when the board is made). Its games are scored like any other board.
+- Older test games against the computer on two-person boards have a `hand_id` starting with `ai`; they are left out of totals.
 - Deleting a dashboard (trash button on the Rummy page, needs its passcode) only fills in its `deleted_at` date in **Boards**. Its hands stay in **Scores**; clear the date to bring it back.
 - Avoid editing `board_id` and `hand_id` by hand. Renaming a player in **Boards** renames them everywhere.
 

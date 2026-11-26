@@ -3,13 +3,14 @@
  *
  * Tabs (created automatically):
  *   Boards      one row per dashboard
- *               board_id | game | name | player_1 | player_2 | player_3 | low_wins | passcode_hash | created_at | deleted_at
+ *               board_id | game | name | player_1 | player_2 | player_3 | low_wins | passcode_hash | created_at | deleted_at | cpu_level
+ *               cpu_level 1-10 = a chess board against the computer (player_2 is "Computer"); blank = two people
  *               (a deleted dashboard only gets a deleted_at date; its hands stay in Scores. Clear the date to bring it back.)
  *   Scores      one row per hand, tagged with its dashboard
  *               board_id | hand_id | date | player_1_score | player_2_score | player_3_score | logged_at | note
  *               (note says how a game ended, e.g. "checkmate · 34 moves · Leah white")
- *               hand_id starting with "ai" = a game against the computer: the player's score is 1 / 0.5 / 0,
- *               the other player's is -1 (not playing). These are left out of dashboard totals.
+ *               hand_id starting with "ai" = an older test game against the computer, played on a two-person board.
+ *               These are left out of dashboard totals.
  *   Live games  one row per dashboard with a phone game in progress
  *               board_id | state (JSON) | version | updated_at
  *
@@ -31,7 +32,8 @@ const MAX_PLAYERS = 3;
 const LEGACY_BOARD = 'leah-manas';
 
 const T = { BOARDS: 'Boards', SCORES: 'Scores', LIVE: 'Live games' };
-const BOARD_HEAD = ['board_id', 'game', 'name', 'player_1', 'player_2', 'player_3', 'low_wins', 'passcode_hash', 'created_at', 'deleted_at'];
+const BOARD_HEAD = ['board_id', 'game', 'name', 'player_1', 'player_2', 'player_3', 'low_wins', 'passcode_hash', 'created_at', 'deleted_at', 'cpu_level'];
+const DEL_COL = 10, CPU_COL = 11;   // 1-based columns in Boards
 const SCORE_HEAD = ['board_id', 'hand_id', 'date', 'player_1_score', 'player_2_score', 'player_3_score', 'logged_at', 'note'];
 const LIVE_HEAD = ['board_id', 'state', 'version', 'updated_at'];
 
@@ -110,7 +112,10 @@ function createBoard_(body) {
   const game = String(body.game || '');
   const g = GAMES[game];
   if (!g) return json_({ ok: false, error: 'bad_game' });
-  const players = (body.players || []).map(s => String(s || '').trim().slice(0, 24)).filter(Boolean);
+  const cpu = game === 'chess' ? Math.round(Number(body.cpu) || 0) : 0;
+  if (cpu && (cpu < 1 || cpu > 10)) return json_({ ok: false, error: 'bad_level' });
+  let players = (body.players || []).map(s => String(s || '').trim().slice(0, 24)).filter(Boolean);
+  if (cpu) players = [players[0], 'Computer'].filter(Boolean);
   if (players.length < g.minPlayers || players.length > g.maxPlayers) return json_({ ok: false, error: 'bad_players' });
   if (new Set(players.map(s => s.toLowerCase())).size !== players.length) return json_({ ok: false, error: 'same_names' });
   const pass = String(body.passcode || '');
@@ -121,8 +126,10 @@ function createBoard_(body) {
   try {
     let id = slug_(players.join('-')) || 'board';
     while (boardRow_(id, true) > 0) id = id.replace(/-[a-z0-9]{4}$/, '') + '-' + Math.random().toString(36).slice(2, 6);
-    const row = [id, game, name].concat(pad_(players, MAX_PLAYERS, '')).concat([g.lowWins, hash_(pass), new Date(), '']);
-    sheet_(T.BOARDS).appendRow(row);
+    const row = [id, game, name].concat(pad_(players, MAX_PLAYERS, '')).concat([g.lowWins, hash_(pass), new Date(), '', cpu || '']);
+    const sh = sheet_(T.BOARDS);
+    if (cpu && String(sh.getRange(1, CPU_COL).getValue()) === '') sh.getRange(1, CPU_COL).setValue('cpu_level').setFontWeight('bold');
+    sh.appendRow(row);
     SpreadsheetApp.flush();
     return json_({ ok: true, board: publicBoard_(getBoard_(id)) });
   } finally {
@@ -148,7 +155,8 @@ function listBoards_(game) {
 
 function getBoard_(id) {
   const r = boardRow_(id, false);
-  return r > 0 ? boardFromRow_(sheet_(T.BOARDS).getRange(r, 1, 1, BOARD_HEAD.length).getValues()[0]) : null;
+  const sh = sheet_(T.BOARDS);
+  return r > 0 ? boardFromRow_(sh.getRange(r, 1, 1, Math.min(BOARD_HEAD.length, sh.getMaxColumns())).getValues()[0]) : null;
 }
 
 // Row number of a dashboard in Boards, or -1. Deleted ones count only when asked.
@@ -158,7 +166,7 @@ function boardRow_(id, withDeleted) {
   return -1;
 }
 
-function isDeleted_(r) { return r.length > BOARD_HEAD.length - 1 && r[BOARD_HEAD.length - 1] !== '' && r[BOARD_HEAD.length - 1] != null; }
+function isDeleted_(r) { return r.length >= DEL_COL && r[DEL_COL - 1] !== '' && r[DEL_COL - 1] != null; }
 
 // Hides a dashboard. Nothing is erased: its hands stay in Scores and the row stays in Boards.
 function deleteBoard_(board) {
@@ -167,8 +175,8 @@ function deleteBoard_(board) {
   try {
     const sh = sheet_(T.BOARDS), r = boardRow_(board.id, false);
     if (r < 0) return json_({ ok: false, error: 'no_board' });
-    if (String(sh.getRange(1, BOARD_HEAD.length).getValues()[0][0]) === '') sh.getRange(1, BOARD_HEAD.length).setValue('deleted_at').setFontWeight('bold');
-    sh.getRange(r, BOARD_HEAD.length).setValue(new Date());
+    if (String(sh.getRange(1, DEL_COL).getValues()[0][0]) === '') sh.getRange(1, DEL_COL).setValue('deleted_at').setFontWeight('bold');
+    sh.getRange(r, DEL_COL).setValue(new Date());
     SpreadsheetApp.flush();
     return json_({ ok: true });
   } finally {
@@ -183,11 +191,12 @@ function boardFromRow_(r) {
     lowWins: r[3 + MAX_PLAYERS] === true || String(r[3 + MAX_PLAYERS]).toUpperCase() === 'TRUE',
     hash: String(r[4 + MAX_PLAYERS] || ''),
     created: r[5 + MAX_PLAYERS] instanceof Date ? r[5 + MAX_PLAYERS].getTime() : 0,
+    cpu: Number(r[CPU_COL - 1]) || 0,
   };
 }
 
 function publicBoard_(b) {
-  return { id: b.id, game: b.game, name: b.name, players: b.players, lowWins: b.lowWins, created: b.created };
+  return { id: b.id, game: b.game, name: b.name, players: b.players, lowWins: b.lowWins, created: b.created, cpu: b.cpu || 0 };
 }
 
 function authOk_(board, key) {

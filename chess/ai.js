@@ -1,7 +1,7 @@
 // Adda's own chess engine (Easy, Medium, Hard). Runs as a Web Worker.
 // Message in: {fen, level: 'easy'|'medium'|'hard', id}. Message out: {id, move: 'e2e4' or 'e7e8q'}.
 // Alpha-beta search with quiescence, move ordering and piece-square tables; lower levels add deliberate mistakes.
-importScripts('chess.js?v=26');
+importScripts('chess.js?v=27');
 const C = self.Chess;
 const VAL = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 0 };
 // piece-square tables from white's point of view, a8..h1 (index = square)

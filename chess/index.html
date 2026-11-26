@@ -6,7 +6,8 @@
 <title>Chess · Adda</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%2361c9a8'/%3E%3Ccircle cx='50' cy='34' r='16' fill='%23fffaf0' stroke='%232b2240' stroke-width='6'/%3E%3Cpath d='M36 84 Q38 60 44 50 L56 50 Q62 60 64 84 Z' fill='%23fffaf0' stroke='%232b2240' stroke-width='6'/%3E%3C/svg%3E">
 <script>document.write('<script src="../config.js?v='+Date.now()+'"><\/script>')</script>
-<script src="pieces.js?v=26"></script>
+<script src="pieces.js?v=27"></script>
+<script src="levels.js?v=27"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600">
 <style>
@@ -54,6 +55,10 @@ main{padding:34px 0 60px}
 .new .plus{display:grid;place-items:center;width:62px;height:62px;border-radius:18px;border:3px solid var(--line);background:var(--mint);color:#2b2240;font:700 36px/1 Inter,sans-serif;box-shadow:3px 3px 0 var(--line);transition:transform .4s cubic-bezier(.3,1.7,.5,1)}
 .new:hover .plus{transform:rotate(90deg) scale(1.08)}
 .new small{font:700 14px Inter,sans-serif;color:var(--mut)}
+.two.one{grid-template-columns:1fr}
+.grp{display:grid;gap:6px}.lab{font-size:14px;font-weight:800;color:var(--mut)}
+.skill .ends{grid-column:1/-1;display:flex;justify-content:space-between;font-size:12px;margin-top:-4px}
+.lvtag{font-size:12px;font-weight:600;opacity:.75;margin-top:-2px}
 .msg{text-align:center;color:var(--mut);font-weight:700}
 .modal{position:fixed;inset:0;z-index:40;background:rgb(28 21 50/.55);display:grid;place-items:center;padding:16px;animation:fade .15s;overflow:auto}
 @keyframes fade{from{opacity:0}}
@@ -72,7 +77,7 @@ label{display:grid;gap:4px;font-size:14px;font-weight:800;color:var(--mut)}
 @media(max-width:420px){.two{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
-<link rel="stylesheet" href="minimal.css?v=26">
+<link rel="stylesheet" href="minimal.css?v=27">
 </head>
 <body>
 <div class="wrap bar"><a class="pill" href="../">‹ Adda</a><span class="word">Chess</span></div>
@@ -80,7 +85,9 @@ label{display:grid;gap:4px;font-size:14px;font-weight:800;color:var(--mut)}
 <div class="modal" id="ndlg" hidden role="dialog" aria-modal="true" aria-labelledby="nt"><div class="box">
   <h3 id="nt">New chess board</h3><p>Two players. Colours swap every game.</p>
   <form id="nf" autocomplete="off">
-    <div class="two"><label>Player 1<input id="p0" maxlength="24" required placeholder="Name"></label><label>Player 2<input id="p1" maxlength="24" required placeholder="Name"></label></div>
+    <div class="grp"><span class="lab">Playing against</span><div class="chips" id="opp" role="group" aria-label="Playing against"><button type="button" class="chip on" data-o="h" aria-pressed="true">A person</button><button type="button" class="chip" data-o="c" aria-pressed="false">The computer</button></div></div>
+    <div class="two" id="pp"><label>Player 1<input id="p0" maxlength="24" required placeholder="Name"></label><label id="p1l">Player 2<input id="p1" maxlength="24" placeholder="Name"></label></div>
+    <label class="skill" id="lvl" hidden>Difficulty <b id="lvv"></b><input type="range" min="1" max="10" step="1" value="3" id="lv" aria-label="Difficulty, 1 to 10"><span class="ends"><span>Easy</span><span>Hard</span></span></label>
     <label>Board name (optional)<input id="nm" maxlength="40" placeholder="e.g. Sunday showdown"></label>
     <label>Passcode (at least 4 characters)<input id="pw" type="password" minlength="4" required autocomplete="new-password"></label>
     <p class="err" id="err" role="alert"></p>
@@ -92,7 +99,7 @@ label{display:grid;gap:4px;font-size:14px;font-weight:800;color:var(--mut)}
     <div class="row"><button type="button" class="btn" id="dcancel">Keep it</button><button class="btn c" style="--c:var(--pink)" id="dgo">Delete board</button></div></form></div></div>
 <script>
 {
-const $=s=>document.querySelector(s);
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const ART=window.ChessArt,CFG=window.SCORE_CONFIG||{},API=(CFG.apiUrl||'').trim();
 const ls={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -100,11 +107,11 @@ const fmt=n=>n%1?(Math.floor(n)?Math.floor(n):'')+'½':String(n);
 const BIN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>';
 const CROWN='<svg class="crown" viewBox="0 0 40 32" aria-hidden="true"><path d="M4 26L2 8l10 8 8-13 8 13 10-8-2 18z" fill="#ffd23f" stroke="#2b2240" stroke-width="3" stroke-linejoin="round"/></svg>';
 let boards=ls.get('adda-boards-chess',null);
-function setHTML(b,k){const u=encodeURIComponent(b.id),t=b.totals||[0,0],lead=!b.hands||t[0]===t[1]?-1:t[0]>t[1]?0:1;
-  const side=i=>`<span class="side ${i?'r':'l'}" style="--c:${i?'var(--sky)':'var(--pink)'}">${i===lead?CROWN:''}${ART.svg(i?'n':'q',i?'b':'w').replace('<svg','<svg class="pc"')}<b>${esc(b.players[i]||'')}</b><span class="p">${b.hands?fmt(t[i]||0):'–'}</span></span>`;
+function setHTML(b,k){const u=encodeURIComponent(b.id),q=b.cpu?'&cpu=1':'',t=b.totals||[0,0],lead=!b.hands||t[0]===t[1]?-1:t[0]>t[1]?0:1;
+  const side=i=>`<span class="side ${i?'r':'l'}" style="--c:${i?'var(--sky)':'var(--pink)'}">${i===lead?CROWN:''}${ART.svg(i?'n':'q',i?'b':'w').replace('<svg','<svg class="pc"')}<b>${esc(b.players[i]||'')}</b>${i&&b.cpu?`<small class="lvtag">Level ${b.cpu}</small>`:''}<span class="p">${b.hands?fmt(t[i]||0):'–'}</span></span>`;
   return`<article class="set" style="--i:${k}" data-id="${esc(b.id)}"><a class="bd" href="board.html?b=${u}" aria-label="Open ${esc(b.name)}"><span class="nm">${esc(b.name)}</span>${b.hands?`<span class="games">${b.hands} game${b.hands===1?'':'s'}</span>`:''}${side(0)}${side(1)}</a>
-    <div class="under"><a href="board.html?b=${u}">Scores</a><a class="c" style="--c:var(--mint)" href="play.html?b=${u}">Play ♞</a><button data-del="${esc(b.id)}" aria-label="Delete ${esc(b.name)}">${BIN}</button></div></article>`}
-function show(list){$('#shelf').innerHTML=(list||[]).map(setHTML).join('')+`<button class="new" id="new" style="--i:${(list||[]).length}"><span class="plus" aria-hidden="true">+</span>New board<small>for 2 players</small></button>`;$('#new').onclick=openNew}
+    <div class="under"><a href="board.html?b=${u}">Scores</a><a class="c" style="--c:var(--mint)" href="play.html?b=${u}${q}">Play ♞</a><button data-del="${esc(b.id)}" aria-label="Delete ${esc(b.name)}">${BIN}</button></div></article>`}
+function show(list){$('#shelf').innerHTML=(list||[]).map(setHTML).join('')+`<button class="new" id="new" style="--i:${(list||[]).length}"><span class="plus" aria-hidden="true">+</span>New board<small>vs a friend or the computer</small></button>`;$('#new').onclick=openNew}
 if(Array.isArray(boards))show(boards);
 async function load(){if(!API){$('#shelf').innerHTML='<p class="msg">The Google Sheet isn’t connected yet.</p>';return}
   try{const r=await fetch(API+(API.includes('?')?'&':'?')+'action=boards&game=chess&t='+Date.now()),j=await r.json();
@@ -116,16 +123,21 @@ const post=b=>fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;chars
 function burst(el){if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;const q=el.getBoundingClientRect();
   for(let k=0;k<22;k++){const s=document.createElement('i');s.className='bit';s.textContent=['♞','♛','★','✦'][k%4];s.style.color=['#ff5d8f','#4cc9f0','#ffd23f','#3ddc97'][k%4];s.style.left=(q.left+q.width/2)+'px';s.style.top=(q.top+q.height/2)+'px';document.body.appendChild(s);
     const a=Math.random()*Math.PI*2,v=60+Math.random()*120;s.animate([{transform:'translate(-50%,-50%) scale(.3)',opacity:1},{transform:`translate(calc(-50% + ${Math.cos(a)*v}px),calc(-50% + ${Math.sin(a)*v+60}px)) rotate(${Math.random()*540}deg)`,opacity:0}],{duration:900+Math.random()*500,easing:'cubic-bezier(.2,.7,.3,1)'}).onfinish=()=>s.remove()}}
-const ERR={same_names:'Each player needs a different name.',bad_players:'Add both players.',short_passcode:'The passcode needs at least 4 characters.',busy:'The sheet is busy, try again in a moment.',bad_game:'Chess isn’t switched on in the sheet yet.'};
+const ERR={same_names:'Each player needs a different name.',bad_players:'Add both players.',short_passcode:'The passcode needs at least 4 characters.',busy:'The sheet is busy, try again in a moment.',bad_game:'Chess isn’t switched on in the sheet yet.',bad_level:'Pick a difficulty from 1 to 10.'};
+const LV=window.ChessLevels;let vsCpu=false;
+function oppUI(){$$('#opp .chip').forEach(c=>{const on=(c.dataset.o==='c')===vsCpu;c.classList.toggle('on',on);c.setAttribute('aria-pressed',on)});
+  $('#p1l').hidden=vsCpu;$('#lvl').hidden=!vsCpu;$('#pp').classList.toggle('one',vsCpu);$('#p0').previousSibling.textContent=vsCpu?'Your name':'Player 1';$('#lvv').textContent=LV.label($('#lv').value)}
+$('#opp').addEventListener('click',e=>{const c=e.target.closest('[data-o]');if(!c)return;vsCpu=c.dataset.o==='c';oppUI()});
+$('#lv').addEventListener('input',()=>{$('#lvv').textContent=LV.label($('#lv').value)});oppUI();
 function openNew(){$('#err').textContent='';$('#ndlg').hidden=false;setTimeout(()=>$('#p0').focus(),40)}
 $('#ncancel').onclick=()=>{$('#ndlg').hidden=true};
-$('#nf').addEventListener('submit',async e=>{e.preventDefault();const players=['#p0','#p1'].map(s=>$(s).value.trim()),pass=$('#pw').value;
+$('#nf').addEventListener('submit',async e=>{e.preventDefault();const players=vsCpu?[$('#p0').value.trim(),'Computer']:['#p0','#p1'].map(s=>$(s).value.trim()),pass=$('#pw').value,cpu=vsCpu?+$('#lv').value:0;
   if(players.some(p=>!p)){$('#err').textContent=ERR.bad_players;return}
   if(players[0].toLowerCase()===players[1].toLowerCase()){$('#err').textContent=ERR.same_names;return}
   if(pass.length<4){$('#err').textContent=ERR.short_passcode;return}
   if(!API){$('#err').textContent='Connect the Google Sheet first.';return}
   $('#err').textContent='';const btn=$('#create');btn.disabled=true;btn.textContent='Placing the pieces…';
-  try{const j=await post({action:'board_create',game:'chess',name:$('#nm').value.trim(),players,passcode:pass});
+  try{const j=await post({action:'board_create',game:'chess',name:$('#nm').value.trim(),players,passcode:pass,cpu});
     if(!j.ok)throw new Error(ERR[j.error]||'Couldn’t create it, try again.');
     ls.set('st-key-'+j.board.id,pass);ls.set('adda-board-'+j.board.id,j.board);burst(btn);setTimeout(()=>location.href='board.html?b='+encodeURIComponent(j.board.id),450)}
   catch(err){$('#err').textContent=err.message&&!/fetch/i.test(err.message)?err.message:'Couldn’t reach the Google Sheet, try again.';btn.disabled=false;btn.textContent='Set up the board'}});
