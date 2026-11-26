@@ -1,0 +1,69 @@
+/* Chess theme: "Minimal". Off-white paper, black type, a quiet stone-grey board, flat piece silhouettes.
+   No decoration, no outlines-and-shadows; hairline borders, generous space, short subtle motion.
+   Loaded after each chess page's own styles so it wins. */
+:root{color-scheme:light;
+  --bg:#f7f6f3;--dot:transparent;--ink:#1f1f22;--mut:#8a8a8f;--line:#e4e2dd;--sh:transparent;
+  --pink:#f0efeb;--sky:#f0efeb;--mint:#1f1f22;--lemon:#1f1f22;--orange:#1f1f22;--grape:#1f1f22;
+  --card:#ffffff;--soft:#f0efeb;--light:#efece6;--dark:#c9c4ba;--accent:#d9534f}
+html{background:#f7f6f3}
+body{min-height:100vh;color:var(--ink);font-family:Inter,system-ui,sans-serif;font-weight:500;background:#f7f6f3!important}
+.card,.st,.box,.g,.toast,.offer{background:#fff!important;border:1px solid var(--line)!important;border-radius:12px!important;box-shadow:none!important}
+.box{box-shadow:0 20px 50px rgb(0 0 0/.08)!important}
+.pill,.btn,.tabs button,.under a,.under button,.top a,.res,.seat{border:1px solid var(--line)!important;border-radius:8px!important;background:#fff!important;color:var(--ink)!important;box-shadow:none!important;font-family:Inter,sans-serif!important;font-weight:500!important;transition:border-color .15s,background .15s}
+.pill:hover,.btn:hover,.tabs button:hover,.under a:hover,.under button:hover,.res:hover,.seat:hover{border-color:var(--ink)!important;transform:none!important}
+.btn.c,.pill.c,.under .c,.tabs button[aria-pressed=true],.play{background:var(--ink)!important;color:#fff!important;border-color:var(--ink)!important;box-shadow:none!important}
+.play svg{display:none}
+.pl,.side{border:1px solid var(--line)!important;border-radius:12px!important;background:#fff!important;color:var(--ink)!important;box-shadow:none!important}
+.pl::before,.pl::after{display:none}
+h1,.top h1,.word,h2,h3,.pname,.who b,.st b,.box h3,.vs,.pts,.side .p,.side b,.bd .nm{font-family:Inter,sans-serif!important;-webkit-text-stroke:0!important;text-shadow:none!important;letter-spacing:-.02em}
+h1,.top h1,.word{color:var(--ink)!important;font-weight:600!important}
+.word{font-size:24px!important}.top h1{font-size:20px!important}
+h2,h3,.box h3{font-weight:600!important;font-size:20px!important}
+.pname,.who b{font-weight:600!important;font-size:17px!important}
+.pts{font-weight:300!important;font-size:clamp(56px,10vw,80px)!important;color:var(--ink)!important}
+.side .p{font-weight:300!important;color:var(--ink)!important}
+.vs{color:var(--mut)!important;font-weight:400!important;font-size:16px!important}
+.st small{color:var(--mut);letter-spacing:.06em;font-weight:500}
+.st b{font-weight:600!important}
+.rec b{border:1px solid var(--line)!important;background:transparent!important;font-family:Inter,sans-serif!important}
+.legend i{border:0!important;border-radius:50%!important}
+.empty,.msg,.foot,.sync{color:var(--mut)}
+.crown{display:none}
+/* board */
+.board{border:0!important;border-radius:4px!important;box-shadow:none!important;background:var(--light)!important}
+.bwrap{margin:18px auto!important}
+.sq.d{background:var(--dark)}
+.sq .co{color:rgb(31 31 34/.4);font-family:Inter,sans-serif;font-weight:500}
+.sq.last::after{background:rgb(31 31 34/.08)}
+.sq.selsq::after{background:rgb(31 31 34/.16)}
+.sq.chk::before{background:radial-gradient(rgb(217 83 79/.7),rgb(217 83 79/0) 70%);animation:none}
+.mv{width:22%;height:22%;border:0!important;box-shadow:none!important;border-radius:50%;background:rgb(31 31 34/.28)!important;animation:dotin .2s ease-out both}
+.mv.cap{width:86%;height:86%;background:none!important;border:3px solid rgb(31 31 34/.28)!important;animation:dotin .2s ease-out both}
+.pc.sel svg{animation:none!important;transform:translateY(-6%)!important}
+/* list page */
+.bd{border:0!important;border-radius:6px!important;background:none!important;box-shadow:none!important}
+.bd::before{content:'';position:absolute;inset:0;border-radius:6px;background:repeating-conic-gradient(#c9c4ba 0 25%,#efece6 0 50%) 0 0/25% 25%}
+.bd .nm{border:1px solid var(--line)!important;background:#fff!important;color:var(--ink)!important;box-shadow:none!important;font-weight:600!important;font-size:15px!important}
+.games{border:1px solid var(--line)!important;background:#fff!important;color:var(--mut)!important;box-shadow:none!important;font-family:Inter,sans-serif!important}
+.side svg.pc{transform:none!important}
+.new{border:1px dashed #cfccc5!important;background:transparent!important;border-radius:12px!important;color:var(--ink);font-family:Inter,sans-serif!important;font-weight:500!important}
+.new .plus{border:1px solid var(--line)!important;background:#fff!important;color:var(--ink)!important;box-shadow:none!important;border-radius:50%!important;font-family:Inter,sans-serif!important;font-weight:300!important;transform:none!important}
+/* players and extras */
+.av{border:1px solid var(--line)!important;box-shadow:none!important;border-radius:50%!important;background:#fff!important;animation:none!important}
+.strip.turn .av{border-color:var(--ink)!important}
+.yourmove{color:var(--ink)!important;font-weight:600}
+.think{color:var(--mut)}
+.moves{color:var(--mut);font-family:Inter,sans-serif!important;font-weight:500!important}.moves b{color:var(--ink);font-weight:500}.moves .now{background:var(--soft);border-radius:4px}
+.bub{position:fixed;padding:6px 12px;font:500 14px/1.2 Inter,sans-serif;white-space:nowrap;pointer-events:none;translate:-50% -100%;border:1px solid var(--line)!important;background:#fff;color:var(--ink);border-radius:8px;box-shadow:0 6px 16px rgb(0 0 0/.08)!important;z-index:70}
+.bub::after{display:none}
+.big{border:0!important;box-shadow:none!important;font-family:Inter,sans-serif!important;font-weight:600!important;background:var(--ink)!important;color:#fff!important;border-radius:8px;font-size:24px!important}
+.trophy{border:1px solid var(--line)!important;background:#fff!important;box-shadow:none!important;border-radius:50%;animation:none!important}
+.promo button{border:1px solid var(--line)!important;background:#fff!important;box-shadow:none!important;border-radius:8px;animation:none!important}
+.opts input,.opts select,.box input{border:1px solid var(--line)!important;border-radius:8px!important;background:#fff!important;color:var(--ink)}
+main.wrap{padding-top:36px}
+.modal{background:rgb(247 246 243/.8)!important;backdrop-filter:blur(4px)}
+.bit{display:none}
+.pc svg{scale:1.12;transform-origin:50% 85%}
+.g .badge{background:var(--soft)!important;border:1px solid var(--line)!important}
+.word{padding-right:4px}
+.bar{padding-right:4px}
