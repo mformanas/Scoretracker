@@ -1,57 +1,68 @@
-// Wooden chess pieces for icons and dashboards: classic carved shapes in antiqued boxwood and polished ebony,
-// matching the 3D Tuscany-style set on the game page.
-// ChessArt.svg(type, colour) returns markup.
+// Storybook animal chess pieces. Each animal sits on a round token in its team colour and wears its piece's hat:
+// pawn = chick, knight = pony, bishop = owl in a mitre, rook = turtle with a castle shell, queen = cat in a tiara,
+// king = lion in a crown. ChessArt.svg(type, colour) returns markup.
 (function (root) {
-  const WOOD = {
-    w: { hi: '#efc283', mid: '#c98a43', lo: '#8e5a24', edge: '#5a3612', grain: '#7a4a1c' },   // antiqued boxwood
-    b: { hi: '#5a4234', mid: '#261912', lo: '#0b0705', edge: '#000000', grain: '#000000' },   // ebony
+  const INK = '#3b2a4a';
+  const TEAM = {
+    w: { token: '#ffb347', rim: '#e0761f', hat: '#ff9f43', hat2: '#ffd166' },   // sunny team
+    b: { token: '#6a58e8', rim: '#3a2c9e', hat: '#7b6cf6', hat2: '#c9c2ff' },   // berry team
   };
-  const BASE = '<rect x="22" y="80" width="56" height="10" rx="3"/><rect x="28" y="73" width="44" height="9" rx="3"/>';
-  const SHAPES = {
-    p: '<path d="M38 74 C40 62 44 54 46 49 H54 C56 54 60 62 62 74 Z"/><ellipse cx="50" cy="47" rx="13" ry="4"/><circle cx="50" cy="32" r="12"/>',
-    r: '<path d="M35 74 L37 47 H63 L65 74 Z"/><ellipse cx="50" cy="47" rx="17" ry="4"/><path d="M30 45 V26 H38 V32 H46 V26 H54 V32 H62 V26 H70 V45 Z"/>',
-    n: '<path d="M32 74 C32 60 38 54 46 48 C38 50 30 48 28 42 C26 34 34 28 42 24 C46 16 52 12 56 12 L60 6 L63 14 C74 20 77 44 70 74 Z"/>',
-    b: '<path d="M38 74 C42 64 44 60 44 58 H56 C56 60 58 64 62 74 Z"/><ellipse cx="50" cy="57" rx="14" ry="4"/><path d="M50 17 C64 27 64 44 56 54 H44 C36 44 36 27 50 17 Z"/><circle cx="50" cy="13" r="4"/>',
-    q: '<path d="M36 74 C40 62 42 56 42 54 H58 C58 56 60 62 64 74 Z"/><ellipse cx="50" cy="53" rx="16" ry="4"/><path d="M30 27 L38 50 H62 L70 27 L60 38 L56 22 L50 36 L44 22 L40 38 Z"/><circle cx="30" cy="25" r="3.5"/><circle cx="44" cy="20" r="3.5"/><circle cx="56" cy="20" r="3.5"/><circle cx="70" cy="25" r="3.5"/>',
-    k: '<path d="M36 74 C40 62 42 56 42 54 H58 C58 56 60 62 64 74 Z"/><ellipse cx="50" cy="53" rx="16" ry="4"/><path d="M34 32 C34 26 66 26 66 32 L62 50 H38 Z"/><path d="M47 6 H53 V12 H59 V18 H53 V27 H47 V18 H41 V12 H47 Z"/>',
+  const L = `stroke="${INK}" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"`;
+  const eye = (x, y, r = 2.6) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${INK}"/><circle cx="${x - r * .35}" cy="${y - r * .4}" r="${r * .38}" fill="#fff"/>`;
+  const blush = (x, y) => `<ellipse cx="${x}" cy="${y}" rx="3.6" ry="2.2" fill="#ff8fa3" opacity=".8"/>`;
+  const token = t => `<ellipse cx="50" cy="89" rx="40" ry="10" fill="${t.rim}" ${L}/><ellipse cx="50" cy="83" rx="40" ry="10" fill="${t.token}" ${L}/>`;
+  const ART = {
+    // chick with a tiny team beanie
+    p: t => `<path d="M30 80 C26 62 34 46 50 46 C66 46 74 62 70 80 Z" fill="#ffd84d" ${L}/>
+      <path d="M34 68 C28 66 26 60 30 56 C34 60 36 64 34 68Z" fill="#ffc21a" ${L}/><path d="M66 68 C72 66 74 60 70 56 C66 60 64 64 66 68Z" fill="#ffc21a" ${L}/>
+      <path d="M40 48 C40 38 60 38 60 48 Z" fill="${t.hat}" ${L}/><circle cx="50" cy="37" r="4" fill="${t.hat2}" ${L}/>
+      ${eye(43, 58)}${eye(57, 58)}<path d="M46 63 L50 68 L54 63 Z" fill="#ff8a2a" ${L}/>${blush(38, 65)}${blush(62, 65)}
+      <path d="M44 80 V84 M56 80 V84" stroke="#ff8a2a" stroke-width="3" stroke-linecap="round"/>`,
+    // pony head and neck, mane in team colour
+    n: t => `<path d="M34 82 C32 66 38 58 46 52 C38 54 28 52 26 45 C24 37 32 30 42 26 C46 18 54 14 60 15 C74 20 78 46 70 82 Z" fill="#f2c18d" ${L}/>
+      <path d="M58 15 C66 16 74 26 76 40 C78 54 74 70 72 82 L66 82 C70 66 70 48 64 36 C60 28 56 22 58 15Z" fill="${t.hat}" ${L}/>
+      <path d="M58 15 L56 7 L64 13 Z" fill="#f2c18d" ${L}/>
+      <path d="M26 45 C30 47 34 47 37 45" fill="none" ${L}/><circle cx="31" cy="40" r="1.6" fill="${INK}"/>
+      ${eye(46, 32, 3)}${blush(44, 41)}
+      <path d="M44 22 C48 20 52 21 54 24" fill="none" stroke="${t.hat2}" stroke-width="3" stroke-linecap="round"/>`,
+    // owl in a pointed mitre
+    b: t => `<path d="M30 80 C26 60 32 42 50 42 C68 42 74 60 70 80 Z" fill="#b98a64" ${L}/>
+      <path d="M38 80 C36 66 42 58 50 58 C58 58 64 66 62 80 Z" fill="#f3dcc0" ${L}/>
+      <path d="M40 72 Q43 74 46 72 M54 72 Q57 74 60 72 M47 77 Q50 79 53 77" fill="none" stroke="#c9a37f" stroke-width="2" stroke-linecap="round"/>
+      <path d="M36 44 C38 26 46 14 50 10 C54 14 62 26 64 44 C56 41 44 41 36 44Z" fill="${t.hat}" ${L}/>
+      <path d="M44 26 H56 M50 18 V36" stroke="${t.hat2}" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="42" cy="52" r="7.5" fill="#fff" ${L}/><circle cx="58" cy="52" r="7.5" fill="#fff" ${L}/>${eye(42, 52, 3.4)}${eye(58, 52, 3.4)}
+      <path d="M47 58 L50 63 L53 58 Z" fill="#ffb02e" ${L}/>`,
+    // turtle carrying a castle-tower shell
+    r: t => `<ellipse cx="22" cy="72" rx="9" ry="7.5" fill="#8fd694" ${L}/>${eye(20, 70, 2.2)}${blush(24, 75)}
+      <path d="M30 80 C30 76 34 76 34 80 M64 80 C64 76 68 76 68 80" fill="#8fd694" ${L}/>
+      <path d="M30 80 V44 H36 V36 H44 V44 H48 V36 H56 V44 H60 V36 H68 V44 H72 V80 Z" fill="${t.hat}" ${L}/>
+      <path d="M30 56 H72 M30 68 H72 M44 44 V56 M58 44 V56 M38 56 V68 M51 56 V68 M64 56 V68 M44 68 V80 M58 68 V80" stroke="${t.hat2}" stroke-width="2" opacity=".9"/>
+      <path d="M46 80 V72 C46 66 56 66 56 72 V80 Z" fill="${INK}" opacity=".75"/>`,
+    // cat in a tiara
+    q: t => `<path d="M30 82 C26 64 32 50 50 50 C68 50 74 64 70 82 Z" fill="#ffffff" ${L}/>
+      <circle cx="50" cy="44" r="18" fill="#ffffff" ${L}/>
+      <path d="M34 36 L34 20 L46 30 Z M66 36 L66 20 L54 30 Z" fill="#ffffff" ${L}/><path d="M37 30 L37 24 L42 28Z M63 30 L63 24 L58 28Z" fill="#ffb3c1"/>
+      <path d="M38 30 L42 20 L46 27 L50 16 L54 27 L58 20 L62 30 Z" fill="${t.hat2}" ${L}/>
+      <circle cx="50" cy="16" r="2.6" fill="#ff6b9a" ${L}/>
+      ${eye(43, 45)}${eye(57, 45)}<path d="M48 50 L50 52 L52 50" fill="none" ${L}/>
+      <path d="M50 52 Q47 55 45 53 M50 52 Q53 55 55 53" fill="none" stroke="${INK}" stroke-width="2" stroke-linecap="round"/>
+      ${blush(38, 51)}${blush(62, 51)}<path d="M28 48 H20 M28 52 H21 M72 48 H80 M72 52 H79" stroke="${INK}" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M36 70 C40 74 60 74 64 70" fill="none" stroke="${t.hat}" stroke-width="5" stroke-linecap="round"/>`,
+    // lion in a crown
+    k: t => `<path d="M30 82 C26 66 32 54 50 54 C68 54 74 66 70 82 Z" fill="#ffc15e" ${L}/>
+      <circle cx="50" cy="48" r="24" fill="#e8873a" ${L}/>
+      <path d="M26 48 C22 44 24 38 28 38 M74 48 C78 44 76 38 72 38 M30 64 C26 64 24 58 28 56 M70 64 C74 64 76 58 72 56" fill="none" stroke="${INK}" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="50" cy="50" r="16" fill="#ffc15e" ${L}/>
+      <path d="M34 34 L36 18 L43 26 L50 14 L57 26 L64 18 L66 34 Z" fill="${t.hat2}" ${L}/>
+      <path d="M50 14 V6 M46 9 H54" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><path d="M50 14 V6 M46 9 H54" stroke="${t.hat2}" stroke-width="2.2" stroke-linecap="round"/>
+      <circle cx="50" cy="28" r="2.6" fill="${t.hat}" ${L}/>
+      ${eye(44, 49)}${eye(56, 49)}<path d="M47 55 C47 53 53 53 53 55 L50 58 Z" fill="#8a4b2a" ${L}/>
+      <path d="M50 58 Q47 61 45 59 M50 58 Q53 61 55 59" fill="none" stroke="${INK}" stroke-width="2" stroke-linecap="round"/>${blush(40, 56)}${blush(60, 56)}`,
   };
-  const DETAIL = {   // carved lines
-    p: '', r: '<path d="M38 56 H62"/>',
-    n: '<path d="M58 16 C66 22 70 32 71 44"/><circle cx="46" cy="28" r="2.2" fill="currentColor" stroke="none"/><circle cx="31" cy="40" r="1.4" fill="currentColor" stroke="none"/>',
-    b: '<path d="M55 27 L47 39"/>', q: '<path d="M40 44 H60"/>', k: '<path d="M40 42 H60"/>',
-  };
-  function defsMarkup() {
-    const g = col => { const c = WOOD[col];
-      return `<linearGradient id="wood${col}" x1="0" y1="0" x2="1" y2=".25"><stop offset="0" stop-color="${c.hi}"/><stop offset=".45" stop-color="${c.mid}"/><stop offset="1" stop-color="${c.lo}"/></linearGradient>` +
-        `<pattern id="grain${col}" width="24" height="60" patternUnits="userSpaceOnUse" patternTransform="rotate(8)"><path d="M3 0 C6 15 0 30 4 45 S5 60 3 60 M11 0 C13 20 9 35 12 60 M19 0 C16 18 22 40 18 60" fill="none" stroke="${c.grain}" stroke-width="1.1" opacity=".35"/></pattern>`; };
-    return `<defs>${g('w')}${g('b')}</defs>`;
-  }
-  // The gradients and grain live once in a tiny always-rendered <svg>; pieces just point at them.
-  // (Gradients defined inside hidden screens stop working in some browsers.)
-  function ensureDefs() {
-    if (typeof document === 'undefined' || !document.body || document.getElementById('wood-defs')) return;
-    const d = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    d.id = 'wood-defs'; d.setAttribute('aria-hidden', 'true'); d.setAttribute('style', 'position:absolute;width:0;height:0;overflow:hidden');
-    d.innerHTML = defsMarkup(); document.body.prepend(d);
-  }
-  if (typeof document !== 'undefined') { if (document.body) ensureDefs(); else document.addEventListener('DOMContentLoaded', ensureDefs); }
-  const FACE = { p: [50, 34], r: [50, 60], b: [50, 42], q: [50, 64], k: [50, 64] };
-  function face(t, c) {
-    if (t === 'n') return `<g class="face"><ellipse cx="44" cy="40" rx="4" ry="2.5" fill="${c.blush}" opacity=".8"/></g>`;
-    const [x, y] = FACE[t];
-    return `<g class="face"><circle cx="${x - 5.5}" cy="${y}" r="1.9" fill="${c.eye}"/><circle cx="${x + 5.5}" cy="${y}" r="1.9" fill="${c.eye}"/>` +
-      `<ellipse cx="${x - 10}" cy="${y + 4}" rx="3.2" ry="2" fill="${c.blush}" opacity=".8"/><ellipse cx="${x + 10}" cy="${y + 4}" rx="3.2" ry="2" fill="${c.blush}" opacity=".8"/>` +
-      `<path d="M${x - 2.2} ${y + 3.2} Q${x} ${y + 5.4} ${x + 2.2} ${y + 3.2}" stroke="${c.eye}" stroke-width="1.5" fill="none" stroke-linecap="round"/></g>`;
-  }
   function svg(t, col) {
-    ensureDefs();
-    const c = WOOD[col], shapes = BASE + SHAPES[t];
-    return `<svg viewBox="0 0 100 100" aria-hidden="true" style="color:${c.edge}">` +
-      `<ellipse cx="50" cy="92" rx="30" ry="4.5" fill="rgb(60 30 10/.25)"/>` +
-      `<g fill="url(#wood${col})" stroke="${c.edge}" stroke-width="1.8" stroke-linejoin="round">${shapes}</g>` +
-      `<g fill="url(#grain${col})" stroke="none">${shapes}</g>` +
-      `<g fill="none" stroke="${c.edge}" stroke-width="1.6" stroke-linecap="round" opacity=".7">${DETAIL[t]}</g>` +
-      `<g fill="#fff" opacity="${col === 'w' ? .55 : .22}"><ellipse cx="41" cy="${t === 'p' ? 28 : t === 'n' ? 30 : 36}" rx="3" ry="5" transform="rotate(20 41 36)"/><rect x="26" y="82" width="14" height="2.5" rx="1.2"/></g></svg>`;
+    const tm = TEAM[col];
+    return `<svg viewBox="0 0 100 100" aria-hidden="true">${token(tm)}<g class="face">${ART[t](tm)}</g></svg>`;
   }
-  root.ChessArt = { svg, defsMarkup, NAMES: { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' } };
+  root.ChessArt = { svg, NAMES: { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' } };
 })(this);

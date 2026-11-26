@@ -16,9 +16,8 @@ Adda is a home for your game scoreboards. Each game has its own page (Rummy is t
 | `chess/index.html` | Chess: all chess dashboards, new and delete |
 | `chess/board.html?b=<id>` | One chess dashboard: points (win 1, draw ½), streaks, the race chart, game history |
 | `chess/play.html?b=<id>` | Play chess on two phones (or both on one), with legal moves highlighted |
-| `chess/chess.js`, `chess/pieces.js` | Chess rules and the 2D piece drawings used in icons |
-| `chess/board3d.js`, `chess/vendor/` | The 3D board on the play page, drawn with three.js (MIT licence, bundled copy) |
-| `chess/tuscany.css` | The chess look: ebony, boxwood and antique gold |
+| `chess/chess.js`, `chess/pieces.js` | Chess rules and the storybook animal pieces |
+| `chess/meadow.css` | The chess look: bright sky, butter and mint board, coral frame |
 | `play.html` | Old link, now forwards to the Leah vs Manas table |
 
 ## How the Google Sheet is organised
