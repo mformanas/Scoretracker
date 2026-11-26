@@ -128,3 +128,7 @@ h1,.top h1,.word{color:var(--ink)!important}
 .playrow{gap:10px;flex-wrap:wrap}
 .cpurec{display:grid;gap:10px;margin-bottom:12px}
 .cpukey{font-size:12px;margin:0 0 4px}
+
+/* computer level slider on the end-of-game screen */
+.skill .ends{grid-column:1/-1;display:flex;justify-content:space-between;font-size:12px;margin-top:-4px}
+.lvpick{margin:4px 0 14px;text-align:left}

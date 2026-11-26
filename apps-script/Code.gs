@@ -62,6 +62,7 @@ function doPost(e) {
   if (body.action === 'game_get') return json_({ ok: true, ...readLive_(board.id) });
   if (body.action === 'check') return json_({ ok: true, board: publicBoard_(board) });
   if (body.action === 'board_delete') return deleteBoard_(board);
+  if (body.action === 'board_cpu') return setCpuLevel_(board, body.cpu);
 
   const lock = LockService.getScriptLock();
   if (!lock.tryLock(20000)) return json_({ ok: false, error: 'busy' });
@@ -179,6 +180,24 @@ function deleteBoard_(board) {
     sh.getRange(r, DEL_COL).setValue(new Date());
     SpreadsheetApp.flush();
     return json_({ ok: true });
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+// Changes the computer's level on a board played against the computer (picked again at a rematch).
+function setCpuLevel_(board, level) {
+  const cpu = Math.round(Number(level) || 0);
+  if (!board.cpu) return json_({ ok: false, error: 'not_cpu' });
+  if (cpu < 1 || cpu > 10) return json_({ ok: false, error: 'bad_level' });
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(20000)) return json_({ ok: false, error: 'busy' });
+  try {
+    const r = boardRow_(board.id, false);
+    if (r < 0) return json_({ ok: false, error: 'no_board' });
+    sheet_(T.BOARDS).getRange(r, CPU_COL).setValue(cpu);
+    SpreadsheetApp.flush();
+    return json_({ ok: true, board: publicBoard_({ ...board, cpu }) });
   } finally {
     lock.releaseLock();
   }
