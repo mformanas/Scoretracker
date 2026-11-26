@@ -110,7 +110,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .toast:not(.on){transform:translateY(160%);opacity:0;pointer-events:none}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
-<link rel="stylesheet" href="minimal.css?v=24">
+<link rel="stylesheet" href="minimal.css?v=25">
 </head>
 <body>
 <div class="app">
@@ -219,7 +219,15 @@ function render(){
   if(!cur)cur=C.fromFen(G.fen);
   drawSquares();drawPieces();drawStrips();drawMoves();drawOffer();drawActs();
   if(G.status!=='playing'&&shownEnd!==G.id){shownEnd=G.id;setTimeout(()=>endDialog(true),animating?0:350)}
+  fitBoard();
 }
+// size the board to whatever height is left, so the whole game fits on one screen without scrolling
+function fitBoard(){const bw=$('#bwrap'),app=$('.app');if(!bw||$('#game').hidden)return;
+  const maxW=app.clientWidth-parseFloat(getComputedStyle(app).paddingLeft)-parseFloat(getComputedStyle(app).paddingRight)-12;
+  const cur0=bw.getBoundingClientRect().height,mt=parseFloat(getComputedStyle(bw).marginTop)+parseFloat(getComputedStyle(bw).marginBottom);
+  const other=document.documentElement.scrollHeight-cur0-mt,avail=innerHeight-other-mt-2;
+  const size=Math.max(180,Math.min(maxW,avail,640));
+  bw.style.setProperty('width',size+'px','important');bw.style.setProperty('min-width','0','important')}
 function drawSquares(){
   const last=G.last||{},chk=C.inCheck(cur)?cur.b.indexOf(cur.t==='w'?'K':'k'):-1,mv=sel!=null?C.movesFrom(cur,sel):[];
   let h='';
@@ -372,6 +380,7 @@ $('#startbtn').onclick=()=>{if(!needKey())newGame()};
 $('#mdlg').addEventListener('click',e=>{if(e.target===$('#mdlg'))$('#mdlg').hidden=true});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){$('#mdlg').hidden=true}});
 addEventListener('resize',()=>{if(G&&cur&&!animating)render()});
+if(window.visualViewport)visualViewport.addEventListener('resize',()=>fitBoard());
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)load()});
 setInterval(()=>{if(!document.hidden&&seat!=null&&!busy&&!loading&&!animating)load()},2500);
 render();loadBoard();if(seat!=null)load();

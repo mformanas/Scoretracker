@@ -104,3 +104,11 @@ h1,.top h1,.word{color:var(--ink)!important}
 .trophy{background:var(--butter)!important;border-color:transparent!important}
 .g .badge{border-color:transparent!important}
 .bit{display:block}
+/* one screen, no scroll */
+.app{min-height:100dvh!important;padding-top:8px!important;padding-bottom:calc(10px + env(safe-area-inset-bottom))!important}
+#game{justify-content:center}
+.strip{margin:6px 0!important;min-height:44px}
+.bwrap{margin:8px auto!important}
+.moves{padding-top:4px!important;min-height:26px}
+.acts{padding-top:8px!important}
+@media(max-height:700px){.top h1{font-size:18px!important}.top a{min-height:34px}.av{width:36px!important;height:36px!important}.av svg{width:30px!important;height:30px!important}.strip{min-height:38px;margin:4px 0!important}.btn{min-height:40px!important}.acts{padding-top:4px!important}.who b{font-size:15px!important}}
