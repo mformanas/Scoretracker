@@ -1,0 +1,73 @@
+/* Chess theme: "Tuscany". Inspired by an antique-style ebony and boxwood chess set:
+   a dark espresso room with warm lamplight, parchment text, antique gold accents, walnut and maple boards.
+   The game page shows a real 3D board (board3d.js). Loaded after each chess page's own styles so it wins. */
+:root{color-scheme:dark;
+  --bg:#1a120d;--dot:transparent;--ink:#f0e3c8;--mut:#b9a283;--line:rgb(201 163 90/.3);--sh:transparent;
+  --gold:#c9a35a;--gold2:#e6c886;
+  --pink:#dcab62;--sky:#3a2a20;--mint:#c9a35a;--lemon:#e6c886;--orange:#b07a3a;--grape:#3a2a20;
+  --card:rgb(255 238 210/.05);--soft:rgb(255 238 210/.06);--light:#e2bf86;--dark:#5e3a20}
+html{background:#1a120d}
+body{min-height:100vh;color:var(--ink);font-family:Lato,system-ui,sans-serif;
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 30%,rgb(120 70 30/.38),transparent 70%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 .8 0 0 0 0 .6 0 0 0 0 .4 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E"),
+    linear-gradient(#1f1610,#120c08) fixed}
+/* panels and buttons: dark wood with a fine gold line */
+.card,.st,.g,.offer{background:linear-gradient(rgb(255 238 210/.06),rgb(255 238 210/.025))!important;border:1px solid rgb(201 163 90/.28)!important;border-radius:14px!important;box-shadow:0 18px 30px -18px rgb(0 0 0/.8),inset 0 1px 0 rgb(255 238 210/.06)!important}
+.box{background:#22170f!important;border:1px solid rgb(201 163 90/.45)!important;border-radius:16px!important;box-shadow:0 30px 60px rgb(0 0 0/.6)!important;color:var(--ink)}
+.toast{background:#22170f!important;border:1px solid rgb(201 163 90/.45)!important;border-radius:12px!important;color:var(--ink);box-shadow:0 10px 30px rgb(0 0 0/.5)!important}
+.pill,.btn,.tabs button,.under a,.under button,.top a{border:1px solid rgb(201 163 90/.55)!important;border-radius:999px!important;background:rgb(255 238 210/.04)!important;color:var(--ink)!important;box-shadow:none!important;transition:background .2s,transform .2s,color .2s;letter-spacing:.02em}
+.pill:hover,.btn:hover,.tabs button:hover,.under a:hover,.under button:hover{background:rgb(201 163 90/.14)!important}
+.btn.c,.pill.c,.under .c,.tabs button[aria-pressed=true],.play{background:linear-gradient(#e2c27e,#a87e37)!important;color:#1e140c!important;border-color:#e6c886!important;box-shadow:0 8px 20px -8px rgb(201 163 90/.6)!important;text-shadow:none}
+.res,.seat{border:1px solid rgb(201 163 90/.35)!important;border-radius:12px!important;background:rgb(255 238 210/.05)!important;color:var(--ink)!important;box-shadow:none!important}
+.res:hover,.seat:hover{background:rgb(201 163 90/.12)!important}
+.pl,.side{border:1px solid rgb(201 163 90/.35)!important;border-radius:14px!important;background:linear-gradient(#2a1d14,#1c130d)!important;color:var(--ink)!important;box-shadow:0 18px 30px -16px rgb(0 0 0/.8)!important}
+.pl::before{display:none}
+.pl::after{content:'';position:absolute;left:18%;right:18%;top:-1px;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+/* type: a classical serif with small caps feel */
+h1,.top h1,.word,h2,h3,.pname,.who b,.st b,.box h3,.vs,.pts,.side .p,.side b,.bd .nm{font-family:'Cormorant Garamond',Georgia,serif!important;font-weight:700!important;-webkit-text-stroke:0!important;text-shadow:none!important;letter-spacing:.01em}
+h1,.top h1,.word{color:var(--gold2)!important}
+.word{font-size:34px!important}
+.top h1{font-size:32px!important}
+h2{color:var(--gold2);font-size:30px!important}
+.pts,.side .p{color:var(--ink)!important}
+.pts{font-size:clamp(60px,11vw,90px)!important}
+.vs{color:var(--gold)!important;font-style:italic}
+.who b{font-size:22px!important}.pname{font-size:26px!important}
+.st small{color:var(--gold);letter-spacing:.14em}
+.st b{font-size:26px!important}
+.rec b{border:1px solid rgb(201 163 90/.4)!important;background:transparent!important;color:var(--ink)}
+.legend i{border:0!important;border-radius:50%!important}
+.empty,.msg,.foot,.sync{color:var(--mut)}
+/* list page: little walnut and maple boards in a gold-lined frame */
+.bd{border:0!important;border-radius:8px!important;background:none!important;box-shadow:0 0 0 1px var(--gold),0 0 0 11px #3a2212,0 0 0 12px rgb(201 163 90/.5),0 24px 40px -12px rgb(0 0 0/.8)!important;margin:14px}
+.bd::before{content:'';position:absolute;inset:0;border-radius:8px;background:repeating-linear-gradient(88deg,transparent 0 5px,rgb(40 20 5/.12) 5px 6px),repeating-conic-gradient(#5e3a20 0 25%,#e2bf86 0 50%) 0 0/25% 25%}
+.bd .nm{border:1px solid var(--gold)!important;background:#1e140c!important;color:var(--gold2)!important;box-shadow:none!important;top:-28px!important;font-size:20px!important}
+.games{border:1px solid rgb(201 163 90/.5)!important;background:#1e140c!important;color:var(--ink)!important;box-shadow:none!important}
+.side{bottom:12px}
+.side svg.pc{filter:drop-shadow(0 6px 6px rgb(0 0 0/.5))}
+.new{border:1px dashed rgb(201 163 90/.5)!important;background:rgb(255 238 210/.03)!important;border-radius:14px!important;color:var(--ink)}
+.new .plus{border:1px solid var(--gold2)!important;background:linear-gradient(#e2c27e,#a87e37)!important;color:#1e140c!important;box-shadow:none!important;border-radius:50%!important}
+.crown{filter:drop-shadow(0 2px 2px rgb(0 0 0/.5))!important}
+/* the 3D game */
+.bwrap{width:min(100%,calc(100dvh - 260px))!important;min-width:min(100%,300px)!important;margin:6px auto!important}
+.b3{position:absolute;inset:-8% -24% -4%;touch-action:none;cursor:grab}
+.app{overflow:visible}
+.b3:active{cursor:grabbing}
+.b3 canvas{display:block}
+.av{border:1px solid rgb(201 163 90/.5)!important;box-shadow:none!important;border-radius:50%!important;background:#22170f!important}
+.strip.turn .av{box-shadow:0 0 0 2px var(--gold),0 0 18px rgb(201 163 90/.5)!important}
+.who small{color:var(--mut)}
+.yourmove{color:var(--gold2)!important}
+.taken svg{filter:drop-shadow(0 2px 2px rgb(0 0 0/.5))}
+.moves{color:var(--mut)}.moves b{color:var(--ink)}.moves .now{background:rgb(201 163 90/.3);border-radius:6px}
+.bub{position:fixed;padding:7px 14px;font:600 15px/1.2 Lato,sans-serif;white-space:nowrap;pointer-events:none;translate:-50% -100%;border:1px solid rgb(201 163 90/.6)!important;background:#22170f;color:var(--ink);border-radius:10px;box-shadow:0 10px 24px rgb(0 0 0/.5)!important;z-index:70}
+.bub::after{content:'';position:absolute;left:50%;top:100%;margin-left:-7px;border:7px solid transparent;border-top-color:rgb(201 163 90/.6)}
+.big{border:1px solid var(--gold2)!important;box-shadow:0 14px 30px rgb(0 0 0/.6)!important;font-family:'Cormorant Garamond',serif!important;background:#1e140c!important;color:var(--gold2)!important;border-radius:12px}
+.trophy{border:1px solid var(--gold2)!important;background:radial-gradient(#3a2818,#1e140c)!important;box-shadow:0 0 30px rgb(201 163 90/.35)!important;border-radius:50%}
+.promo button{border:1px solid rgb(201 163 90/.5)!important;background:#2a1d14!important;box-shadow:none!important;border-radius:12px}
+.opts input,.opts select,.box input{border:1px solid rgb(201 163 90/.4)!important;border-radius:10px!important;background:#120c08!important;color:var(--ink)}
+input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.8) sepia(1)}
+main.wrap{padding-top:40px}
+.modal{background:rgb(8 5 3/.6)!important}
+.race svg text{fill:var(--mut)}

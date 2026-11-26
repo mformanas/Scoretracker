@@ -1,10 +1,10 @@
-// Wooden chess pieces: classic carved shapes in light maple and dark walnut, with soft grain, a gentle polish
-// and a tiny painted face.
+// Wooden chess pieces for icons and dashboards: classic carved shapes in antiqued boxwood and polished ebony,
+// matching the 3D Tuscany-style set on the game page.
 // ChessArt.svg(type, colour) returns markup.
 (function (root) {
   const WOOD = {
-    w: { hi: '#fff1d8', mid: '#f0d3a4', lo: '#d4a874', edge: '#9a6a3f', grain: '#c4955f', eye: '#5a3519', blush: '#f2a08a' },   // maple
-    b: { hi: '#a97650', mid: '#7f5032', lo: '#55321b', edge: '#3a2112', grain: '#3e2514', eye: '#fff1d8', blush: '#e48a72' },   // walnut
+    w: { hi: '#efc283', mid: '#c98a43', lo: '#8e5a24', edge: '#5a3612', grain: '#7a4a1c' },   // antiqued boxwood
+    b: { hi: '#5a4234', mid: '#261912', lo: '#0b0705', edge: '#000000', grain: '#000000' },   // ebony
   };
   const BASE = '<rect x="22" y="80" width="56" height="10" rx="3"/><rect x="28" y="73" width="44" height="9" rx="3"/>';
   const SHAPES = {
@@ -51,7 +51,6 @@
       `<g fill="url(#wood${col})" stroke="${c.edge}" stroke-width="1.8" stroke-linejoin="round">${shapes}</g>` +
       `<g fill="url(#grain${col})" stroke="none">${shapes}</g>` +
       `<g fill="none" stroke="${c.edge}" stroke-width="1.6" stroke-linecap="round" opacity=".7">${DETAIL[t]}</g>` +
-      face(t, c) +
       `<g fill="#fff" opacity="${col === 'w' ? .55 : .22}"><ellipse cx="41" cy="${t === 'p' ? 28 : t === 'n' ? 30 : 36}" rx="3" ry="5" transform="rotate(20 41 36)"/><rect x="26" y="82" width="14" height="2.5" rx="1.2"/></g></svg>`;
   }
   root.ChessArt = { svg, defsMarkup, NAMES: { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' } };
