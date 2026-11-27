@@ -220,7 +220,9 @@ if(!BID)location.replace('./');
 const LEG=BID==='leah-manas';
 const SEATK='rm-me-'+BID,KEYK='st-key-'+BID;
 let board=ls.get('adda-board-'+BID,null)||(LEG?{id:BID,name:'Leah vs Manas',players:CFG.names||['Leah','Manas']}:null);
-let names=board?board.players:[],me=ls.get(SEATK,LEG?ls.get('rm-me',null):null),G=null,ver=0,busy=false,sel=null,arrange=ls.get('rm-arr','melds'),dealt=false,newCard=null,resultShown=null;
+let names=board?board.players:[],me=ls.get(SEATK,LEG?ls.get('rm-me',null):null),G=null,ver=0,busy=false,sel=null,arrange=ls.get('rm-arr','melds'),dealt=false,newCard=null,resultShown=null,newAt=0,dealAt=0;
+// set innerHTML only when it changed, so a redraw with the same table doesn't restart animations
+const setH=(el,h)=>{if(el&&el.__h!==h){el.innerHTML=h;el.__h=h}};
 if(me!=null&&names.length&&me>=names.length)me=null;
 let drag=null,justDragged=false,noFallback=false;
 const SUITCH=['♥','♠','♦'],FELT=['#ff6b7a','#fff','#8fb8ff'],lbl=R.label,isRed=c=>/[HD]$/.test(c);
@@ -267,7 +269,7 @@ function deal(){
   const n=names.length,starter=G&&G.starter!=null&&G.hands&&G.hands.length===n?(G.starter+1)%n:0;
   const deck=R.shuffle(R.newDeck()),hands=names.map(()=>deck.splice(-10)),discard=[deck.pop()];
   const tally=G&&G.tally&&G.tally.length===n?G.tally:names.map(()=>0);
-  dealt=true;sel=null;
+  dealt=true;dealAt=Date.now();sel=null;
   save({id:Date.now().toString(36),status:'playing',deck,discard,hands,turn:starter,phase:'draw',starter,last:{p:null,act:'deal'},tally,names,moves:0})}
 const clone=o=>JSON.parse(JSON.stringify(o));
 function myTurn(){return G&&G.status==='playing'&&G.turn===me}
@@ -290,9 +292,9 @@ function nope(selr,kind,who){const now=Date.now();if(now-nopeAt<500)return;nopeA
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function drawDeck(){if(!G||G.status!=='playing')return;if(!myTurn())return nope('#deck','turn',G.turn);if(G.phase!=='draw')return nope('#deck','greedy',next(me));const g=clone(G);
   if(!g.deck.length){const top=g.discard.pop();g.deck=R.shuffle(g.discard);g.discard=[top];toast('Deck ran out, the discard pile was shuffled in')}
-  const c=g.deck.pop();g.hands[me].push(c);g.phase='discard';g.last={p:me,act:'draw'};g.moves++;newCard=c;sel=null;save(g)}
+  const c=g.deck.pop();g.hands[me].push(c);g.phase='discard';g.last={p:me,act:'draw'};g.moves++;newCard=c;newAt=Date.now();sel=null;save(g)}
 function takeDisc(){if(!G||G.status!=='playing'||!G.discard.length)return;if(!myTurn())return nope('#disc','turn',G.turn);if(G.phase!=='draw')return nope('#disc','greedy',next(me));const g=clone(G);
-  const c=g.discard.pop();g.hands[me].push(c);g.phase='discard';g.last={p:me,act:'take',card:c};g.moves++;newCard=c;sel=null;save(g)}
+  const c=g.discard.pop();g.hands[me].push(c);g.phase='discard';g.last={p:me,act:'take',card:c};g.moves++;newCard=c;newAt=Date.now();sel=null;save(g)}
 function discard(){if(!myTurn()||G.phase!=='discard'||!sel)return;const g=clone(G);
   g.hands[me]=g.hands[me].filter(c=>c!==sel);g.discard.push(sel);g.last={...g.last,p:me,act:g.last&&g.last.p===me?g.last.act:'draw',threw:sel};
   g.turn=next(me);g.phase='draw';g.moves++;const s=sel;sel=null;newCard=null;save(g).then(ok=>{if(ok)toast(`You threw away ${lbl(s)}`)})}
@@ -312,7 +314,7 @@ function announce(prev,g){
   checkChat(g);
   if(!g||me==null)return;
   if(g.status==='done'&&resultShown!==g.id){resultShown=g.id;showResult(g);if(g.result.winner===me)burst(true);return}
-  if(!prev||prev.id!==g.id){if(g.last&&g.last.act==='deal'){dealt=true;if(prev)toast(g.starter===me?'New game! You go first':`New game! ${names[g.starter]} goes first`)}return}
+  if(!prev||prev.id!==g.id){if(g.last&&g.last.act==='deal'){if(Date.now()-dealAt>1500){dealt=true;dealAt=Date.now()}if(prev)toast(g.starter===me?'New game! You go first':`New game! ${names[g.starter]} goes first`)}return}
   const L=g.last;if(L&&L.p!=null&&L.p!==me&&L.threw&&g.phase==='draw'&&prev.moves!==g.moves&&prev.turn!==g.turn){
     toast(`${names[L.p]} ${L.act==='take'?'took '+lbl(L.card)+' from the pile':'drew from the deck'} and threw away ${lbl(L.threw)}`);
     pulse('#disccard')}}
@@ -331,8 +333,10 @@ function arranged(cards){
   const g0={};R.analyse(cards).melds.forEach((m,i)=>m.cards.forEach(c=>{g0[c]=i}));
   if(arrange==='suit'||arrange==='rank')return{order:R.sortCards(cards,arrange),groups:{},groups0:g0};
   const a=R.analyse(cards),order=[],groups={};
-  a.melds.forEach((m,i)=>{R.sortCards(m.cards,m.type==='run'?'suit':'rank').forEach(c=>{order.push(c);groups[c]=i})});
-  R.sortCards(a.deadwood,'suit').forEach(c=>order.push(c));return{order,groups,groups0:g0}}
+  a.melds.forEach((m,i)=>{hiFirst(m.cards).forEach(c=>{order.push(c);groups[c]=i})});
+  hiFirst(a.deadwood).forEach(c=>order.push(c));return{order,groups,groups0:g0}}
+// highest card on the left, cards of a suit kept together
+const SO={S:0,H:1,C:2,D:3},hiFirst=cards=>cards.slice().sort((a,b)=>SO[R.suit(a)]-SO[R.suit(b)]||R.rank(b)-R.rank(a));
 const PW=()=>innerHeight<620?44:innerHeight<760||innerWidth<600?68:84;
 const LOAD_LINES=[["Shuffling the deck…", "Riffle, bridge, repeat."], ["Dealing you in…", "Face down, no peeking."], ["Finding your seat…", "The chair with the best view of the discard pile."], ["Polishing the felt…", "Only the finest green for this table."], ["Counting to 52…", "Twice, just to be sure."], ["Cutting the deck…", "Somewhere lucky, hopefully."], ["Lining up the runs…", "Four in a row, if the cards allow."], ["Warming up the cards…", "Cold cards make bad hands."], ["Hiding the jokers…", "This table doesn’t use them anyway."], ["Setting out the discard pile…", "Someone’s about to regret a card."], ["Straightening the stack…", "Corners square, edges neat."], ["Checking for card sharks…", "Just friends at this table. Good."]];
 let loadI=Math.floor(Math.random()*LOAD_LINES.length),loadT=null;
@@ -359,13 +363,13 @@ function render(){
     const avail=(Math.min(innerWidth,900)-28)/(half?2:1)-(half?10:32);
     const bw=Math.max(half?20:26,Math.min(innerHeight<620?30:innerHeight<760?36:48,Math.floor(avail/(m*0.55+1))-(half?4:0)));
     const pa=Math.min(4,30/Math.max(m-1,1));
-    $('#bk'+o).innerHTML=opp.map((_,i)=>backHTML(bw,(-(i-(m-1)/2)*pa).toFixed(2))).join('');
+    setH($('#bk'+o),opp.map((_,i)=>backHTML(bw,(-(i-(m-1)/2)*pa).toFixed(2))).join(''));
     $('#bk'+o).style.setProperty('--ov',`${-Math.round(bw*.62)}px`)});
   const canDraw=myTurn()&&G.phase==='draw';
   $('#deck').classList.toggle('can',canDraw);$('#disc').classList.toggle('can',canDraw&&G.discard.length>0);
   $('#deck').setAttribute('aria-disabled',String(!canDraw));$('#disc').setAttribute('aria-disabled',String(!canDraw||!G.discard.length));
-  $('#deckcard').innerHTML=G.deck.length?`<span class="card back k deck" style="--s:'✦';--cw:${PW()}px"></span>`:`<span class="card empty" style="--cw:${PW()}px"></span>`;$('#deckn').textContent=`Deck · ${G.deck.length}`;
-  const top=G.discard[G.discard.length-1];$('#disccard').innerHTML=top?cardHTML(top,'',PW()):`<span class="card empty" style="--cw:${PW()}px"></span>`;
+  setH($('#deckcard'),G.deck.length?`<span class="card back k deck" style="--s:'✦';--cw:${PW()}px"></span>`:`<span class="card empty" style="--cw:${PW()}px"></span>`);$('#deckn').textContent=`Deck · ${G.deck.length}`;
+  const top=G.discard[G.discard.length-1];setH($('#disccard'),top?cardHTML(top,'',PW()):`<span class="card empty" style="--cw:${PW()}px"></span>`);
   $('#disc').setAttribute('aria-label',top?`Take ${lbl(top)} from the discard pile`:'Discard pile is empty');
   // prompt
   let p='';
@@ -377,9 +381,10 @@ function render(){
   const order=myOrder(hand);const W=Math.min(innerWidth,900)-28-Math.min(48,innerWidth*.08),n=order.length||1;
   const cw=Math.max(48,Math.min(innerHeight<620?60:innerHeight<760?70:88,Math.floor(W/4.8))),per=Math.min(6,52/Math.max(n-1,1)),maxA=per*(n-1)/2*Math.PI/180,rad=cw*1.42*1.15,
     step=n>1?Math.max(14,Math.min(cw*.62,(W-cw*1.45-2*rad*Math.sin(maxA))/(n-1))):0,ml=step-cw;
-  $('#hand').innerHTML=order.map((c,i)=>{const cls=[c===sel?'sel':'',c===newCard?'new':'',dealt?'deal':''].join(' ');
-    return cardHTML(c,cls,cw,`--rot:${((i-(n-1)/2)*per).toFixed(2)}deg;margin-left:${i?ml:0}px;${dealt?`animation-delay:${i*60}ms;`:''}`,'button')}).join('');
-  dealt=false;
+  // the arrival and dealing animations stay in the markup only while they play, so the redraw after the sheet replies matches
+  const now=Date.now(),isNew=c=>c===newCard&&now-newAt<700,dealing=dealt&&now-dealAt<1400;if(!dealing)dealt=false;
+  setH($('#hand'),order.map((c,i)=>{const cls=[c===sel?'sel':'',isNew(c)?'new':'',dealing?'deal':''].join(' ');
+    return cardHTML(c,cls,cw,`--rot:${((i-(n-1)/2)*per).toFixed(2)}deg;margin-left:${i?ml:0}px;${dealing?`animation-delay:${i*60}ms;`:''}`,'button')}).join(''));
   const a=R.analyse(hand.length===11&&sel?hand.filter(c=>c!==sel):hand);
   $('#info').innerHTML=hand.length?`<b>${a.points}</b> points if caught`:'';
   const canDisc=myTurn()&&G.phase==='discard';
@@ -387,7 +392,7 @@ function render(){
   const ro=canDisc?R.rummyDiscards(hand):[];$('#rummy').disabled=!ro.length;
   $('#rummy').textContent=ro.length?`Call Rummy!${ro.length===1||!ro.includes(sel)?` (throw ${lbl(ro.includes(sel)?sel:ro[0])})`:''}`:'Call Rummy!';
 }
-function groupsHTML(melds,dead){const s=innerHeight<760?30:40;return melds.map(m=>`<span class="grp">${m.map(c=>cardHTML(c,'',s)).join('')}</span>`).join('')+(dead.length?`<span class="grp dead">${dead.map(c=>cardHTML(c,'',s)).join('')}</span>`:'')}
+function groupsHTML(melds,dead){const s=innerHeight<760?30:40;return melds.map(m=>`<span class="grp">${hiFirst(m).map(c=>cardHTML(c,'',s)).join('')}</span>`).join('')+(dead.length?`<span class="grp dead">${hiFirst(dead).map(c=>cardHTML(c,'',s)).join('')}</span>`:'')}
 function showResult(g){const w=g.result.winner,n=g.hands.length,losers=[];for(let k=1;k<n;k++)losers.push((w+k)%n);
   const hr=g.result.hasRun||{},why=p=>(typeof hr==='object'?hr[p]:hr)?'melds don’t count thanks to a run of 4':'no run of 4, so every card counts';
   $('#rt').textContent=w===me?'You called Rummy!':`${names[w]} called Rummy`;
@@ -457,7 +462,7 @@ $('#hand').addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)re
   drag.cards.forEach((x,i)=>{if(x===drag.el)return;let s=0;if(drag.from<to&&i>drag.from&&i<=to)s=-drag.step;if(drag.from>to&&i>=to&&i<drag.from)s=drag.step;x.style.transform=s?`translateX(${s}px) rotate(var(--rot,0deg))`:''})});
 function endDrag(e){if(!drag||(e&&e.pointerId!==drag.id))return;const d=drag;drag=null;$('#hand').classList.remove('is-dragging');
   if(!d.on)return;justDragged=true;setTimeout(()=>justDragged=false,50);
-  const o=myOrder(G.hands[me]||[]).filter(c=>c!==d.c);o.splice(d.to,0,d.c);ls.set(ordKey(),o);render()}
+  const o=myOrder(G.hands[me]||[]).filter(c=>c!==d.c);o.splice(d.to,0,d.c);ls.set(ordKey(),o);$('#hand').__h=null;render()}
 $('#hand').addEventListener('pointerup',endDrag);$('#hand').addEventListener('pointercancel',endDrag);
 $('#radd').onclick=addToScoreboard;$('#rclose').onclick=()=>{$('#rdlg').hidden=true};$('#ragain').onclick=()=>{$('#rdlg').hidden=true;deal()};
 $('#newgame').onclick=()=>{if(G&&G.status==='playing')$('#ndlg').hidden=false;else deal()};
